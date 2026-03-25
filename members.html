@@ -1035,6 +1035,8 @@
   .ai-tool-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid rgba(10,26,62,0.1); }
   .ai-tab-btn { padding: 0.6rem 1.2rem; background: none; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
   .ai-tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
+  .ai-tab-btn.coming-soon { cursor: default; opacity: 0.5; position: relative; }
+  .ai-tab-btn.coming-soon .soon-badge { font-size: 0.62rem; background: var(--gold); color: var(--navy); border-radius: 3px; padding: 0.1rem 0.35rem; margin-left: 0.4rem; font-weight: 700; vertical-align: middle; }
   .ai-tab-panel { display: none; }
   .ai-tab-panel.active { display: block; }
   .ai-form-group { margin-bottom: 1rem; }
@@ -1527,8 +1529,8 @@
       <!-- タブ切り替え -->
       <div class="ai-tool-tabs">
         <button class="ai-tab-btn active" data-tab="es-review">📝 ES添削</button>
-        <button class="ai-tab-btn" data-tab="interview-coach">🎤 面接練習</button>
-        <button class="ai-tab-btn" data-tab="es-rewrite">🔄 ES流用</button>
+        <button class="ai-tab-btn coming-soon" disabled>🎤 面接練習<span class="soon-badge">近日公開</span></button>
+        <button class="ai-tab-btn coming-soon" disabled>🔄 ES流用<span class="soon-badge">近日公開</span></button>
       </div>
 
       <!-- ─── タブ1: ES自動添削 ─── -->
