@@ -1,0 +1,3703 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会員ページ ｜ 慶應就活ナビ</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1a3e;
+    --crimson: #c0001a;
+    --gold: #c9a84c;
+    --gold-light: #e8c96c;
+    --cream: #faf7f2;
+    --gray: #f4f1ec;
+    --text: #1a1a2e;
+    --text-muted: #6b6b7e;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--cream); color: var(--text); }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5vw; height: 68px;
+    background: rgba(10,26,62,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.25);
+  }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold-light); text-decoration: none; }
+  .nav-back { font-size: 0.8rem; color: rgba(255,255,255,0.6); text-decoration: none; letter-spacing: 0.06em; transition: color 0.2s; }
+  .nav-back:hover { color: var(--gold-light); }
+  .nav-member-badge {
+    font-size: 0.68rem; background: rgba(201,168,76,0.15); color: var(--gold);
+    padding: 0.2rem 0.7rem; border: 1px solid rgba(201,168,76,0.3); letter-spacing: 0.1em;
+  }
+
+  /* ===== PASSWORD SCREEN ===== */
+  #password-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--navy); padding: 2rem;
+  }
+  .pw-box {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.2);
+    padding: 3rem 2.5rem; max-width: 420px; width: 100%; text-align: center;
+    position: relative;
+  }
+  .pw-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--gold));
+  }
+  .pw-icon { font-size: 2rem; margin-bottom: 1.2rem; }
+  .pw-title { font-family: 'Noto Serif JP', serif; font-size: 1.3rem; color: var(--white); margin-bottom: 0.5rem; }
+  .pw-sub { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 2rem; line-height: 1.8; }
+  .pw-input {
+    width: 100%; padding: 0.85rem 1rem; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15); color: var(--white);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 1rem;
+    text-align: center; letter-spacing: 0.2em; outline: none;
+    transition: border-color 0.2s; margin-bottom: 1rem;
+  }
+  .pw-input:focus { border-color: var(--gold); }
+  .pw-btn {
+    display: block;
+    width: 100%; padding: 0.9rem; background: var(--navy);
+    border: 1px solid rgba(201,168,76,0.4); color: var(--gold-light);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem;
+    font-weight: 500; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .pw-btn:hover { background: rgba(201,168,76,0.1); }
+  .pw-error { font-size: 0.78rem; color: var(--crimson); margin-top: 0.8rem; min-height: 1.2em; }
+  .gate-actions { display: grid; gap: 0.75rem; }
+  .pw-link-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: rgba(255,255,255,0.72);
+    text-decoration: none; padding: 0.85rem 1rem;
+    border: 1px solid rgba(255,255,255,0.14); transition: all 0.2s;
+  }
+  .pw-link-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  /* ===== MEMBERS CONTENT ===== */
+  #members-content { display: none; padding-top: 68px; }
+
+  /* ===== HERO ===== */
+  .members-hero {
+    background: var(--navy); padding: 60px 5vw 50px;
+    border-bottom: 1px solid rgba(201,168,76,0.15); position: relative; overflow: hidden;
+  }
+  .members-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 40% 80% at 90% 50%, rgba(192,0,26,0.1) 0%, transparent 70%);
+  }
+  .members-hero-inner { max-width: 1200px; margin: 0 auto; position: relative; }
+  .members-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    border: 1px solid rgba(201,168,76,0.4); padding: 0.3rem 0.9rem;
+    font-size: 0.68rem; color: var(--gold); letter-spacing: 0.15em; font-weight: 600;
+    margin-bottom: 1.2rem;
+  }
+  .members-hero h1 { font-family: 'Noto Serif JP', serif; font-size: 1.8rem; color: var(--white); margin-bottom: 0.5rem; }
+  .members-hero p { font-size: 0.85rem; color: rgba(255,255,255,0.45); }
+
+  /* ===== MAIN LAYOUT ===== */
+  .members-main { max-width: 1200px; margin: 0 auto; padding: 3rem 5vw 6rem; }
+
+  /* ===== SECTION ===== */
+  .m-section { margin-bottom: 4rem; }
+  .m-section-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem; padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(10,26,62,0.1);
+  }
+  .m-section-icon {
+    width: 36px; height: 36px; background: var(--navy);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .m-section-icon svg { width: 16px; height: 16px; }
+  .m-section-title { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--navy); font-weight: 700; }
+  .m-section-label { font-size: 0.68rem; color: var(--crimson); letter-spacing: 0.15em; font-weight: 700; }
+
+  .submit-selection-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 1.2rem; background: transparent;
+    border: 1px solid rgba(10,26,62,0.2); color: var(--navy);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.05em;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .submit-selection-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* ===== DEADLINE ALERT BANNER ===== */
+  .deadline-alert {
+    display: none;
+    background: var(--crimson); padding: 0.75rem 1.5rem;
+    cursor: pointer; transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .deadline-alert:hover { background: #e8001f; }
+  .deadline-alert-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .deadline-alert-title { font-size: 0.82rem; color: white; font-weight: 700; }
+  .deadline-alert-companies { font-size: 0.7rem; color: rgba(255,255,255,0.75); margin-top: 0.15rem; line-height: 1.6; }
+  .deadline-alert-right { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
+  .deadline-alert-link { font-size: 0.72rem; color: rgba(255,255,255,0.8); white-space: nowrap; }
+  .deadline-alert-dismiss { background: none; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); font-size: 0.65rem; padding: 0.15rem 0.5rem; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+  .deadline-alert-dismiss:hover { background: rgba(255,255,255,0.1); }
+
+  /* ===== WEEKLY DEADLINE BANNER ===== */
+  .deadline-banner {
+    background: var(--navy); border-left: 4px solid var(--crimson);
+    padding: 1rem 1.5rem; margin-bottom: 1px; display: none;
+  }
+  .deadline-banner-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+  .deadline-banner-label {
+    font-size: 0.65rem; color: var(--crimson); font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+  .deadline-banner-title {
+    font-size: 0.82rem; color: rgba(255,255,255,0.9); font-weight: 600;
+  }
+  .deadline-banner-list {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .deadline-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.8rem; background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12); font-size: 0.75rem;
+    color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .deadline-chip:hover { background: rgba(255,255,255,0.15); border-color: var(--gold); color: var(--gold); }
+  .deadline-chip-days { font-size: 0.65rem; color: var(--crimson); font-weight: 700; }
+  .deadline-chip-days.today { color: #ff6b6b; }
+
+  /* ===== PAGINATION ===== */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.8rem 1rem; background: white;
+    border-top: 1px solid rgba(10,26,62,0.08);
+    font-size: 0.78rem;
+  }
+  .pagination-info { color: var(--text-muted); }
+  .pagination-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .pagination-btn {
+    padding: 0.3rem 0.7rem; border: 1px solid rgba(10,26,62,0.15);
+    background: white; color: var(--navy); cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.75rem;
+    font-weight: 600; transition: all 0.15s; min-width: 34px; text-align: center;
+  }
+  .pagination-btn:hover:not(:disabled) { background: var(--navy); color: white; border-color: var(--navy); }
+  .pagination-btn:disabled { opacity: 0.3; cursor: default; }
+  .pagination-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* ===== SELECTION INFO TABLE ===== */
+  .selection-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .selection-row {
+    display: grid; grid-template-columns: 1fr 100px 120px 80px;
+    align-items: center; gap: 1.5rem; padding: 1.2rem 1.5rem;
+    background: var(--white); transition: background 0.2s;
+  }
+  .selection-row:hover { background: #f8f5f0; }
+  .selection-row.header {
+    background: var(--navy); padding: 0.7rem 1.5rem;
+  }
+  .selection-row.header span { font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; font-weight: 600; }
+  .sel-company { font-weight: 700; font-size: 0.92rem; color: var(--navy); }
+  .sel-type { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .sel-deadline { font-size: 0.82rem; color: var(--text); }
+  .sel-tag {
+    font-size: 0.65rem; padding: 0.2rem 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+    display: inline-block; text-align: center;
+  }
+  .tag-intern { background: rgba(201,168,76,0.15); color: #8a6d1a; }
+  .tag-honsen { background: rgba(192,0,26,0.08); color: var(--crimson); }
+  .sel-link { font-size: 0.78rem; color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
+  .feature-btn { border-color: rgba(192,0,26,0.3); color: var(--crimson); }
+  .feature-btn:hover, .feature-btn.active { background: var(--crimson); border-color: var(--crimson); color: white; }
+
+  /* ===== INDUSTRY FILTER ===== */
+  .industry-filter {
+    display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem;
+  }
+  .industry-btn {
+    padding: 0.35rem 0.9rem; font-size: 0.72rem; font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500; letter-spacing: 0.05em; border: 1px solid rgba(10,26,62,0.2);
+    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+    border-radius: 0;
+  }
+  .industry-btn:hover { background: var(--navy); border-color: var(--navy); color: white; }
+  .industry-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+  .sort-row {
+    display: flex; align-items: center; justify-content: flex-end;
+    margin-bottom: 0.6rem;
+  }
+  .sort-btn {
+    font-size: 0.72rem; color: var(--text-muted); background: none; border: none;
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 0.3rem; transition: color 0.2s;
+  }
+  .sort-btn:hover, .sort-btn.active { color: var(--navy); font-weight: 700; }
+  .sel-deadline.urgent { color: var(--crimson); font-weight: 700; }
+
+  /* ===== APPLICATION STATUS ===== */
+  .sel-status-select {
+    font-size: 0.68rem; padding: 0.2rem 0.45rem; margin-top: 0.35rem;
+    border: 1px solid rgba(10,26,62,0.18); background: white;
+    color: var(--text-muted); cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    outline: none; max-width: 130px;
+  }
+  .sel-status-select.st-applied  { border-color: var(--gold); color: #8a6d1a; background: rgba(201,168,76,0.08); }
+  .sel-status-select.st-passed   { border-color: #0057c2; color: #0057c2; background: rgba(0,87,194,0.06); }
+  .sel-status-select.st-interview{ border-color: #7b2fbe; color: #7b2fbe; background: rgba(123,47,190,0.06); }
+  .sel-status-select.st-offer    { border-color: #00703c; color: #00703c; background: rgba(0,112,60,0.08); }
+  .sel-status-select.st-rejected { border-color: var(--crimson); color: var(--crimson); background: rgba(192,0,26,0.05); }
+
+  /* ===== MODAL MEMO ===== */
+  .modal-memo {
+    width: 100%; padding: 0.75rem 1rem; font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem; color: var(--text); line-height: 1.7;
+    border: 1px solid rgba(10,26,62,0.15); background: white;
+    resize: vertical; min-height: 80px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-memo:focus { border-color: var(--navy); }
+  .modal-memo-saved { font-size: 0.65rem; color: #00703c; margin-top: 0.3rem; height: 1em; }
+
+  /* ===== EVENTS PRIORITY ===== */
+  .priority-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .priority-row {
+    display: grid; grid-template-columns: 90px 1fr auto;
+    align-items: center; gap: 1.5rem; padding: 1.2rem 1.5rem;
+    background: var(--white); border-left: 3px solid var(--gold);
+    transition: background 0.2s;
+  }
+  .priority-row:hover { background: #f8f5f0; }
+  .priority-date-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--navy); line-height: 1; }
+  .priority-date-month { font-size: 0.65rem; color: var(--crimson); font-weight: 700; letter-spacing: 0.1em; }
+  .priority-title { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: var(--navy); font-weight: 700; margin-bottom: 0.25rem; }
+  .priority-meta { font-size: 0.78rem; color: var(--text-muted); }
+  .priority-badge {
+    font-size: 0.62rem; background: var(--gold); color: var(--navy);
+    padding: 0.2rem 0.6rem; font-weight: 700; letter-spacing: 0.08em; white-space: nowrap;
+  }
+
+  /* ===== FILES ===== */
+  .files-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(10,26,62,0.08); }
+  .file-card {
+    background: var(--white); padding: 1.5rem;
+    transition: background 0.2s; text-decoration: none;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .file-card:hover { background: #f8f5f0; }
+  .file-icon { font-size: 1.5rem; }
+  .file-name { font-size: 0.88rem; color: var(--navy); font-weight: 700; line-height: 1.5; }
+  .file-meta { font-size: 0.72rem; color: var(--text-muted); }
+  .file-link { font-size: 0.75rem; color: var(--crimson); margin-top: auto; }
+
+  /* ===== COMPANY NOTE MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(10,26,62,0.7); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--cream); max-width: 680px; width: 100%;
+    max-height: 85vh; overflow-y: auto; position: relative;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .modal-header {
+    position: sticky; top: 0; background: var(--navy);
+    padding: 1.2rem 1.5rem; display: flex; align-items: center;
+    justify-content: space-between; gap: 1rem; z-index: 1;
+  }
+  .modal-company-name { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--white); font-weight: 700; }
+  .modal-industry { font-size: 0.72rem; color: var(--gold); letter-spacing: 0.1em; margin-top: 0.2rem; }
+  .modal-close {
+    background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6);
+    width: 32px; height: 32px; font-size: 1rem; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .modal-close:hover { border-color: var(--crimson); color: var(--crimson); }
+  .modal-body { padding: 1.8rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .modal-field {}
+  .modal-field-label {
+    font-size: 0.65rem; color: var(--crimson); font-weight: 700;
+    letter-spacing: 0.15em; margin-bottom: 0.5rem;
+  }
+  .modal-field-content {
+    font-size: 0.88rem; color: var(--text); line-height: 1.8;
+    white-space: pre-wrap; background: white; padding: 0.8rem 1rem;
+    border-left: 2px solid rgba(201,168,76,0.3);
+  }
+  .modal-field-empty { color: var(--text-muted); font-style: italic; }
+  .modal-url { font-size: 0.82rem; color: var(--navy); word-break: break-all; text-decoration: underline; text-underline-offset: 3px; }
+  .modal-no-data {
+    text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.88rem;
+  }
+  .event-row.has-note { cursor: pointer; }
+  .event-row.has-note:hover { background: #f0ede6; }
+  .note-badge {
+    font-size: 0.62rem; padding: 0.15rem 0.5rem; background: rgba(10,26,62,0.08);
+    color: var(--navy); border: 1px solid rgba(10,26,62,0.15); font-weight: 600;
+    letter-spacing: 0.05em; white-space: nowrap;
+  }
+
+  /* ===== QUIZ ===== */
+  .quiz-box {
+    background: var(--white); border: 1px solid rgba(10,26,62,0.08); padding: 2.5rem;
+  }
+  .quiz-start { text-align: center; }
+  .quiz-start-desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .quiz-start-btn {
+    padding: 0.8rem 2rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.08em; transition: background 0.2s;
+  }
+  .quiz-start-btn:hover { background: var(--crimson); }
+  .quiz-score-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(10,26,62,0.08);
+  }
+  .quiz-score { font-size: 0.8rem; color: var(--text-muted); }
+  .quiz-score strong { color: var(--navy); font-size: 1rem; }
+  .quiz-skip-btn {
+    font-size: 0.72rem; color: var(--text-muted); background: none; border: none;
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; text-decoration: underline;
+  }
+  .quiz-hints { margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .quiz-hint {
+    padding: 0.8rem 1.2rem; background: var(--gray);
+    border-left: 3px solid var(--gold);
+  }
+  .quiz-hint-label { font-size: 0.62rem; color: var(--crimson); font-weight: 700; letter-spacing: 0.12em; margin-bottom: 0.3rem; }
+  .quiz-hint-text { font-size: 0.85rem; color: var(--text); line-height: 1.7; }
+  .quiz-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.5rem; }
+  .quiz-choice {
+    padding: 0.9rem 1rem; background: white; border: 1px solid rgba(10,26,62,0.15);
+    font-family: 'Noto Serif JP', serif; font-size: 0.88rem; color: var(--navy);
+    cursor: pointer; text-align: left; transition: all 0.15s; font-weight: 600;
+  }
+  .quiz-choice:hover { background: rgba(10,26,62,0.05); border-color: var(--navy); }
+  .quiz-choice.correct { background: rgba(0,160,80,0.1); border-color: #00703c; color: #00703c; }
+  .quiz-choice.wrong { background: rgba(192,0,26,0.08); border-color: var(--crimson); color: var(--crimson); }
+  .quiz-choice.reveal { background: rgba(0,160,80,0.06); border-color: #00703c; color: #00703c; }
+  .quiz-choice:disabled { cursor: default; }
+  .quiz-result {
+    text-align: center; padding: 1.2rem; margin-bottom: 1rem;
+    font-size: 1rem; font-weight: 700; font-family: 'Noto Serif JP', serif;
+  }
+  .quiz-result.correct { color: #00703c; background: rgba(0,160,80,0.08); }
+  .quiz-result.wrong { color: var(--crimson); background: rgba(192,0,26,0.05); }
+  .quiz-next-btn {
+    width: 100%; padding: 0.8rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s;
+  }
+  .quiz-next-btn:hover { background: var(--crimson); }
+  .quiz-finish { text-align: center; padding: 1rem 0; }
+  .quiz-finish-score { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--navy); line-height: 1; margin-bottom: 0.5rem; }
+  .quiz-finish-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  @media (max-width: 500px) { .quiz-choices { grid-template-columns: 1fr; } }
+
+  /* ===== NOTICE ===== */
+  .notice-section { margin-bottom: 2.5rem; display: none; }
+  .notice-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.65rem; color: var(--navy); letter-spacing: 0.12em;
+    font-weight: 700; margin-bottom: 0.5rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid rgba(10,26,62,0.1);
+  }
+  .notice-header-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--crimson);
+    animation: noticePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes noticePulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  .notice-item {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 1rem 1.5rem; background: white;
+    border-left: 3px solid var(--navy);
+    margin-bottom: 1px;
+  }
+  .notice-item.tag-important { border-left-color: var(--crimson); background: rgba(192,0,26,0.03); }
+  .notice-item.tag-event { border-left-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .notice-tag {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 0.2rem 0.5rem; white-space: nowrap; flex-shrink: 0; margin-top: 0.15rem;
+  }
+  .notice-tag.tag-important { background: rgba(192,0,26,0.1); color: var(--crimson); }
+  .notice-tag.tag-event { background: rgba(201,168,76,0.15); color: #8a6d1a; }
+  .notice-tag.tag-normal { background: rgba(10,26,62,0.07); color: var(--navy); }
+  .notice-date { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; margin-top: 0.2rem; }
+  .notice-body { flex: 1; }
+  .notice-title { font-size: 0.88rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
+  .notice-content { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+
+  @keyframes genSpin { to { transform: rotate(360deg); } }
+
+  /* ===== スクロールトップボタン ===== */
+  .scroll-top-btn {
+    position: fixed; right: 1.4rem; bottom: 1.6rem; z-index: 150;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--navy); border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-light); font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 16px rgba(10,26,62,0.35);
+  }
+  .scroll-top-btn.visible { opacity: 1; pointer-events: auto; }
+  .scroll-top-btn:hover { background: var(--crimson); transform: translateY(-2px); }
+  /* ===== COMPANY NOTES SEARCH ===== */
+  .company-search-wrap { margin-bottom: 1rem; }
+  .company-search-input {
+    width: 100%; padding: 0.85rem 1.2rem;
+    border: 1px solid rgba(10,26,62,0.2); background: white;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .company-search-input:focus { border-color: var(--navy); }
+  .company-notes-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: rgba(10,26,62,0.08);
+  }
+  .company-note-card {
+    background: white; padding: 1.3rem 1.5rem;
+    cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent;
+  }
+  .company-note-card:hover { background: #f8f5f0; border-left-color: var(--gold); }
+  .company-note-card-name { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+  .company-note-card-industry { font-size: 0.72rem; color: var(--gold); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .company-note-card-preview { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .company-note-card-arrow { font-size: 0.72rem; color: var(--navy); margin-top: 0.6rem; }
+  @media (max-width: 760px) { .company-notes-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 500px) { .company-notes-grid { grid-template-columns: 1fr; } }
+
+  /* ===== CORPORATE EVENT LIST ===== */
+  .event-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .event-row {
+    display: grid; grid-template-columns: 110px 1fr auto;
+    align-items: center; gap: 1.5rem; padding: 1.2rem 1.5rem;
+    background: var(--white); transition: background 0.2s;
+  }
+  .event-row:hover { background: #f8f5f0; }
+  .event-row.header { background: var(--navy); padding: 0.7rem 1.5rem; }
+  .event-row.header span { font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; font-weight: 600; }
+  .event-date-block { display: flex; flex-direction: column; gap: 0.15rem; }
+  .event-date-main { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: var(--navy); font-weight: 700; }
+  .event-date-time { font-size: 0.72rem; color: var(--text-muted); }
+  .event-name { font-weight: 700; font-size: 0.92rem; color: var(--navy); margin-bottom: 0.2rem; }
+  .event-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .event-meta-item { display: flex; align-items: center; gap: 0.2rem; }
+  .event-benefit {
+    font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.6rem;
+    background: rgba(201,168,76,0.15); color: #8a6d1a;
+    border: 1px solid rgba(201,168,76,0.3); white-space: nowrap;
+  }
+  .event-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+  .event-apply-btn {
+    font-size: 0.75rem; font-weight: 600; padding: 0.45rem 1rem;
+    background: var(--navy); color: white; text-decoration: none;
+    letter-spacing: 0.05em; transition: background 0.2s; white-space: nowrap;
+  }
+  .event-apply-btn:hover { background: var(--crimson); }
+  .event-apply-btn.no-link { background: rgba(10,26,62,0.08); color: var(--text-muted); cursor: default; }
+
+  @media (max-width: 600px) {
+    .event-row { grid-template-columns: 1fr; gap: 0.8rem; }
+    .event-actions { align-items: flex-start; }
+  }
+
+  /* ===== BOOKS ===== */
+  .books-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(10,26,62,0.08); }
+  .book-card { background: var(--white); padding: 1.5rem; }
+  .book-title { font-family: 'Noto Serif JP', serif; font-size: 0.9rem; color: var(--navy); font-weight: 700; margin-bottom: 0.4rem; line-height: 1.5; }
+  .book-author { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+  .book-status {
+    display: inline-block; font-size: 0.68rem; font-weight: 700;
+    padding: 0.2rem 0.7rem; letter-spacing: 0.06em;
+  }
+  .book-available { background: rgba(0,160,80,0.1); color: #00703c; border: 1px solid rgba(0,160,80,0.25); }
+  .book-lending { background: rgba(192,0,26,0.08); color: var(--crimson); border: 1px solid rgba(192,0,26,0.2); }
+  .book-apply-btn {
+    display: inline-block; font-size: 0.75rem; font-weight: 600;
+    padding: 0.45rem 1rem; letter-spacing: 0.06em; text-decoration: none;
+    background: var(--navy); color: white; transition: background 0.2s;
+  }
+  .book-apply-btn:hover { background: var(--crimson); }
+  .book-apply-btn.disabled {
+    background: rgba(10,26,62,0.08); color: var(--text-muted); cursor: not-allowed;
+  }
+
+  /* ===== LOADING ===== */
+  .m-loading { text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 0.85rem; background: var(--white); }
+  .m-empty { text-align: center; padding: 2.5rem; color: var(--text-muted); font-size: 0.85rem; background: var(--white); line-height: 2; }
+  .m-empty-cta {
+    display: inline-block; margin-top: 0.8rem;
+    padding: 0.5rem 1.2rem; background: var(--navy); color: white;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+    text-decoration: none; transition: background 0.2s;
+  }
+  .m-empty-cta:hover { background: var(--crimson); color: white; }
+  .sheet-note { font-size: 0.7rem; color: rgba(10,26,62,0.3); text-align: right; margin-top: 0.8rem; }
+
+  /* ===== ONBOARDING ===== */
+  .onboarding-section {
+    background: var(--navy); padding: 1.8rem 2rem;
+    margin-bottom: 4rem; position: relative; overflow: hidden;
+  }
+  .onboarding-section::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--gold));
+  }
+  .onboarding-label {
+    font-size: 0.62rem; color: var(--gold); letter-spacing: 0.2em;
+    font-weight: 700; margin-bottom: 0.8rem;
+  }
+  .onboarding-title {
+    font-family: 'Noto Serif JP', serif; font-size: 1rem; color: var(--white);
+    margin-bottom: 1.2rem; font-weight: 700;
+  }
+  .onboarding-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+  .onboarding-step {
+    background: rgba(255,255,255,0.04); padding: 1.2rem 1.5rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+  }
+  .onboarding-step-num {
+    font-family: 'Playfair Display', serif; font-size: 2rem;
+    color: rgba(201,168,76,0.4); line-height: 1; flex-shrink: 0;
+  }
+  .onboarding-step-title {
+    font-size: 0.85rem; color: var(--white); font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .onboarding-step-desc {
+    font-size: 0.75rem; color: rgba(255,255,255,0.45); line-height: 1.7;
+  }
+  .onboarding-step-link {
+    display: inline-block; margin-top: 0.6rem; font-size: 0.72rem;
+    color: var(--gold); text-decoration: underline; text-underline-offset: 3px;
+  }
+  @media (max-width: 760px) {
+    .onboarding-steps { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .onboarding-steps { grid-template-columns: 1fr; }
+  }
+
+  /* ===== HAMBURGER (members) ===== */
+  .hamburger-m {
+    display: none; flex-direction: column; gap: 5px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .hamburger-m span {
+    display: block; width: 22px; height: 2px;
+    background: rgba(255,255,255,0.7); transition: all 0.3s;
+  }
+  .hamburger-m.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger-m.open span:nth-child(2) { opacity: 0; }
+  .hamburger-m.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu-m {
+    display: none; position: fixed;
+    top: 68px; left: 0; right: 0;
+    background: rgba(10,26,62,0.98); backdrop-filter: blur(12px);
+    z-index: 99; flex-direction: column;
+    padding: 1.2rem 5vw 1.8rem;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .mobile-menu-m.open { display: flex; }
+  .mobile-menu-m a, .mobile-menu-m button {
+    color: rgba(255,255,255,0.75); text-decoration: none;
+    font-size: 0.9rem; padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    letter-spacing: 0.04em; transition: color 0.2s;
+    background: none; border-top: none; border-left: none; border-right: none;
+    font-family: 'Noto Sans JP', sans-serif; cursor: pointer; text-align: left;
+  }
+  .mobile-menu-m a:hover, .mobile-menu-m button:hover { color: var(--gold-light); }
+
+  @media (max-width: 768px) {
+    .hamburger-m { display: flex; }
+    .nav-desktop-links { display: none; }
+  }
+
+  /* ===== LOGOUT ===== */
+  .logout-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
+    padding: 0.3rem 0.8rem; font-size: 0.72rem; font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.06em;
+  }
+  .logout-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+
+  @media (max-width: 760px) {
+    .files-grid, .books-grid { grid-template-columns: 1fr 1fr; }
+    .selection-row { grid-template-columns: 1fr 80px; }
+    .selection-row > :nth-child(3), .selection-row > :nth-child(4) { grid-column: 2; }
+    .priority-row { grid-template-columns: 60px 1fr; }
+    .priority-row > :nth-child(3) { grid-column: 2; }
+  }
+  @media (max-width: 500px) {
+    .files-grid, .books-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== PAST EXAMS ===== */
+  .exam-toolbar {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .exam-search {
+    flex: 1; min-width: 160px; max-width: 280px;
+    padding: 0.6rem 1rem;
+    border: 1px solid rgba(10,26,62,0.2); background: white;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.85rem; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .exam-search:focus { border-color: var(--navy); }
+  .exam-add-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.6rem 1.2rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.06em;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .exam-add-btn:hover { background: var(--crimson); }
+  .exam-faculty-filter {
+    display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.8rem;
+  }
+  .exam-faculty-btn {
+    padding: 0.3rem 0.8rem; font-size: 0.7rem;
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+    border: 1px solid rgba(10,26,62,0.2); background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .exam-faculty-btn:hover { background: var(--navy); border-color: var(--navy); color: white; }
+  .exam-faculty-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+  .exam-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .exam-row {
+    display: grid; grid-template-columns: 1fr auto auto;
+    align-items: center; gap: 1.2rem; padding: 1.1rem 1.5rem;
+    background: var(--white); transition: background 0.2s;
+  }
+  .exam-row:hover { background: #f8f5f0; }
+  .exam-subject { font-weight: 700; font-size: 0.9rem; color: var(--navy); margin-bottom: 0.25rem; }
+  .exam-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .exam-tag {
+    font-size: 0.62rem; padding: 0.15rem 0.5rem; font-weight: 700;
+    letter-spacing: 0.06em; white-space: nowrap;
+    background: rgba(10,26,62,0.07); color: var(--navy);
+    border: 1px solid rgba(10,26,62,0.12);
+  }
+  .exam-tag.type-final  { background: rgba(192,0,26,0.08); color: var(--crimson); border-color: rgba(192,0,26,0.2); }
+  .exam-tag.type-mid    { background: rgba(201,168,76,0.12); color: #8a6d1a; border-color: rgba(201,168,76,0.3); }
+  .exam-tag.type-report { background: rgba(0,87,194,0.08); color: #0057c2; border-color: rgba(0,87,194,0.2); }
+  .exam-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .exam-link-btn {
+    font-size: 0.72rem; padding: 0.35rem 0.8rem;
+    background: var(--navy); color: white; text-decoration: none;
+    letter-spacing: 0.04em; transition: background 0.2s; white-space: nowrap;
+  }
+  .exam-link-btn:hover { background: var(--crimson); }
+  .exam-memo-btn {
+    font-size: 0.72rem; padding: 0.35rem 0.8rem;
+    background: white; color: var(--navy);
+    border: 1px solid rgba(10,26,62,0.2);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .exam-memo-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+  .exam-delete-btn {
+    font-size: 0.68rem; padding: 0.3rem 0.6rem;
+    background: none; color: rgba(192,0,26,0.5);
+    border: 1px solid rgba(192,0,26,0.2);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s;
+  }
+  .exam-delete-btn:hover { background: var(--crimson); color: white; border-color: var(--crimson); }
+  .exam-contributor { font-size: 0.65rem; color: rgba(10,26,62,0.35); }
+  @media (max-width: 600px) {
+    .exam-row { grid-template-columns: 1fr; gap: 0.6rem; }
+    .exam-actions { justify-content: flex-start; }
+  }
+
+  /* ===== EXAM MODAL ===== */
+  .exam-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(10,26,62,0.7); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 2rem;
+  }
+  .exam-modal-overlay.open { display: flex; }
+  .exam-modal-box {
+    background: var(--cream); max-width: 560px; width: 100%;
+    max-height: 90vh; overflow-y: auto; position: relative;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .exam-modal-header {
+    position: sticky; top: 0; background: var(--navy);
+    padding: 1.1rem 1.5rem; display: flex; align-items: center;
+    justify-content: space-between; z-index: 1;
+  }
+  .exam-modal-title { font-family: 'Noto Serif JP', serif; font-size: 1rem; color: var(--white); font-weight: 700; }
+  .exam-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.1rem; }
+
+  /* ===== DASHBOARD / ACTIVITY / BADGE ===== */
+  .dashboard-widget {
+    background: var(--white); border-left: 3px solid var(--gold);
+    padding: 1.2rem 1.5rem; margin-bottom: 2.5rem;
+    display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between;
+  }
+  .dash-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .dash-stat { text-align: center; min-width: 50px; }
+  .dash-stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--navy); font-weight: 700; line-height: 1; }
+  .dash-stat-label { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 0.3rem; }
+  .dash-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+  .dash-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.25rem 0.7rem; background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.35); font-size: 0.67rem;
+    color: #7a5f10; font-weight: 700; letter-spacing: 0.04em;
+  }
+  .dash-badge-empty { font-size: 0.72rem; color: var(--text-muted); }
+  @media (max-width: 600px) { .dashboard-widget { gap: 1rem; } .dash-stats { gap: 1.2rem; } }
+
+  /* ===== PROGRESS TRACKER ===== */
+  .progress-toolbar { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
+  .progress-add-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.55rem 1.1rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; white-space: nowrap;
+  }
+  .progress-add-btn:hover { background: var(--crimson); }
+  .progress-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .progress-row { background: var(--white); padding: 1rem 1.5rem; transition: background 0.2s; }
+  .progress-row:hover { background: #faf7f2; }
+  .progress-row-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+  .progress-company { font-weight: 700; font-size: 0.9rem; color: var(--navy); font-family: 'Noto Serif JP', serif; }
+  .progress-industry { font-size: 0.68rem; color: var(--text-muted); }
+  .progress-del-btn { background: none; border: none; color: rgba(10,26,62,0.25); cursor: pointer; font-size: 0.75rem; padding: 0 0.3rem; transition: color 0.2s; }
+  .progress-del-btn:hover { color: var(--crimson); }
+  .progress-stages { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  .stage-chip {
+    font-size: 0.65rem; padding: 0.2rem 0.6rem; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.15s; user-select: none;
+  }
+  .stage-chip.done { background: var(--navy); color: white; border-color: var(--navy); }
+  .stage-chip.current { background: var(--crimson); color: white; border-color: var(--crimson); }
+  .stage-chip.pending { background: rgba(10,26,62,0.05); color: var(--text-muted); border-color: rgba(10,26,62,0.12); }
+  .progress-note-input {
+    margin-top: 0.6rem; width: 100%; padding: 0.45rem 0.8rem;
+    border: 1px solid rgba(10,26,62,0.15); background: var(--cream);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem; color: var(--text); outline: none;
+  }
+  .progress-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 250;
+    background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+  }
+  .progress-modal-overlay.open { display: flex; }
+  .progress-modal-box {
+    background: white; width: min(420px, 90vw); max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .progress-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .progress-modal-title { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: white; font-weight: 700; }
+  .progress-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+
+  /* ===== DEADLINE CALENDAR ===== */
+  .calendar-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+  .calendar-nav-btn {
+    background: none; border: 1px solid rgba(10,26,62,0.2); color: var(--navy);
+    width: 30px; height: 30px; cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
+  }
+  .calendar-nav-btn:hover { background: var(--navy); color: white; }
+  .calendar-month-label { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; font-weight: 700; color: var(--navy); min-width: 100px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(10,26,62,0.08); }
+  .calendar-dow { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 0.62rem; text-align: center; padding: 0.4rem 0; font-weight: 700; letter-spacing: 0.08em; }
+  .calendar-cell { background: var(--white); min-height: 52px; padding: 0.3rem; position: relative; }
+  .calendar-cell.other-month { background: rgba(10,26,62,0.02); }
+  .calendar-cell.today { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .calendar-cell-num { font-size: 0.68rem; color: rgba(10,26,62,0.4); font-weight: 700; }
+  .calendar-cell.today .calendar-cell-num { color: var(--crimson); font-weight: 900; }
+  .calendar-deadline { font-size: 0.58rem; color: white; background: var(--crimson); padding: 0.1rem 0.3rem; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .calendar-deadline.liked { background: var(--gold); color: var(--navy); }
+  @media (max-width: 600px) { .calendar-cell { min-height: 40px; } }
+
+  /* ===== ES添削ボード ===== */
+  .es-toolbar { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
+  .es-add-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.55rem 1.1rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; white-space: nowrap;
+  }
+  .es-add-btn:hover { background: var(--crimson); }
+  .es-list { display: flex; flex-direction: column; gap: 1px; background: rgba(10,26,62,0.08); }
+  .es-row {
+    background: var(--white); padding: 1rem 1.5rem; cursor: pointer;
+    transition: background 0.2s; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;
+  }
+  .es-row:hover { background: #faf7f2; }
+  .es-company { font-weight: 700; font-size: 0.88rem; color: var(--navy); font-family: 'Noto Serif JP', serif; }
+  .es-genre { font-size: 0.68rem; color: var(--gold); font-weight: 700; letter-spacing: 0.08em; margin-top: 0.2rem; }
+  .es-preview { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .es-meta { font-size: 0.65rem; color: rgba(10,26,62,0.35); margin-top: 0.5rem; }
+  .es-comment-count { display: inline-flex; align-items: center; gap: 0.25rem; background: rgba(201,168,76,0.12); color: #7a5f10; padding: 0.15rem 0.5rem; font-size: 0.65rem; font-weight: 700; }
+  .es-modal-overlay { display: none; position: fixed; inset: 0; z-index: 260; background: rgba(0,0,0,0.55); align-items: flex-end; justify-content: center; }
+  .es-modal-overlay.open { display: flex; }
+  .es-modal-box { background: white; width: min(600px, 100vw); max-height: 85vh; overflow-y: auto; }
+  .es-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .es-modal-title { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: white; font-weight: 700; }
+  .es-modal-body { padding: 1.5rem; }
+  .es-full-text { white-space: pre-wrap; font-size: 0.85rem; color: var(--text); line-height: 1.9; background: #faf7f2; padding: 1rem; border-left: 3px solid var(--gold); margin-bottom: 1.5rem; }
+  .es-comments { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+  .es-comment-item { background: rgba(10,26,62,0.03); padding: 0.7rem 1rem; border-left: 2px solid rgba(10,26,62,0.1); }
+  .es-comment-author { font-size: 0.65rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
+  .es-comment-text { font-size: 0.8rem; color: var(--text); line-height: 1.7; }
+  .es-comment-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .es-comment-input { flex: 1; min-width: 180px; padding: 0.6rem 0.8rem; border: 1px solid rgba(10,26,62,0.2); background: white; font-family: 'Noto Sans JP', sans-serif; font-size: 0.82rem; color: var(--text); outline: none; }
+  .es-comment-submit { padding: 0.6rem 1rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  /* ===== OB訪問マッチング ===== */
+  .ob-toolbar { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
+  .ob-register-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.55rem 1.1rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; white-space: nowrap;
+  }
+  .ob-register-btn:hover { background: var(--crimson); }
+  .ob-filter-wrap { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+  .ob-filter-btn { padding: 0.25rem 0.7rem; font-size: 0.7rem; border: 1px solid rgba(10,26,62,0.18); background: white; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans JP', sans-serif; }
+  .ob-filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+  .ob-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(10,26,62,0.08); }
+  .ob-card { background: var(--white); padding: 1.2rem 1.5rem; }
+  .ob-name { font-weight: 700; font-size: 0.88rem; color: var(--navy); font-family: 'Noto Serif JP', serif; }
+  .ob-company { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .ob-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .ob-tag { font-size: 0.62rem; padding: 0.15rem 0.5rem; background: rgba(10,26,62,0.06); color: var(--navy); }
+  .ob-contact-btn {
+    margin-top: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.8rem; border: 1px solid var(--navy); background: white;
+    color: var(--navy); font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s;
+  }
+  .ob-contact-btn:hover { background: var(--navy); color: white; }
+  .ob-available { display: inline-block; font-size: 0.6rem; padding: 0.1rem 0.4rem; background: rgba(0,160,80,0.1); color: #00703c; font-weight: 700; margin-left: 0.5rem; }
+  .ob-modal-overlay { display: none; position: fixed; inset: 0; z-index: 260; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+  .ob-modal-overlay.open { display: flex; }
+  .ob-modal-box { background: white; width: min(420px, 90vw); box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .ob-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .ob-modal-title { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: white; font-weight: 700; }
+  .ob-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  @media (max-width: 600px) { .ob-list { grid-template-columns: 1fr; } }
+
+  /* ===== スポンサー掲示板 ===== */
+  .sponsor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(10,26,62,0.08); }
+  .sponsor-card { background: var(--white); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .sponsor-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.2rem; }
+  .sponsor-name { font-family: 'Noto Serif JP', serif; font-size: 1rem; font-weight: 700; color: var(--navy); }
+  .sponsor-industry { font-size: 0.72rem; color: var(--text-muted); }
+  .sponsor-desc { font-size: 0.78rem; color: var(--text); line-height: 1.7; }
+  .sponsor-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem; }
+  .sponsor-tag { font-size: 0.62rem; padding: 0.15rem 0.5rem; background: rgba(192,0,26,0.07); color: var(--crimson); }
+  .sponsor-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 700; color: var(--navy); text-decoration: none; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid rgba(10,26,62,0.08); transition: color 0.2s; }
+  .sponsor-link:hover { color: var(--crimson); }
+  @media (max-width: 600px) { .sponsor-grid { grid-template-columns: 1fr; } }
+  .exam-field label {
+    display: block; font-size: 0.65rem; color: var(--crimson);
+    font-weight: 700; letter-spacing: 0.15em; margin-bottom: 0.4rem;
+  }
+  .exam-field input, .exam-field select, .exam-field textarea {
+    width: 100%; padding: 0.7rem 0.9rem;
+    border: 1px solid rgba(10,26,62,0.2); background: white;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .exam-field input:focus, .exam-field select:focus, .exam-field textarea:focus { border-color: var(--navy); }
+  .exam-field textarea { resize: vertical; min-height: 80px; line-height: 1.7; }
+  .exam-field-note { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.3rem; }
+  .exam-submit-btn {
+    width: 100%; padding: 0.85rem; background: var(--navy); color: white;
+    border: none; font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; letter-spacing: 0.08em; transition: background 0.2s;
+  }
+  .exam-submit-btn:hover { background: var(--crimson); }
+  .exam-submit-btn:disabled { background: rgba(10,26,62,0.3); cursor: not-allowed; }
+  .exam-form-error { font-size: 0.78rem; color: var(--crimson); min-height: 1em; }
+
+  /* ===== EXAM DETAIL MODAL ===== */
+  .exam-detail-overlay {
+    display: none; position: fixed; inset: 0; z-index: 210;
+    background: rgba(10,26,62,0.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 2rem;
+  }
+  .exam-detail-overlay.open { display: flex; }
+  .exam-detail-box {
+    background: var(--cream); max-width: 560px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  /* ===== STAGE SELECTOR ===== */
+  .stage-banner { background: var(--navy); padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; border-left: 4px solid var(--gold); }
+  .stage-banner-label { font-size: 0.72rem; color: var(--gold); letter-spacing: 0.12em; font-weight: 700; white-space: nowrap; }
+  .stage-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
+  .stage-select-btn { font-size: 0.72rem; padding: 0.3rem 0.8rem; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.65); background: none; cursor: pointer; font-family: 'Noto Sans JP',sans-serif; transition: all 0.15s; }
+  .stage-select-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+  .stage-select-btn.active { background: var(--gold); color: var(--navy); border-color: var(--gold); font-weight: 700; }
+
+  /* ===== DIFFICULTY STARS ===== */
+  .sel-difficulty { display: inline-flex; align-items: center; gap: 0.15rem; margin-left: 0.4rem; }
+  .diff-star { cursor: pointer; font-size: 0.82rem; color: rgba(10,26,62,0.15); transition: color 0.1s; }
+  .diff-star.filled { color: var(--gold); }
+  .diff-voted-label { font-size: 0.6rem; color: var(--text-muted); margin-left: 0.2rem; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist-progress-bar { height: 5px; background: rgba(10,26,62,0.08); margin-bottom: 0.3rem; }
+  .checklist-progress-fill { height: 100%; background: var(--navy); transition: width 0.3s ease; }
+  .checklist-progress-text { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 1.2rem; display: flex; justify-content: space-between; }
+  .checklist-group { margin-bottom: 1.5rem; }
+  .checklist-group-title { font-family: 'Noto Serif JP',serif; font-size: 0.82rem; font-weight: 700; color: var(--navy); border-bottom: 1px solid rgba(10,26,62,0.1); padding-bottom: 0.4rem; margin-bottom: 0.6rem; }
+  .checklist-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.45rem 0.3rem; border-bottom: 1px solid rgba(10,26,62,0.04); cursor: pointer; }
+  .checklist-item:hover { background: rgba(10,26,62,0.02); }
+  .checklist-box { width: 16px; height: 16px; border: 1.5px solid rgba(10,26,62,0.25); flex-shrink: 0; position: relative; background: white; }
+  .checklist-box.checked { background: var(--navy); border-color: var(--navy); }
+  .checklist-box.checked::after { content: '✓'; position: absolute; top: -1px; left: 2px; font-size: 0.65rem; color: white; font-weight: 700; }
+  .checklist-text { font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+  .checklist-text.checked { color: var(--text-muted); text-decoration: line-through; }
+
+  /* ===== SELF PR TOOL ===== */
+  .pr-step { border: 1px solid rgba(10,26,62,0.1); background: white; margin-bottom: 0.7rem; }
+  .pr-step-head { background: var(--navy); padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.6rem; }
+  .pr-step-letter { font-family: 'Playfair Display',serif; font-size: 1rem; color: var(--gold); font-weight: 700; }
+  .pr-step-name { font-size: 0.72rem; color: rgba(255,255,255,0.8); letter-spacing: 0.06em; }
+  .pr-step-hint { font-size: 0.65rem; color: rgba(255,255,255,0.45); margin-left: auto; }
+  .pr-step-body { padding: 0.6rem; }
+  .pr-textarea { width: 100%; padding: 0.5rem; border: 1px solid rgba(10,26,62,0.15); font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; line-height: 1.7; outline: none; resize: vertical; min-height: 52px; transition: border-color 0.2s; }
+  .pr-textarea:focus { border-color: var(--navy); }
+  .pr-preview-wrap { background: rgba(10,26,62,0.02); border: 1px solid rgba(10,26,62,0.08); border-left: 3px solid var(--navy); padding: 1rem 1.2rem; margin-bottom: 0.6rem; min-height: 60px; }
+  .pr-preview { font-size: 0.85rem; line-height: 1.9; white-space: pre-wrap; color: var(--text); }
+  .pr-char-count { font-size: 0.68rem; color: var(--text-muted); text-align: right; margin-bottom: 0.8rem; }
+  .pr-copy-btn { padding: 0.6rem 1.5rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; letter-spacing: 0.08em; transition: background 0.2s; }
+  .pr-copy-btn:hover { background: var(--crimson); }
+
+  /* ===== ES BOARD ===== */
+  .board-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .board-post-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; }
+  .board-post-btn:hover { background: var(--crimson); }
+  .board-card { background: white; border: 1px solid rgba(10,26,62,0.1); border-top: 3px solid var(--navy); padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+  .board-card-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+  .board-card-company { font-family: 'Noto Serif JP',serif; font-size: 0.9rem; font-weight: 700; color: var(--navy); }
+  .board-card-user { font-size: 0.65rem; color: var(--text-muted); }
+  .board-card-q { font-size: 0.75rem; font-weight: 700; color: var(--crimson); background: rgba(192,0,26,0.06); padding: 0.3rem 0.6rem; display: inline-block; margin-bottom: 0.5rem; }
+  .board-card-text { font-size: 0.82rem; line-height: 1.85; color: var(--text); margin-bottom: 0.8rem; white-space: pre-wrap; }
+  .board-comments { border-top: 1px solid rgba(10,26,62,0.07); padding-top: 0.7rem; }
+  .board-comment { font-size: 0.78rem; line-height: 1.7; padding: 0.35rem 0; border-bottom: 1px solid rgba(10,26,62,0.04); }
+  .board-comment-user { font-weight: 700; color: var(--navy); margin-right: 0.3rem; }
+  .board-comment-row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+  .board-comment-input { flex: 1; padding: 0.45rem 0.6rem; border: 1px solid rgba(10,26,62,0.15); font-family: 'Noto Sans JP',sans-serif; font-size: 0.78rem; outline: none; }
+  .board-comment-input:focus { border-color: var(--navy); }
+  .board-comment-submit { padding: 0.45rem 0.9rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.72rem; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .board-comment-submit:hover { background: var(--crimson); }
+  .board-modal-overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.55); align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+  .board-modal-overlay.open { display: flex; }
+  .board-modal-box { background: white; width: min(560px, 100%); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .board-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .board-modal-title { font-family: 'Noto Serif JP',serif; font-size: 0.95rem; color: white; font-weight: 700; }
+  .board-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .board-field-label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem; }
+  .board-field-input, .board-field-textarea { width: 100%; padding: 0.7rem; border: 1px solid rgba(10,26,62,0.2); font-family: 'Noto Sans JP',sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
+  .board-field-input:focus, .board-field-textarea:focus { border-color: var(--navy); }
+  .board-field-textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
+  .board-submit-btn { width: 100%; padding: 0.85rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; }
+  .board-submit-btn:hover { background: var(--crimson); }
+
+  /* ===== AI TOOLS ===== */
+  .ai-tool-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid rgba(10,26,62,0.1); }
+  .ai-tab-btn { padding: 0.6rem 1.2rem; background: none; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .ai-tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
+  .ai-tab-panel { display: none; }
+  .ai-tab-panel.active { display: block; }
+  .ai-form-group { margin-bottom: 1rem; }
+  .ai-label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; font-weight: 500; }
+  .ai-input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid rgba(10,26,62,0.18); background: white; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+  .ai-input:focus { border-color: var(--navy); }
+  .ai-textarea { width: 100%; padding: 0.8rem 0.9rem; border: 1px solid rgba(10,26,62,0.18); background: white; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; outline: none; resize: vertical; min-height: 140px; line-height: 1.75; transition: border-color 0.2s; }
+  .ai-textarea:focus { border-color: var(--navy); }
+  .ai-submit-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.8rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s; }
+  .ai-submit-btn:hover:not(:disabled) { background: var(--crimson); }
+  .ai-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .ai-result-box { margin-top: 1.5rem; background: var(--gray); border-left: 3px solid var(--navy); padding: 1.2rem 1.4rem; font-size: 0.88rem; line-height: 1.85; white-space: pre-wrap; min-height: 80px; display: none; }
+  .ai-result-box.visible { display: block; }
+  .ai-result-box.loading { color: var(--text-muted); font-style: italic; }
+  .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-error-msg { font-size: 0.78rem; color: var(--crimson); margin-top: 0.5rem; min-height: 1.2em; }
+  .ai-note { font-size: 0.75rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.2rem; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); padding: 0.6rem 0.9rem; }
+  .ai-char-count { font-size: 0.72rem; color: var(--text-muted); text-align: right; margin-top: 0.2rem; }
+</style>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "YOUR_PROJECT_ID");
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">慶應就活ナビ</a>
+  <div class="nav-desktop-links" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap; justify-content:flex-end;">
+    <span class="nav-member-badge" id="member-badge" style="display:none;">会員ページ</span>
+    <a href="account.html" class="nav-back" style="color:var(--gold); border:1px solid rgba(201,168,76,0.3); padding:0.3rem 0.8rem;">マイページ</a>
+    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logout()">ログアウト</button>
+    <a href="match.html" class="nav-back" style="color:var(--gold); border:1px solid rgba(201,168,76,0.3); padding:0.3rem 0.8rem;">企業マッチング</a>
+    <a href="index.html" class="nav-back">← トップに戻る</a>
+  </div>
+  <button class="hamburger-m" id="hamburger-m" onclick="toggleMobileMenuM()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu-m" id="mobile-menu-m">
+  <a href="account.html">マイページ</a>
+  <a href="match.html">企業マッチング</a>
+  <a href="index.html">トップに戻る</a>
+  <button id="mobile-logout-btn" style="display:none;" onclick="logout()">ログアウト</button>
+</div>
+
+<!-- DEADLINE ALERT BANNER -->
+<div class="deadline-alert" id="deadline-alert" onclick="scrollToSelection()">
+  <div class="deadline-alert-inner">
+    <div>
+      <div class="deadline-alert-title" id="deadline-alert-title"></div>
+      <div class="deadline-alert-companies" id="deadline-alert-companies"></div>
+    </div>
+    <div class="deadline-alert-right">
+      <span class="deadline-alert-link">選考情報を見る →</span>
+      <button class="deadline-alert-dismiss" onclick="dismissAlert(event)">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD SCREEN -->
+<div id="password-screen">
+  <div class="pw-box">
+    <div class="pw-icon">👤</div>
+    <h2 class="pw-title">会員専用ページ</h2>
+    <p class="pw-sub" id="auth-gate-copy">このページは慶應就活ナビのメンバー限定です。<br>個人アカウントでログインすると閲覧できます。</p>
+    <div class="gate-actions">
+      <a class="pw-btn" id="gate-login-btn" href="account.html?mode=login&amp;returnTo=members.html">ログインして入る →</a>
+      <a class="pw-link-btn" href="account.html?mode=signup&amp;returnTo=members.html">新しくアカウントを作る</a>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBERS CONTENT -->
+<div id="members-content">
+
+  <div class="members-hero">
+    <div class="members-hero-inner">
+      <div class="members-badge">MEMBERS ONLY</div>
+      <h1>会員ページ</h1>
+      <p id="members-hero-copy">選考情報・限定イベント・資料・輪読会・過去問ライブラリをまとめています。</p>
+    </div>
+  </div>
+
+  <div class="members-main">
+
+    <!-- 就活ステージセレクター -->
+    <div class="stage-banner" id="stage-banner">
+      <span class="stage-banner-label">今の状況</span>
+      <div class="stage-btns" id="stage-btns">
+        <button class="stage-select-btn" data-stage="自己分析中" onclick="setStage('自己分析中')">自己分析中</button>
+        <button class="stage-select-btn" data-stage="ES準備中" onclick="setStage('ES準備中')">ES準備中</button>
+        <button class="stage-select-btn" data-stage="面接対策中" onclick="setStage('面接対策中')">面接対策中</button>
+        <button class="stage-select-btn" data-stage="内定待ち" onclick="setStage('内定待ち')">内定待ち</button>
+      </div>
+    </div>
+
+    <!-- オンボーディング -->
+    <div class="onboarding-section" id="onboarding-section">
+      <div class="onboarding-label">FIRST STEPS</div>
+      <div class="onboarding-title">入会したらまずやること</div>
+      <div class="onboarding-steps">
+        <div class="onboarding-step">
+          <div class="onboarding-step-num">01</div>
+          <div>
+            <div class="onboarding-step-title">LINEコミュニティに参加する</div>
+            <div class="onboarding-step-desc">選考情報・仲間との交流はLINEが中心です。まだの人は申請フォームから参加してください。</div>
+            <a class="onboarding-step-link" href="https://docs.google.com/forms/d/e/1FAIpQLScL31q5XlLB7dtv1_37s-Ssm9DUQcJUDSCqYetDe3an48p8Hw/viewform?usp=publish-editor" target="_blank" rel="noopener">LINE参加申請 →</a>
+          </div>
+        </div>
+        <div class="onboarding-step">
+          <div class="onboarding-step-num">02</div>
+          <div>
+            <div class="onboarding-step-title">企業分析ノートを読む</div>
+            <div class="onboarding-step-desc">主要企業の事業内容・選考フローをまとめたノートが使えます。業界研究の起点として活用してください。</div>
+            <a class="onboarding-step-link" href="#company-notes">企業ノートを見る →</a>
+          </div>
+        </div>
+        <div class="onboarding-step">
+          <div class="onboarding-step-num">03</div>
+          <div>
+            <div class="onboarding-step-title">選考情報を投稿する</div>
+            <div class="onboarding-step-desc">受けた企業の選考情報を共有してください。みんなの情報がコミュニティの力になります。</div>
+            <a class="onboarding-step-link" id="onboarding-form-link" href="#" target="_blank" rel="noopener">投稿フォームへ →</a>
+          </div>
+        </div>
+        <div class="onboarding-step">
+          <div class="onboarding-step-num">04</div>
+          <div>
+            <div class="onboarding-step-title">過去問を共有する</div>
+            <div class="onboarding-step-desc">持っている講義の過去問を登録してください。学部・科目別に検索できます。</div>
+            <a class="onboarding-step-link" href="#past-exams-section">過去問ライブラリへ →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- お知らせ -->
+    <div class="notice-section" id="notice-section">
+      <div class="notice-header">
+        <div class="notice-header-dot"></div>
+        <span>お知らせ</span>
+      </div>
+      <div id="notice-list"></div>
+    </div>
+
+    <!-- 就活進捗トラッカー -->
+    <div class="m-section" id="progress-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">MY PROGRESS</div>
+          <div class="m-section-title">就活進捗トラッカー</div>
+        </div>
+      </div>
+      <div class="dashboard-widget" id="progress-dashboard">
+        <div class="dash-stats">
+          <div class="dash-stat"><div class="dash-stat-num" id="dash-total">0</div><div class="dash-stat-label">総応募</div></div>
+          <div class="dash-stat"><div class="dash-stat-num" id="dash-active">0</div><div class="dash-stat-label">選考中</div></div>
+          <div class="dash-stat"><div class="dash-stat-num" id="dash-offer">0</div><div class="dash-stat-label">内定</div></div>
+        </div>
+        <div class="dash-badges" id="dash-badges"><span class="dash-badge-empty">企業を追加するとバッジが表示されます</span></div>
+      </div>
+      <div class="progress-toolbar">
+        <span style="font-size:0.78rem; color:var(--text-muted);">受けている企業を管理する（このデバイスに保存）</span>
+        <button class="progress-add-btn" id="progress-add-btn">＋ 企業を追加</button>
+      </div>
+      <div class="progress-list" id="progress-list"><div class="m-empty">まだ登録されていません。「＋ 企業を追加」から登録してください。</div></div>
+    </div>
+
+    <!-- 締切カレンダー -->
+    <div class="m-section" id="calendar-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">DEADLINE CALENDAR</div>
+          <div class="m-section-title">締切カレンダー</div>
+        </div>
+      </div>
+      <div class="calendar-header">
+        <button class="calendar-nav-btn" id="cal-prev">‹</button>
+        <span class="calendar-month-label" id="cal-month-label"></span>
+        <button class="calendar-nav-btn" id="cal-next">›</button>
+        <span style="font-size:0.72rem; color:var(--text-muted); margin-left:auto; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--crimson); display:inline-block;"></span>選考情報</span>
+          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--gold); display:inline-block;"></span>気になり</span>
+          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--navy); display:inline-block;"></span>自分の締切</span>
+        </span>
+      </div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+    </div>
+
+    <!-- ランダム企業ノート -->
+    <div class="m-section" id="random-notes-section" style="display:none;">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">TODAY'S PICK</div>
+          <div class="m-section-title" id="random-notes-title">今日のおすすめ企業ノート</div>
+        </div>
+      </div>
+      <div class="company-notes-grid" id="random-notes-grid"></div>
+    </div>
+
+    <!-- ① 選考情報・ES共有 -->
+    <div class="m-section" id="selection-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">SELECTION INFO</div>
+          <div class="m-section-title">選考情報・ES共有</div>
+        </div>
+      </div>
+      <!-- 特集フィルター -->
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:0.68rem; color:var(--crimson); letter-spacing:0.1em; font-weight:600;">特集</span>
+        <div style="flex:1; height:1px; background:rgba(10,26,62,0.08);"></div>
+      </div>
+      <div class="industry-filter" style="margin-bottom:1rem;">
+        <button class="industry-btn feature-btn active" data-feature="all" onclick="setFeature('all')">すべて</button>
+        <button class="industry-btn feature-btn" data-feature="大手" onclick="setFeature('大手')">🏢 大手</button>
+        <button class="industry-btn feature-btn" data-feature="ベンチャー" onclick="setFeature('ベンチャー')">🚀 ベンチャー</button>
+      </div>
+      <!-- 業界フィルター -->
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:0.68rem; color:var(--text-muted); letter-spacing:0.1em; font-weight:600;">業界</span>
+        <div style="flex:1; height:1px; background:rgba(10,26,62,0.08);"></div>
+      </div>
+      <div class="industry-filter" id="industry-filter" style="margin-bottom:1rem;">
+        <button class="industry-btn active" data-industry="all" onclick="setIndustry('all')">すべて</button>
+        <button class="industry-btn" data-industry="メーカー" onclick="setIndustry('メーカー')">メーカー</button>
+        <button class="industry-btn" data-industry="商社" onclick="setIndustry('商社')">商社</button>
+        <button class="industry-btn" data-industry="小売" onclick="setIndustry('小売')">小売</button>
+        <button class="industry-btn" data-industry="金融" onclick="setIndustry('金融')">金融</button>
+        <button class="industry-btn" data-industry="サービス・インフラ" onclick="setIndustry('サービス・インフラ')">サービス・インフラ</button>
+        <button class="industry-btn" data-industry="ソフトウェア" onclick="setIndustry('ソフトウェア')">ソフトウェア</button>
+        <button class="industry-btn" data-industry="マスコミ" onclick="setIndustry('マスコミ')">広告・出版・マスコミ</button>
+        <button class="industry-btn" data-industry="官公庁" onclick="setIndustry('官公庁')">官公庁・公社・団体</button>
+        <button class="industry-btn" data-industry="コンサル" onclick="setIndustry('コンサル')">コンサル</button>
+      </div>
+      <div class="sort-row">
+        <button class="sort-btn active" id="sort-btn" onclick="toggleSort()">↑ 締切が近い順</button>
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:0.8rem;">
+        <a id="selection-form-btn" href="#" target="_blank" class="submit-selection-btn">
+          ＋ 選考情報を投稿する
+        </a>
+      </div>
+      <div class="deadline-banner" id="deadline-banner">
+        <div class="deadline-banner-header">
+          <span class="deadline-banner-label">URGENT</span>
+          <span class="deadline-banner-title" id="deadline-banner-title"></span>
+        </div>
+        <div class="deadline-banner-list" id="deadline-banner-list"></div>
+      </div>
+      <div class="selection-list" id="selection-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="selection-note"></p>
+    </div>
+
+    <!-- ② 企業イベント情報 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">EVENTS</div>
+          <div class="m-section-title">企業イベント情報</div>
+        </div>
+      </div>
+      <div class="sort-row">
+        <button class="sort-btn active" id="event-sort-btn" onclick="toggleEventSort()">↑ 日付が近い順</button>
+      </div>
+      <div class="event-list" id="event-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="event-note"></p>
+    </div>
+
+    <!-- 企業分析ノート検索 -->
+    <div class="m-section" id="company-notes">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">COMPANY NOTES</div>
+          <div class="m-section-title">企業分析ノート</div>
+        </div>
+      </div>
+      <div class="company-search-wrap">
+        <input type="text" id="company-search-input" class="company-search-input" placeholder="企業名で検索..." oninput="searchCompanyNotes()">
+      </div>
+      <div class="company-notes-grid" id="company-notes-grid">
+        <div class="m-empty">企業名を入力して検索してください。</div>
+      </div>
+    </div>
+
+    <!-- 企業クイズ -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">QUIZ</div>
+          <div class="m-section-title">企業研究クイズ</div>
+        </div>
+      </div>
+      <div class="quiz-box" id="quiz-box">
+        <div class="quiz-start">
+          <p class="quiz-start-desc">企業ノートの情報をヒントに、どの会社か当てよう！</p>
+          <button class="quiz-start-btn" onclick="startQuiz()">クイズを始める →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ イベント先行案内 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">PRIORITY ACCESS</div>
+          <div class="m-section-title">イベント先行案内</div>
+        </div>
+      </div>
+      <div class="priority-list" id="priority-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="priority-note"></p>
+    </div>
+
+    <!-- ③ 限定資料・ファイル -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">FILES</div>
+          <div class="m-section-title">限定資料・ファイル</div>
+        </div>
+      </div>
+      <div class="files-grid" id="files-grid">
+        <div class="m-loading" style="grid-column:1/-1;">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="files-note"></p>
+    </div>
+
+    <!-- ④ 輪読会 貸出状況 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">BOOKS</div>
+          <div class="m-section-title">輪読会 貸出状況</div>
+        </div>
+      </div>
+      <div class="books-grid" id="books-grid">
+        <div class="m-loading" style="grid-column:1/-1;">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="books-note"></p>
+    </div>
+
+    <!-- 面接チェックリスト -->
+    <div class="m-section" id="interview-checklist-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">INTERVIEW PREP</div>
+          <div class="m-section-title">面接チェックリスト</div>
+        </div>
+      </div>
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="cl-fill" style="width:0%"></div></div>
+      <div class="checklist-progress-text"><span id="cl-progress-text">0 / 0 完了</span><button class="checklist-reset-btn" onclick="resetChecklist()" style="font-size:0.7rem;color:var(--text-muted);background:none;border:1px solid rgba(10,26,62,0.15);padding:0.2rem 0.6rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">リセット</button></div>
+      <div id="checklist-body"></div>
+    </div>
+
+    <!-- 自己PR補助ツール（PREP法） -->
+    <div class="m-section" id="self-pr-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">SELF PR</div>
+          <div class="m-section-title">自己PR補助ツール（PREP法）</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">PREP法（結論→理由→具体例→結論）で自己PRを組み立てよう。入力した内容は自動でプレビューに反映されます。</p>
+      <div id="pr-steps"></div>
+      <div class="pr-preview-wrap"><div class="pr-preview" id="pr-preview">（入力するとここにプレビューが表示されます）</div></div>
+      <div class="pr-char-count" id="pr-char-count">0文字</div>
+      <button class="pr-copy-btn" onclick="copyPR()">クリップボードにコピー</button>
+    </div>
+
+    <!-- ES添削掲示板 -->
+    <div class="m-section" id="es-board-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">ES REVIEW</div>
+          <div class="m-section-title">ES添削掲示板</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">自分のESを投稿してメンバーからフィードバックをもらおう。コメントは匿名で投稿できます。</p>
+      <div class="board-toolbar">
+        <span style="font-size:0.78rem;color:var(--text-muted);" id="board-count">読み込み中...</span>
+        <button class="board-post-btn" id="board-post-btn">＋ ESを投稿する</button>
+      </div>
+      <div id="board-list"></div>
+    </div>
+
+    <!-- ⑤ 過去問ライブラリ -->
+    <div class="m-section" id="past-exams-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">PAST EXAMS</div>
+          <div class="m-section-title">過去問ライブラリ</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.8; margin-bottom:1.2rem;">
+        メンバーが持ち寄った講義の過去問・試験情報です。情報を共有してコミュニティに貢献しよう。
+      </p>
+      <!-- 学部フィルター -->
+      <div class="exam-faculty-filter" id="exam-faculty-filter">
+        <button class="exam-faculty-btn active" data-faculty="all">すべて</button>
+        <button class="exam-faculty-btn" data-faculty="文学部">文学部</button>
+        <button class="exam-faculty-btn" data-faculty="経済学部">経済学部</button>
+        <button class="exam-faculty-btn" data-faculty="法学部">法学部</button>
+        <button class="exam-faculty-btn" data-faculty="商学部">商学部</button>
+        <button class="exam-faculty-btn" data-faculty="医学部">医学部</button>
+        <button class="exam-faculty-btn" data-faculty="理工学部">理工学部</button>
+        <button class="exam-faculty-btn" data-faculty="総合政策学部">総合政策</button>
+        <button class="exam-faculty-btn" data-faculty="環境情報学部">環境情報</button>
+        <button class="exam-faculty-btn" data-faculty="看護医療学部">看護医療</button>
+        <button class="exam-faculty-btn" data-faculty="薬学部">薬学部</button>
+      </div>
+      <!-- 検索・追加ツールバー -->
+      <div class="exam-toolbar">
+        <input type="text" id="exam-search" class="exam-search" placeholder="科目名で検索...">
+        <button class="exam-add-btn" id="exam-add-btn">＋ 過去問を追加する</button>
+      </div>
+      <!-- 一覧 -->
+      <div class="exam-list" id="exam-list">
+        <div class="m-empty">まだ登録された過去問はありません。最初の一件を追加してみよう！</div>
+      </div>
+    </div>
+
+    <!-- ===== AI就活サポートツール ===== -->
+    <div class="m-section" id="ai-tools-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="8" r="4" fill="white" stroke="none"/><path d="M16 8h4M18 6v4" stroke="white" stroke-width="1.5"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">AI TOOLS</div>
+          <div class="m-section-title">AI就活サポートツール</div>
+        </div>
+      </div>
+      <p class="ai-note">⚠ AI回答は参考情報です。最終判断は必ずご自身で行ってください。GASを経由してAnthropicのAPIを呼び出しています（要ログイン）。</p>
+
+      <!-- タブ切り替え -->
+      <div class="ai-tool-tabs">
+        <button class="ai-tab-btn active" data-tab="es-review">📝 ES添削</button>
+        <button class="ai-tab-btn" data-tab="interview-coach">🎤 面接練習</button>
+        <button class="ai-tab-btn" data-tab="es-rewrite">🔄 ES流用</button>
+      </div>
+
+      <!-- ─── タブ1: ES自動添削 ─── -->
+      <div class="ai-tab-panel active" id="ai-tab-es-review">
+        <div class="ai-form-group">
+          <label class="ai-label">企業名（任意）</label>
+          <input type="text" class="ai-input" id="esr-company" placeholder="例：〇〇商事、△△銀行">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">設問テキスト（任意）</label>
+          <input type="text" class="ai-input" id="esr-question" placeholder="例：学生時代に最も力を入れたことを教えてください（400字）">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">ES内容 <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea" id="esr-text" placeholder="添削してほしいESをここに貼り付けてください..." oninput="updateCharCount('esr-text','esr-char')"></textarea>
+          <div class="ai-char-count" id="esr-char">0 字</div>
+        </div>
+        <button class="ai-submit-btn" id="esr-submit-btn" onclick="submitEsReview()">
+          <span class="btn-text">✨ AIに添削してもらう</span>
+        </button>
+        <div class="ai-error-msg" id="esr-error"></div>
+        <div class="ai-result-box" id="esr-result"></div>
+      </div>
+
+      <!-- ─── タブ2: 面接練習AIコーチ ─── -->
+      <div class="ai-tab-panel" id="ai-tab-interview-coach">
+        <div class="ai-form-group">
+          <label class="ai-label">面接質問</label>
+          <input type="text" class="ai-input" id="ic-question" placeholder="例：あなたの強みを教えてください">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">志望職種（任意）</label>
+          <input type="text" class="ai-input" id="ic-jobtype" placeholder="例：総合職、営業、エンジニア">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">あなたの回答 <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea" id="ic-answer" placeholder="面接で話す回答をここに入力してください..." oninput="updateCharCount('ic-answer','ic-char')"></textarea>
+          <div class="ai-char-count" id="ic-char">0 字</div>
+        </div>
+        <button class="ai-submit-btn" id="ic-submit-btn" onclick="submitInterviewCoach()">
+          <span class="btn-text">🎤 AIコーチに評価してもらう</span>
+        </button>
+        <div class="ai-error-msg" id="ic-error"></div>
+        <div class="ai-result-box" id="ic-result"></div>
+      </div>
+
+      <!-- ─── タブ3: ES流用支援 ─── -->
+      <div class="ai-tab-panel" id="ai-tab-es-rewrite">
+        <div class="ai-form-group">
+          <label class="ai-label">元のES <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea" id="rw-original" placeholder="流用したい元のESを貼り付けてください..." oninput="updateCharCount('rw-original','rw-char1')"></textarea>
+          <div class="ai-char-count" id="rw-char1">0 字</div>
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">志望企業名 <span style="color:var(--crimson)">*</span></label>
+          <input type="text" class="ai-input" id="rw-company" placeholder="例：△△銀行">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">新しい設問（任意）</label>
+          <input type="text" class="ai-input" id="rw-question" placeholder="例：志望動機を300字以内で教えてください">
+        </div>
+        <button class="ai-submit-btn" id="rw-submit-btn" onclick="submitEsRewrite()">
+          <span class="btn-text">🔄 AIに流用ESを作ってもらう</span>
+        </button>
+        <div class="ai-error-msg" id="rw-error"></div>
+        <div class="ai-result-box" id="rw-result"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 過去問追加モーダル ===== -->
+<div class="exam-modal-overlay" id="exam-modal-overlay">
+  <div class="exam-modal-box">
+    <div class="exam-modal-header">
+      <div class="exam-modal-title">過去問を追加する</div>
+      <button class="modal-close" id="exam-modal-close">✕</button>
+    </div>
+    <div class="exam-modal-body">
+      <div class="exam-field">
+        <label>科目名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="ef-subject" placeholder="例：経済学入門、線形代数学">
+      </div>
+      <div class="exam-field">
+        <label>学部</label>
+        <select id="ef-faculty">
+          <option value="">選択してください</option>
+          <option>文学部</option>
+          <option>経済学部</option>
+          <option>法学部</option>
+          <option>商学部</option>
+          <option>医学部</option>
+          <option>理工学部</option>
+          <option>総合政策学部</option>
+          <option>環境情報学部</option>
+          <option>看護医療学部</option>
+          <option>薬学部</option>
+        </select>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
+        <div class="exam-field">
+          <label>年度・学期</label>
+          <input type="text" id="ef-period" placeholder="例：2024年度後期">
+        </div>
+        <div class="exam-field">
+          <label>試験種別</label>
+          <select id="ef-type">
+            <option value="">選択してください</option>
+            <option value="期末試験">期末試験</option>
+            <option value="中間試験">中間試験</option>
+            <option value="小テスト">小テスト</option>
+            <option value="レポート">レポート</option>
+            <option value="定期試験">定期試験</option>
+          </select>
+        </div>
+      </div>
+      <div class="exam-field">
+        <label>資料リンク（Google Drive など）</label>
+        <input type="url" id="ef-link" placeholder="https://drive.google.com/...">
+        <div class="exam-field-note">問題・解答をアップしたリンクがあれば貼ってください</div>
+      </div>
+      <div class="exam-field">
+        <label>傾向・メモ</label>
+        <textarea id="ef-memo" placeholder="出題範囲、難易度、おすすめの対策など自由に書いてください"></textarea>
+      </div>
+      <div class="exam-form-error" id="exam-form-error"></div>
+      <button class="exam-submit-btn" id="exam-submit-btn">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 過去問詳細モーダル ===== -->
+<div class="exam-detail-overlay" id="exam-detail-overlay">
+  <div class="exam-detail-box">
+    <div class="exam-modal-header">
+      <div class="exam-modal-title" id="exam-detail-title">科目名</div>
+      <button class="modal-close" id="exam-detail-close">✕</button>
+    </div>
+    <div class="modal-body" id="exam-detail-body"></div>
+  </div>
+</div>
+
+<!-- ES添削掲示板 投稿モーダル -->
+<div class="board-modal-overlay" id="board-modal">
+  <div class="board-modal-box">
+    <div class="board-modal-header">
+      <span class="board-modal-title">ESを投稿する</span>
+      <button id="board-modal-close" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.1rem;cursor:pointer;padding:0;">✕</button>
+    </div>
+    <div class="board-modal-body">
+      <div>
+        <label class="board-field-label">企業名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-company" class="board-field-input" placeholder="例：三菱商事">
+      </div>
+      <div>
+        <label class="board-field-label">設問 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-question" class="board-field-input" placeholder="例：学生時代に最も力を入れたことを400字以内で">
+      </div>
+      <div>
+        <label class="board-field-label">ESの内容 <span style="color:var(--crimson);">*</span></label>
+        <textarea id="bm-text" class="board-field-textarea" placeholder="ここにESの内容を貼り付けてください..."></textarea>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);line-height:1.7;background:rgba(10,26,62,0.04);padding:0.7rem 0.9rem;">
+        投稿は全会員に公開されます。個人を特定できる情報は含めないようにしてください。
+      </div>
+      <div style="font-size:0.78rem;color:var(--crimson);min-height:1em;" id="bm-error"></div>
+      <button id="bm-submit" class="board-submit-btn">投稿する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 進捗トラッカー 追加モーダル -->
+<div class="progress-modal-overlay" id="progress-modal">
+  <div class="progress-modal-box">
+    <div class="progress-modal-header">
+      <span class="progress-modal-title">企業を追加</span>
+      <button id="progress-modal-close" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.1rem;cursor:pointer;padding:0;">✕</button>
+    </div>
+    <div class="progress-modal-body">
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:0.3rem;">企業名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="pm-company" style="width:100%;padding:0.7rem;border:1px solid rgba(10,26,62,0.2);font-family:'Noto Sans JP',sans-serif;font-size:0.88rem;outline:none;" placeholder="例：三菱商事">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:0.3rem;">業界</label>
+        <select id="pm-industry" style="width:100%;padding:0.7rem;border:1px solid rgba(10,26,62,0.2);font-family:'Noto Sans JP',sans-serif;font-size:0.88rem;outline:none;background:white;">
+          <option value="">-- 選択してください --</option>
+          <option>メーカー</option><option>商社</option><option>小売</option><option>金融</option>
+          <option>サービス・インフラ</option><option>ソフトウェア</option><option>広告・出版・マスコミ</option>
+          <option>官公庁・公社・団体</option><option>コンサル</option><option>その他</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:0.3rem;">締切日（任意）</label>
+        <input type="date" id="pm-deadline" style="width:100%;padding:0.7rem;border:1px solid rgba(10,26,62,0.2);font-family:'Noto Sans JP',sans-serif;font-size:0.88rem;outline:none;">
+      </div>
+      <div style="font-size:0.78rem;color:var(--crimson);min-height:1.2em;" id="pm-error"></div>
+      <button id="pm-submit" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-family:'Noto Sans JP',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;letter-spacing:0.06em;transition:background 0.2s;">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- スクロールトップボタン -->
+<button class="scroll-top-btn" id="scroll-top-btn" aria-label="ページトップへ戻る" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- COMPANY NOTE MODAL -->
+<div class="modal-overlay" id="company-modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-company-name" id="modal-company-name">–</div>
+        <div class="modal-industry" id="modal-industry"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+  // ===== スプレッドシートURL（各シートをCSVで公開） =====
+  // スプシキー（GASプロキシ経由で読み込む）
+  const SELECTION_KEY = 'selection';
+  const PRIORITY_KEY  = 'priority';
+  const FILES_KEY     = 'files';
+  const BOOKS_KEY     = 'books';
+  const EVENT_KEY     = 'event';
+  const COMPANY_KEY   = 'company';
+  const NOTICE_CSV     = ''; // ← お知らせスプシのCSV URLを貼る（列: 日付・タイトル・内容・タグ）
+  const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbwVhYSdihkWiNy4pJpSVsgHZzMAu8UCfCKISNNe8VcQ_h4bdQQPHbtoDPbn_PrB5hOOZw/exec';
+  const LENDING_FORM  = 'https://docs.google.com/forms/d/e/1FAIpQLScmV_ubANH5RNIHD_wEH3yakHbs5YqdegrPysSfpFo4veAg4Q/viewform'; // 列: タイトル, 著者, 状態(貸出可/貸出中), 現在の保有者
+  let hasLoadedMembersContent = false;
+
+  function logout() {
+    KeioNaviAuth.logout();
+    location.reload();
+  }
+
+  function toggleMobileMenuM() {
+    document.getElementById('hamburger-m').classList.toggle('open');
+    document.getElementById('mobile-menu-m').classList.toggle('open');
+  }
+
+  function updateAuthGate() {
+    const copy = document.getElementById('auth-gate-copy');
+    const loginBtn = document.getElementById('gate-login-btn');
+    if (copy) {
+      copy.innerHTML = 'このページは慶應就活ナビのメンバー限定です。<br>個人アカウントでログインすると閲覧できます。';
+    }
+    if (loginBtn) {
+      loginBtn.href = 'account.html?mode=login&returnTo=members.html';
+    }
+  }
+
+  function showMembers(user) {
+    document.getElementById('password-screen').style.display = 'none';
+    document.getElementById('members-content').style.display = 'block';
+    document.getElementById('member-badge').style.display = 'inline-block';
+    document.getElementById('logout-btn').style.display = 'inline-block';
+    document.getElementById('member-badge').textContent = (user?.username || '会員') + ' さん';
+    const industryMsg = user?.desiredIndustry ? `【${user.desiredIndustry}】志望 ` : '';
+    document.getElementById('members-hero-copy').textContent = industryMsg + (user?.username || 'あなた') + ' さん向けに、選考情報・限定イベント・資料・輪読会・過去問ライブラリをまとめています。';
+    if (!hasLoadedMembersContent) {
+      hasLoadedMembersContent = true;
+      loadAll();
+    }
+  }
+
+  const currentMember = KeioNaviAuth.getCurrentUser();
+  if (currentMember) showMembers(currentMember);
+  else updateAuthGate();
+
+  async function fetchCSV(sheetName) {
+    if (!GAS_PROXY_URL) throw new Error('GAS_PROXY_URLが設定されていません');
+    const res = await fetch(GAS_PROXY_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'getSheet', sheet: sheetName }),
+    });
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message || '読み込みに失敗しました');
+    return data.rows;
+  }
+
+
+  // GASプロキシ経由でスプシを読み込む
+  async function fetchViaGAS(sheetKey) {
+    if (!GAS_PROXY_URL) throw new Error('GAS_PROXY_URLが設定されていません');
+    const res = await fetch(GAS_PROXY_URL, {
+      method: 'POST',
+        body: JSON.stringify({ action: 'read', sheetKey }),
+      redirect: 'follow',
+    });
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message || '読み込みに失敗しました');
+    return data.rows;
+  }
+
+  // ===== 選考ステータス（localStorage） =====
+  const SEL_STATUS_KEY = 'keio_navi_sel_status_v1';
+  const MEMO_KEY = 'keio_navi_memo_v1';
+  const STATUS_OPTIONS = [
+    { value: '',           label: '-- 状況 --',    cls: '' },
+    { value: 'applied',   label: '応募済み',       cls: 'st-applied' },
+    { value: 'passed',    label: '書類通過',       cls: 'st-passed' },
+    { value: 'interview', label: '面接中',         cls: 'st-interview' },
+    { value: 'offer',     label: '内定',           cls: 'st-offer' },
+    { value: 'rejected',  label: '不採用',         cls: 'st-rejected' },
+  ];
+
+  function getSelStatuses() {
+    try { return JSON.parse(localStorage.getItem(SEL_STATUS_KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function getSelStatus(companyKey) {
+    return getSelStatuses()[companyKey] || '';
+  }
+  function updateSelStatus(companyKey, val) {
+    const all = getSelStatuses();
+    if (val) all[companyKey] = val; else delete all[companyKey];
+    localStorage.setItem(SEL_STATUS_KEY, JSON.stringify(all));
+    // ステータス選択UIに色クラスを即反映
+    const sel = document.querySelector(`.sel-status-select[data-key="${CSS.escape(companyKey)}"]`);
+    if (sel) {
+      STATUS_OPTIONS.forEach(o => sel.classList.remove(o.cls));
+      const opt = STATUS_OPTIONS.find(o => o.value === val);
+      if (opt && opt.cls) sel.classList.add(opt.cls);
+    }
+  }
+
+  function getMemo(companyName) {
+    try { return (JSON.parse(localStorage.getItem(MEMO_KEY) || '{}'))[companyName] || ''; } catch(e) { return ''; }
+  }
+  function saveMemo(companyName, val) {
+    const all = (() => { try { return JSON.parse(localStorage.getItem(MEMO_KEY) || '{}'); } catch(e) { return {}; } })();
+    if (val.trim()) all[companyName] = val; else delete all[companyName];
+    localStorage.setItem(MEMO_KEY, JSON.stringify(all));
+    const saved = document.getElementById('memo-saved-msg');
+    if (saved) { saved.textContent = '保存しました'; setTimeout(() => saved.textContent = '', 1500); }
+  }
+
+  // ===== 業界件数バッジ更新 =====
+  function updateIndustryCounts() {
+    const valid = selectionRows.filter(r => r[0] && r[0] !== '企業名' && r[0] !== '企業名・選考内容');
+    const allBtn = document.querySelector('[data-industry="all"]');
+    if (allBtn) allBtn.textContent = `すべて (${valid.length})`;
+    const industries = [
+      { key: 'メーカー', label: 'メーカー' },
+      { key: '商社', label: '商社' },
+      { key: '小売', label: '小売' },
+      { key: '金融', label: '金融' },
+      { key: 'サービス・インフラ', label: 'サービス・インフラ' },
+      { key: 'ソフトウェア', label: 'ソフトウェア' },
+      { key: 'マスコミ', label: '広告・出版・マスコミ' },
+      { key: '官公庁', label: '官公庁・公社・団体' },
+      { key: 'コンサル', label: 'コンサル' },
+    ];
+    industries.forEach(({ key, label }) => {
+      const btn = document.querySelector(`[data-industry="${key}"]`);
+      if (!btn) return;
+      const count = valid.filter(r => {
+        const ind = r[4] || '';
+        if (key === '官公庁') return ind.includes('官公庁') || ind.includes('公社') || ind.includes('団体');
+        return ind.includes(key);
+      }).length;
+      btn.textContent = `${label} (${count})`;
+    });
+  }
+
+  // ① 選考情報
+  let selectionRows = [];
+  let selectionSortAsc = true;
+  let selectionIndustry = 'all';
+  let selectionFeature = 'all';
+  let selectionPage = 0;
+  const SELECTION_PAGE_SIZE = 10;
+
+  async function loadSelection() {
+    const el = document.getElementById('selection-list');
+    const note = document.getElementById('selection-note');
+    const sample = [
+      ['〇〇商事（サマーインターン）', '2025/06/10', 'インターン', '', '商社', '大手'],
+      ['△△銀行（早期選考）', '2025/06/20', '本選考', '', '金融', '大手'],
+      ['□□コンサル（早期選考）', '2025/07/01', '本選考', '', 'コンサル', ''],
+      ['〇〇テック（インターン）', '2025/06/15', 'インターン', '', 'ソフトウェア', 'ベンチャー'],
+      ['△△スタートアップ', '2025/06/25', 'インターン', '', 'サービス・インフラ', 'ベンチャー'],
+    ];
+    try {
+      selectionRows = SELECTION_KEY ? (await fetchViaGAS(SELECTION_KEY)) : sample;
+    } catch(err) {
+      el.innerHTML = `<div class="m-empty" style="color:var(--crimson);">⚠ 読み込みエラー: ${err.message}</div>`;
+      console.error('SELECTION_KEY:', err); return;
+    }
+    if (!selectionRows.length) { el.innerHTML = `<div class="m-empty">選考情報はまだ登録されていません。<br>あなたが最初の一件を共有しましょう！<br><a class="m-empty-cta" href="${SELECTION_FORM}" target="_blank" rel="noopener">選考情報を投稿する →</a></div>`; return; }
+    renderSelection();
+    updateIndustryCounts();
+    checkDeadlineAlert();
+    if (!SELECTION_KEY) note.textContent = '※ サンプルデータです。スプシの6列目に業界名、7列目に「大手」または「ベンチャー」を入力してください。';
+  }
+
+
+  function checkDeadlineAlert() {
+    if (!selectionRows.length) return;
+
+    // アカウントごとの気になりリストを読む（match.htmlと共有）
+    const liked = KeioNaviAuth.getLikedCompanies();
+    const today = new Date();
+
+    let urgent = [];
+
+    if (liked.length) {
+      // 気になりリストがある場合 → その企業だけ通知
+      liked.forEach(c => {
+        selectionRows.forEach(r => {
+          if (!r[0] || !r[1]) return;
+          const rowName = (r[0]||'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+          const selAlias = r[6] || ''; // G列: 一般呼称
+          if (!selectionMatch(rowName, selAlias, c.name)) return;
+          const d = new Date(r[1].replace(/\//g,'-'));
+          if (isNaN(d)) return;
+          const diff = Math.ceil((d - today) / (1000*60*60*24));
+          if (diff >= 0 && diff <= 7) urgent.push({ name: r[0], diff });
+        });
+      });
+    } else {
+      // 気になりリストがない場合 → 全企業の締切7日以内を通知
+      selectionRows.forEach(r => {
+        if (!r[0] || !r[1]) return;
+        const d = new Date(r[1].replace(/\//g,'-'));
+        if (isNaN(d)) return;
+        const diff = Math.ceil((d - today) / (1000*60*60*24));
+        if (diff >= 0 && diff <= 7) urgent.push({ name: r[0], diff });
+      });
+    }
+
+    if (!urgent.length) return;
+    urgent.sort((a,b) => a.diff - b.diff);
+
+    const banner = document.getElementById('deadline-alert');
+    const titleEl = document.getElementById('deadline-alert-title');
+    const companiesEl = document.getElementById('deadline-alert-companies');
+
+    const prefix = liked.length ? '気になり企業' : '選考';
+    titleEl.textContent = `⚠ ${prefix}の締切が近い企業が ${urgent.length} 社あります`;
+    companiesEl.textContent = urgent.map(a => `${a.name}（残${a.diff}日）`).join('　・　');
+    banner.style.display = 'block';
+  }
+
+  function scrollToSelection() {
+    document.getElementById('selection-section')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function dismissAlert(e) {
+    e.stopPropagation();
+    document.getElementById('deadline-alert').style.display = 'none';
+  }
+
+
+  // 日付文字列を YYYY/MM/DD に正規化（GASからDate文字列で返ってくる場合に対応）
+  function normalizeDate(val) {
+    if (!val) return '';
+    const s = String(val).trim();
+    if (s.match(/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/)) return s.replace(/-/g, '/');
+    const p = new Date(s);
+    if (isNaN(p)) return s;
+    return `${p.getFullYear()}/${String(p.getMonth()+1).padStart(2,'0')}/${String(p.getDate()).padStart(2,'0')}`;
+  }
+
+  function renderDeadlineBanner(today) {
+    const banner = document.getElementById('deadline-banner');
+    const listEl = document.getElementById('deadline-banner-list');
+    const titleEl = document.getElementById('deadline-banner-title');
+
+    // 今週締切（7日以内）を抽出
+    const urgent = selectionRows.filter(r => {
+      if (!r[0] || !r[1]) return false;
+      const d = new Date(r[1].replace(/\//g,'-'));
+      if (isNaN(d)) return false;
+      const diff = Math.ceil((d - today) / (1000*60*60*24));
+      return diff >= 0 && diff <= 7;
+    }).sort((a, b) => {
+      const da = new Date(a[1].replace(/\//g,'-'));
+      const db = new Date(b[1].replace(/\//g,'-'));
+      return da - db;
+    });
+
+    if (!urgent.length) { banner.style.display = 'none'; return; }
+
+    banner.style.display = 'block';
+    titleEl.textContent = `今週締切の企業が ${urgent.length} 社あります`;
+    listEl.innerHTML = urgent.map(r => {
+      const d = new Date(r[1].replace(/\//g,'-'));
+      const diff = Math.ceil((d - today) / (1000*60*60*24));
+      const daysLabel = diff === 0 ? '今日' : `残${diff}日`;
+      const isToday = diff === 0;
+      const hasLink = r[3]?.startsWith('http');
+      return `<span class="deadline-chip" ${hasLink ? `onclick="window.open('${r[3]}','_blank')"` : ''}>
+        ${r[0]}
+        <span class="deadline-chip-days ${isToday ? 'today' : ''}">${daysLabel}</span>
+      </span>`;
+    }).join('');
+  }
+
+  function renderSelection() {
+    const el = document.getElementById('selection-list');
+    const today = new Date();
+    const liked = KeioNaviAuth.getLikedCompanies();
+    renderDeadlineBanner(today);
+
+    let rows = [...selectionRows].filter(r => r[0] && r[0] !== '企業名・選考内容' && r[0] !== '企業名');
+
+    // 特集フィルター（6列目 index 5）
+    if (selectionFeature !== 'all') {
+      rows = rows.filter(r => (r[5] || '').includes(selectionFeature));
+    }
+    // 業界フィルター（5列目 index 4）
+    if (selectionIndustry !== 'all') {
+      rows = rows.filter(r => {
+        const ind = r[4] || '';
+        if (selectionIndustry === '官公庁') return ind.includes('官公庁') || ind.includes('公社') || ind.includes('団体');
+        if (selectionIndustry === 'その他') return !ind || !['メーカー','商社','小売','金融','サービス','インフラ','ソフトウェア','広告','出版','マスコミ','官公庁','公社','団体','コンサル'].some(k => ind.includes(k));
+        return ind.includes(selectionIndustry);
+      });
+    }
+
+    // 締切ソート
+    rows.sort((a, b) => {
+      const aLiked = liked.some(c => {
+        const rowName = (a[0] || '').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+        return selectionMatch(rowName, a[6] || '', c.name);
+      });
+      const bLiked = liked.some(c => {
+        const rowName = (b[0] || '').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+        return selectionMatch(rowName, b[6] || '', c.name);
+      });
+      if (aLiked !== bLiked) return aLiked ? -1 : 1;
+
+      const da = a[1] ? new Date(a[1].replace(/\//g,'-')) : new Date('9999-12-31');
+      const db = b[1] ? new Date(b[1].replace(/\//g,'-')) : new Date('9999-12-31');
+      return selectionSortAsc ? da - db : db - da;
+    });
+
+    if (!rows.length) {
+      el.innerHTML = '<div class="m-empty">該当する情報はありません。</div>';
+      return;
+    }
+
+    const totalPages = Math.ceil(rows.length / SELECTION_PAGE_SIZE);
+    if (selectionPage >= totalPages) selectionPage = 0;
+    const pageRows = rows.slice(selectionPage * SELECTION_PAGE_SIZE, (selectionPage + 1) * SELECTION_PAGE_SIZE);
+
+    el.innerHTML = `
+      <div class="selection-row header">
+        <span>企業名</span><span>締切</span><span>タグ</span><span>資料</span>
+      </div>` +
+      pageRows.map(r => {
+        const tagClass = r[2]?.includes('本選考') ? 'tag-honsen' : 'tag-intern';
+        const hasLink = r[3]?.startsWith('http');
+        const normD1 = normalizeDate(r[1]);
+        const d = normD1 ? new Date(normD1.replace(/\//g,'-')) : null;
+        const diff = d ? Math.ceil((d - today) / (1000*60*60*24)) : 999;
+        const urgent = diff >= 0 && diff <= 7;
+        const deadlineLabel = normD1 ? (urgent ? `⚠ ${normD1}（残${diff}日）` : normD1) : '未定';
+        const featureTag = (r[5] && r[5] !== 'なし') ? ` <span style="font-size:0.68rem;color:var(--crimson);margin-left:0.3rem;">${r[5]}</span>` : '';
+        // 企業名から「（...）」を除いてノート検索
+        const companyNameClean = (r[0]||'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+        const selNote = findNote(companyNameClean);
+        const isLiked = liked.some(c => selectionMatch(companyNameClean, r[6] || '', c.name));
+        const statusKey = r[0] || '';
+        const currentStatus = getSelStatus(statusKey);
+        const statusCls = STATUS_OPTIONS.find(o => o.value === currentStatus)?.cls || '';
+        const statusOptions = STATUS_OPTIONS.map(o =>
+          `<option value="${o.value}" ${currentStatus === o.value ? 'selected' : ''}>${o.label}</option>`
+        ).join('');
+        const diffKey = companyNameClean;
+        const myVote = getDifficultyVote(diffKey);
+        const diffHtml = `<span class="sel-difficulty" data-key="${diffKey.replace(/"/g,'&quot;')}">${[1,2,3,4,5].map(n=>`<span class="diff-star${myVote>=n?' filled':''}" data-n="${n}" onclick="voteDifficulty('${diffKey.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${n},this)">★</span>`).join('')}${myVote?`<span class="diff-voted-label">難易度${myVote}</span>`:''}</span>`;
+        return `<div class="selection-row">
+          <div>
+            <div class="sel-company">${r[0]||'–'}${isLiked ? '<span style="font-size:0.66rem; margin-left:0.45rem; color:var(--crimson); font-weight:700;">♥ 気になる企業</span>' : ''}${diffHtml}</div>
+            <div class="sel-type">${r[4] ? `<span style="font-size:0.68rem;color:var(--gold);">${r[4]}</span>` : ''}${featureTag}</div>
+            <select class="sel-status-select ${statusCls}" data-key="${statusKey.replace(/"/g,'&quot;')}" onchange="updateSelStatus('${statusKey.replace(/'/g,"\\'")}', this.value)" onclick="event.stopPropagation()">${statusOptions}</select>
+          </div>
+          <div class="sel-deadline ${urgent ? 'urgent' : ''}">${deadlineLabel}</div>
+          <div><span class="sel-tag ${tagClass}">${r[2]||'–'}</span></div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-start;">
+            ${hasLink ? `<a href="${r[3]}" target="_blank" class="sel-link">開く →</a>` : '–'}
+            ${selNote ? `<button class="sel-note-btn" data-company="${companyNameClean.replace(/"/g,'&quot;')}" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:rgba(10,26,62,0.07);border:1px solid rgba(10,26,62,0.15);color:var(--navy);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:600;letter-spacing:0.04em;white-space:nowrap;">企業ノート</button>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+    el.querySelectorAll('.sel-note-btn').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); openModal(btn.dataset.company); });
+    });
+
+    // ページネーションUI
+    if (totalPages > 1) {
+      const start = selectionPage * SELECTION_PAGE_SIZE + 1;
+      const end = Math.min((selectionPage + 1) * SELECTION_PAGE_SIZE, rows.length);
+      let pageButtons = '';
+      for (let i = 0; i < totalPages; i++) {
+        pageButtons += `<button class="pagination-btn ${i === selectionPage ? 'active' : ''}" onclick="goSelectionPage(${i})">${i + 1}</button>`;
+      }
+      el.innerHTML += `<div class="pagination">
+        <span class="pagination-info">${rows.length}件中 ${start}〜${end}件</span>
+        <div class="pagination-btns">
+          <button class="pagination-btn" onclick="goSelectionPage(${selectionPage - 1})" ${selectionPage === 0 ? 'disabled' : ''}>←</button>
+          ${pageButtons}
+          <button class="pagination-btn" onclick="goSelectionPage(${selectionPage + 1})" ${selectionPage >= totalPages - 1 ? 'disabled' : ''}>→</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  function goSelectionPage(page) {
+    selectionPage = page;
+    renderSelection();
+    document.getElementById('selection-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setFeature(val) {
+    selectionFeature = val; selectionPage = 0;
+    document.querySelectorAll('[data-feature]').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-feature="${val}"]`).classList.add('active');
+    renderSelection();
+  }
+
+  function setIndustry(val) {
+    selectionIndustry = val; selectionPage = 0;
+    document.querySelectorAll('[data-industry]').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-industry="${val}"]`).classList.add('active');
+    renderSelection();
+  }
+
+  function toggleSort() {
+    selectionSortAsc = !selectionSortAsc; selectionPage = 0;
+    const btn = document.getElementById('sort-btn');
+    btn.textContent = selectionSortAsc ? '↑ 締切が近い順' : '↓ 締切が遅い順';
+    renderSelection();
+  }
+
+  // ② 企業イベント情報
+  let eventRows = [];
+  let eventSortAsc = true;
+
+  async function loadEvents() {
+    const el = document.getElementById('event-list');
+    const note = document.getElementById('event-note');
+    const sample = [
+      ['2025/06/05', '14:00〜16:00', '〇〇商事 会社説明会', 'オンライン', '〇〇商事', 'https://example.com', '田中', '2025/06/03'],
+      ['2025/06/12', '10:00〜12:00', '△△銀行 インターン説明会', 'オフライン（三田）', '△△銀行', '', '', '2025/06/10'],
+      ['2025/06/20', '18:00〜20:00', '□□テック エンジニア交流会', 'オンライン', '□□テック', 'https://example.com', '鈴木', ''],
+    ];
+    try {
+      eventRows = EVENT_KEY ? (await fetchViaGAS(EVENT_KEY)) : sample;
+    } catch(err) {
+      el.innerHTML = `<div class="m-empty" style="color:var(--crimson);">⚠ 読み込みエラー: ${err.message}</div>`;
+      console.error('EVENT_KEY:', err); return;
+    }
+    if (!eventRows.length) { el.innerHTML = '<div class="m-empty">現在予定されているイベントはありません。<br>LINEコミュニティで最新情報を確認してください。</div>'; return; }
+    renderEvents();
+    if (!EVENT_KEY) note.textContent = '※ サンプルデータです。スプシURLを設定してください。';
+  }
+
+  function renderEvents() {
+    const el = document.getElementById('event-list');
+    const today = new Date();
+    let rows = [...eventRows].filter(r => r[0] && r[0] !== '日付' && r[0] !== '');
+    rows.sort((a, b) => {
+      const da = a[0] ? new Date(a[0].replace(/\//g,'-')) : new Date('9999-12-31');
+      const db = b[0] ? new Date(b[0].replace(/\//g,'-')) : new Date('9999-12-31');
+      return eventSortAsc ? da - db : db - da;
+    });
+    if (!rows.length) { el.innerHTML = '<div class="m-empty">該当するイベントはありません。</div>'; return; }
+
+    el.innerHTML = `
+      <div class="event-row header">
+        <span>日付・時間</span><span>イベント情報・締切</span><span>申し込み</span>
+      </div>` +
+      rows.map(r => {
+        const rawDate = r[0] ? String(r[0]).trim() : '';
+        // GASから返ってくる日付をYYYY/MM/DD形式に正規化
+        let normalizedDate = rawDate;
+        if (rawDate && !rawDate.match(/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/)) {
+          const parsed = new Date(rawDate);
+          if (!isNaN(parsed)) {
+            normalizedDate = `${parsed.getFullYear()}/${String(parsed.getMonth()+1).padStart(2,'0')}/${String(parsed.getDate()).padStart(2,'0')}`;
+          }
+        }
+        const d = normalizedDate ? new Date(normalizedDate.replace(/\//g,'-')) : null;
+        const WEEKDAYS = ['日','月','火','水','木','金','土'];
+        const dateStr = d && !isNaN(d)
+          ? `${normalizedDate}（${WEEKDAYS[d.getDay()]}）`
+          : '日付未定';
+        const timeStr = r[1] ? r[1] : '時間未定';
+        const normDeadline = r[7] ? (() => { const s = String(r[7]).trim(); if (s.match(/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/)) return s; const p = new Date(s); return isNaN(p) ? '' : `${p.getFullYear()}/${String(p.getMonth()+1).padStart(2,'0')}/${String(p.getDate()).padStart(2,'0')}`; })() : '';
+        const isPast = normDeadline ? new Date(normDeadline.replace(/\//g,'-')) < today : false;
+        const hasLink = r[5]?.startsWith('http');
+        const hasBenefit = r[6] && r[6].trim() !== '' && r[6].trim() !== 'なし';
+        const isOnline = (r[3] || '').includes('オンライン');
+
+        const noteExists = findNote(r[4]);
+        const escapedCompany = (r[4]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+        return `<div class="event-row ${noteExists ? 'has-note' : ''}" style="${isPast ? 'opacity:0.45;' : ''}" ${noteExists ? `data-open-modal="${escapedCompany}"` : ''}>
+          <div class="event-date-block">
+            <div class="event-date-main">${dateStr}</div>
+            <div class="event-date-time">${r[1] || ''}</div>
+          </div>
+          <div>
+            <div class="event-name">${r[2] || '–'}</div>
+            <div class="event-meta">
+              ${r[4] ? `<span class="event-meta-item">・${r[4]}</span>` : ''}
+              ${r[3] ? `<span class="event-meta-item">・${r[3]}</span>` : ''}
+              ${(() => {
+                if (!normDeadline) return '';
+                const dl = new Date(normDeadline.replace(/\//g,'-'));
+                const diff = Math.ceil((dl - today) / (1000*60*60*24));
+                if (diff < 0) return `<span class="event-meta-item" style="color:var(--text-muted);">締切済み</span>`;
+                if (diff <= 3) return `<span class="event-meta-item" style="color:var(--crimson);font-weight:700;">⚠ 締切 ${normDeadline}（残${diff}日）</span>`;
+                return `<span class="event-meta-item">📅 締切 ${normDeadline}</span>`;
+              })()}
+            </div>
+          </div>
+          <div class="event-actions">
+            ${noteExists ? '<span class="note-badge">📋 企業ノートあり</span>' : ''}
+            ${hasBenefit ? `<span class="event-benefit">🎁 ${r[6].trim()}さん紹介特典あり</span>` : ''}
+            ${hasLink
+              ? `<a href="${r[5]}" target="_blank" class="event-apply-btn">申し込む →</a>`
+              : `<span class="event-apply-btn no-link">リンクなし</span>`}
+          </div>
+        </div>`;
+      }).join('');
+    el.querySelectorAll('[data-open-modal]').forEach(row => {
+      row.addEventListener('click', () => openModal(row.dataset.openModal));
+    });
+  }
+
+  function toggleEventSort() {
+    eventSortAsc = !eventSortAsc;
+    const btn = document.getElementById('event-sort-btn');
+    btn.textContent = eventSortAsc ? '↑ 日付が近い順' : '↓ 日付が遅い順';
+    renderEvents();
+  }
+
+  // ③ イベント先行案内
+  async function loadPriority() {
+    const el = document.getElementById('priority-list');
+    const note = document.getElementById('priority-note');
+    const sample = [
+      ['2025/06/01', 'GD練習会（先行募集）', 'オンライン・先着10名'],
+      ['2025/06/15', '業界研究会（会員限定）', '三田キャンパス'],
+    ];
+    let rows;
+    try {
+      rows = PRIORITY_KEY ? (await fetchViaGAS(PRIORITY_KEY)) : sample;
+    } catch(err) {
+      el.innerHTML = `<div class="m-empty" style="color:var(--crimson);">⚠ 読み込みエラー: ${err.message}</div>`;
+      console.error('PRIORITY_KEY:', err); return;
+    }
+    if (!rows.length) { el.innerHTML = '<div class="m-empty">現在の先行案内はありません。</div>'; return; }
+    const WEEKDAYS = ['日','月','火','水','木','金','土'];
+    el.innerHTML = rows.map(r => {
+      const isUndated = !r[0] || r[0] === '日付未定' || r[0] === '未定' || r[0] === 'TBD';
+      const d = isUndated ? null : new Date(r[0].replace(/\//g,'-'));
+      const month = (!isUndated && d && !isNaN(d)) ? d.toLocaleDateString('ja-JP',{month:'short'}) : '';
+      const day = isUndated ? '未定' : (d && !isNaN(d) ? d.getDate() : '–');
+      const wd = (!isUndated && d && !isNaN(d)) ? WEEKDAYS[d.getDay()] + '曜' : '';
+      const dayStyle = isUndated ? 'font-family:\'Noto Sans JP\',sans-serif;font-size:0.85rem;font-weight:700;color:var(--text-muted);' : '';
+      return `<div class="priority-row">
+        <div><div class="priority-date-month">${month}</div><div class="priority-date-num" style="${dayStyle}">${day}</div><div style="font-size:0.65rem;color:var(--text-muted)">${wd}</div></div>
+        <div><div class="priority-title">${r[1]||'–'}</div><div class="priority-meta">${r[2]||''}</div></div>
+        <div><span class="priority-badge">先行案内</span></div>
+      </div>`;
+    }).join('');
+
+  }
+
+  // ③ 限定資料
+  async function loadFiles() {
+    const el = document.getElementById('files-grid');
+    const note = document.getElementById('files-note');
+    const sample = [
+      ['業界研究まとめ（金融）', '主要金融機関の業務・選考フロー', '', '2025/05/01'],
+      ['ES例文集 vol.1', 'メンバー提供のES実例', '', '2025/05/10'],
+      ['面接頻出質問リスト', 'よく聞かれる質問と回答例', '', '2025/05/15'],
+    ];
+    let rows;
+    try {
+      rows = FILES_KEY ? (await fetchViaGAS(FILES_KEY)) : sample;
+    } catch(err) {
+      el.innerHTML = `<div class="m-empty" style="color:var(--crimson);">⚠ 読み込みエラー: ${err.message}</div>`;
+      console.error('FILES_KEY:', err); return;
+    }
+    if (!rows.length) { el.innerHTML = '<div class="m-empty" style="grid-column:1/-1;">限定資料はまだ準備中です。<br>LINEコミュニティで配布情報をお知らせします。</div>'; return; }
+    el.innerHTML = rows.map(r => {
+      const hasLink = r[2]?.startsWith('http');
+      return `<${hasLink ? `a href="${r[2]}" target="_blank"` : 'div'} class="file-card">
+        <div class="file-icon">📄</div>
+        <div class="file-name">${r[0]||'–'}</div>
+        <div class="file-meta">${r[1]||''}</div>
+        <div class="file-meta" style="margin-top:auto;">${r[3]||''}</div>
+        ${hasLink ? '<div class="file-link">開く →</div>' : '<div class="file-link" style="color:var(--text-muted)">準備中</div>'}
+      </${hasLink ? 'a' : 'div'}>`;
+    }).join('');
+
+  }
+
+  // ④ 貸出状況
+  async function loadBooks() {
+    const el = document.getElementById('books-grid');
+    const note = document.getElementById('books-note');
+    const sample = [
+      ['外資系コンサルの問題解決力', '高田貴久', '貸出可', ''],
+      ['戦略思考トレーニング', '西村克己', '貸出中', '山田'],
+      ['絶対内定2026', '杉村太郎', '貸出可', ''],
+      ['1分で話せ', '伊藤羊一', '貸出中', '鈴木'],
+    ];
+    let rows;
+    try {
+      rows = BOOKS_KEY ? (await fetchViaGAS(BOOKS_KEY)) : sample;
+    } catch(err) {
+      el.innerHTML = `<div class="m-empty" style="color:var(--crimson);">⚠ 読み込みエラー: ${err.message}</div>`;
+      console.error('BOOKS_KEY:', err); return;
+    }
+    if (!rows.length) { el.innerHTML = '<div class="m-empty" style="grid-column:1/-1;">現在貸出可能な本はありません。<br>LINEコミュニティで輪読会の情報をご確認ください。</div>'; return; }
+    el.innerHTML = rows.map(r => {
+      const available = !r[2] || r[2].includes('可') || r[2].toLowerCase().includes('available');
+      const formUrl = LENDING_FORM + '?usp=pp_url&entry.title=' + encodeURIComponent(r[0]||'');
+      return `<div class="book-card">
+        <div class="book-title">${r[0]||'–'}</div>
+        <div class="book-author">${r[1]||''}</div>
+        <span class="book-status ${available ? 'book-available' : 'book-lending'}">${r[2]||'–'}</span>
+        ${!available && r[3] ? `<div class="book-holder">保有: ${r[3]}</div>` : ''}
+        <div style="margin-top:1rem;">
+          ${available
+            ? `<a href="${formUrl}" target="_blank" class="book-apply-btn">貸出申請する →</a>`
+            : `<span class="book-apply-btn disabled">貸出中</span>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+
+  }
+
+
+  // ===== 企業分析ノート =====
+  let companyNotes = [];
+
+  async function loadCompanyNotes() {
+    if (!GAS_PROXY_URL) return;
+    try {
+      companyNotes = await fetchViaGAS(COMPANY_KEY);
+      renderRandomNotes();
+    } catch(e) { console.warn('企業分析ノート読み込み失敗', e); }
+  }
+
+  function renderRandomNotes() {
+    const valid = companyNotes.filter(r => r[0] && r[0].trim());
+    if (!valid.length) return;
+    const liked = KeioNaviAuth.getLikedCompanies();
+    const title = document.getElementById('random-notes-title');
+    const preferred = liked
+      .map(company => findNote(company.name))
+      .filter(Boolean)
+      .filter((note, index, list) => list.findIndex(item => item[0] === note[0]) === index);
+    const fallback = valid
+      .filter(note => !preferred.some(item => item[0] === note[0]))
+      .sort(() => Math.random() - 0.5);
+    const picks = [...preferred, ...fallback].slice(0, Math.min(3, valid.length));
+    const section = document.getElementById('random-notes-section');
+    const grid = document.getElementById('random-notes-grid');
+    section.style.display = 'block';
+    if (title) {
+      title.textContent = preferred.length ? '気になる企業のノート' : '今日のおすすめ企業ノート';
+    }
+    grid.innerHTML = picks.map(r => {
+      const preview = [r[2], r[3], r[4]].filter(Boolean).join(' ／ ');
+      const escapedName = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="company-note-card" data-open-modal="${escapedName}">
+        <div class="company-note-card-name">${r[0]||'–'}</div>
+        ${r[1] ? `<div class="company-note-card-industry">${r[1]}</div>` : ''}
+        ${preview ? `<div class="company-note-card-preview">${preview}</div>` : ''}
+        <div class="company-note-card-arrow">ノートを見る →</div>
+      </div>`;
+    }).join('');
+    grid.querySelectorAll('[data-open-modal]').forEach(card => {
+      card.addEventListener('click', () => openModal(card.dataset.openModal));
+    });
+  }
+
+
+  // ===== 企業名マッチングユーティリティ =====
+  function normalizeName(s) {
+    return (s || '')
+      .replace(/株式会社|有限会社|合同会社|（株）|\(株\)|HD|ホールディングス|グループ|コーポレーション/g, '')
+      .replace(/\s+/g, '').trim();
+  }
+
+  function companyMatch(a, b) {
+    const na = normalizeName(a);
+    const nb = normalizeName(b);
+    if (!na || !nb) return false;
+    // ① 完全一致
+    if (na === nb) return true;
+    // ② 一方が他方を含む かつ 文字数差が5以下（三井不動産 vs 三井不動産ファシリティーズは差9なので弾く）
+    const diff = Math.abs(na.length - nb.length);
+    if (diff <= 5) {
+      if (na.includes(nb) || nb.includes(na)) return true;
+    }
+    return false;
+  }
+
+  // エイリアス列（H列）も考慮したマッチング（選考情報スプシ用）
+  function selectionMatch(rowName, alias, targetName) {
+    if (companyMatch(rowName, targetName)) return true;
+    if (alias && companyMatch(alias, targetName)) return true;
+    return false;
+  }
+  function findNote(companyName) {
+    if (!companyName || !companyNotes.length) return null;
+    return companyNotes.find(r => {
+      const alias = r[7] || ''; // H列: 一般呼称
+      return companyMatch(r[0] || '', companyName) ||
+             (alias && companyMatch(alias, companyName));
+    }) || null;
+  }
+
+  function searchCompanyNotes() {
+    const q = document.getElementById('company-search-input').value.trim();
+    const grid = document.getElementById('company-notes-grid');
+    if (!q) {
+      grid.innerHTML = '<div class="m-empty">企業名を入力して検索してください。</div>';
+      return;
+    }
+    const results = companyNotes.filter(r => {
+      const name = (r[0] || '').trim();
+      const industry = (r[1] || '').trim();
+      const alias = (r[7] || '').trim(); // H列: 一般呼称
+      return (name && name.includes(q)) || (industry && industry.includes(q)) || (alias && alias.includes(q));
+    });
+    if (!results.length) {
+      const escapedQ = q.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem;">
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">「${q}」の企業ノートはまだ登録されていません。</div>
+        ${GAS_PROXY_URL
+          ? `<button id="search-generate-btn"
+              style="padding:0.7rem 1.8rem; background:var(--navy); color:white; border:none;
+              font-family:'Noto Sans JP',sans-serif; font-size:0.85rem; font-weight:600;
+              cursor:pointer; letter-spacing:0.06em; transition:background 0.2s;"
+              onmouseover="this.style.background='var(--crimson)'" onmouseout="this.style.background='var(--navy)'">
+              Claudeで企業ノートを自動生成する
+            </button>`
+          : ''
+        }
+      </div>`;
+      if (GAS_PROXY_URL) {
+        document.getElementById('search-generate-btn').addEventListener('click', () => generateNote(q));
+      }
+      return;
+    }
+    grid.innerHTML = results.map(r => {
+      const preview = [r[2], r[3], r[4]].filter(Boolean).join(' ／ ');
+      const escapedName = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="company-note-card" data-open-modal="${escapedName}">
+        <div class="company-note-card-name">${r[0]||'–'}</div>
+        ${r[1] ? `<div class="company-note-card-industry">${r[1]}</div>` : ''}
+        ${preview ? `<div class="company-note-card-preview">${preview}</div>` : ''}
+        <div class="company-note-card-arrow">ノートを見る →</div>
+      </div>`;
+    }).join('');
+    grid.querySelectorAll('[data-open-modal]').forEach(card => {
+      card.addEventListener('click', () => openModal(card.dataset.openModal));
+    });
+  }
+
+  function openModal(companyName) {
+    const note = findNote(companyName);
+    document.getElementById('modal-company-name').textContent = companyName || '–';
+    document.getElementById('modal-industry').textContent = note ? (note[1] || '') : '';
+    const body = document.getElementById('modal-body');
+    if (!note) {
+      body.innerHTML = `<div style="text-align:center; padding:2.5rem 1rem;">
+        <div class="modal-no-data" style="margin-bottom:1.2rem;">この企業の分析ノートはまだ登録されていません。</div>
+        ${GAS_PROXY_URL
+          ? `<button id="modal-generate-btn"
+              style="padding:0.7rem 1.8rem; background:var(--navy); color:white; border:none;
+              font-family:'Noto Sans JP',sans-serif; font-size:0.85rem; font-weight:600;
+              cursor:pointer; letter-spacing:0.06em;">
+              Claudeで企業ノートを自動生成する
+            </button>`
+          : ''
+        }
+      </div>
+      <div class="modal-field">
+        <div class="modal-field-label">MY MEMO（自分用メモ）</div>
+        <textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">${getMemo(companyName)}</textarea>
+        <div class="modal-memo-saved" id="memo-saved-msg"></div>
+      </div>`;
+      if (GAS_PROXY_URL) {
+        document.getElementById('modal-generate-btn').addEventListener('click', () => generateNote(companyName));
+      }
+      document.getElementById('modal-memo-area').addEventListener('input', e => saveMemo(companyName, e.target.value));
+    } else {
+      const fields = [
+        { label: '事業内容メモ', value: note[2] },
+        { label: '強み・弱み', value: note[3] },
+        { label: '志望動機メモ', value: note[4] },
+        { label: '選考フロー', value: note[5] },
+        { label: '参考URL', value: note[6], isUrl: true },
+      ];
+      const memoHtml = `<div class="modal-field">
+        <div class="modal-field-label">MY MEMO（自分用メモ）</div>
+        <textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">${getMemo(companyName)}</textarea>
+        <div class="modal-memo-saved" id="memo-saved-msg"></div>
+      </div>`;
+      body.innerHTML = fields.map(f => {
+        if (!f.value) return '';
+        const val = f.isUrl
+          ? f.value.split(/[|;]/).map(u => u.trim()).filter(Boolean)
+              .map(u => `<a href="${u}" target="_blank" class="modal-url" style="display:block;margin-bottom:0.3rem;">${u}</a>`)
+              .join('')
+          : `<div class="modal-field-content">${f.value}</div>`;
+        return `<div class="modal-field">
+          <div class="modal-field-label">${f.label}</div>
+          ${val}
+        </div>`;
+      }).filter(Boolean).join('') + memoHtml || '<div class="modal-no-data">内容がまだ入力されていません。</div>' + memoHtml;
+      document.getElementById('modal-memo-area').addEventListener('input', e => saveMemo(companyName, e.target.value));
+    }
+    document.getElementById('company-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ===== AI 企業ノート自動生成（GASプロキシ経由） =====
+  async function generateNote(searchWord) {
+    // モーダルを開いてローディング表示
+    document.getElementById('modal-company-name').textContent = searchWord;
+    document.getElementById('modal-industry').textContent = '生成中...';
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `<div style="text-align:center; padding:3rem;">
+      <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem;">Claudeが企業ノートを生成しています...<br><span style="font-size:0.75rem; opacity:0.6;">（30〜60秒かかります。そのままお待ちください）</span></div>
+      <div style="width:36px; height:36px; border:2px solid rgba(10,26,62,0.1); border-top-color:var(--navy);
+        border-radius:50%; animation:genSpin 0.8s linear infinite; margin:0 auto;"></div>
+    </div>`;
+    document.getElementById('company-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 90000);
+      const res = await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        body: JSON.stringify({ action: 'generate', companyName: searchWord }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch(e) { throw new Error('GASからの応答が不正です: ' + text.slice(0, 100)); }
+
+      // 企業が見つからない場合
+      if (data.status !== 'ok' && data.message === 'NOT_FOUND') {
+        body.innerHTML = `<div style="text-align:center; padding:3rem;">
+          <div style="font-size:1.5rem; margin-bottom:1rem;">🔍</div>
+          <div style="font-size:0.92rem; font-weight:700; color:var(--navy); margin-bottom:0.6rem;">「${searchWord}」は見つかりませんでした</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.8;">企業名を正式名称や別の表記で試してみてください。<br>それでも見つからない場合はスプシに直接入力してください。</div>
+        </div>`;
+        document.getElementById('modal-industry').textContent = '';
+        return;
+      }
+
+      if (data.status !== 'ok') throw new Error(data.message || '生成に失敗しました');
+      const note = data.note;
+
+      // 正式名称をモーダルヘッダーに表示
+      const officialName = note.officialName || searchWord;
+      document.getElementById('modal-company-name').textContent = officialName;
+      document.getElementById('modal-industry').textContent = note.industry || '';
+
+      // メモリに追加（正式名称で登録、検索ワードをエイリアスに）
+      const newRow = [officialName, note.industry||'', note.business||'', note.strength||'', note.motive||'', note.process||'', note.url||'', searchWord !== officialName ? searchWord : ''];
+      companyNotes.push(newRow);
+
+      const fields = [
+        { label: '事業内容メモ', value: note.business },
+        { label: '強み・弱み', value: note.strength },
+        { label: '志望動機メモ', value: note.motive },
+        { label: '選考フロー', value: note.process },
+        { label: '参考URL', value: note.url, isUrl: true },
+      ];
+
+      // 生成結果を一時保存（正式名称・検索ワード両方）
+      window._lastGeneratedNote = { searchWord, officialName, note };
+
+      body.innerHTML = fields.map(f => {
+        if (!f.value) return '';
+        const val = f.isUrl
+          ? f.value.split(/[|;]/).map(u => u.trim()).filter(Boolean)
+              .map(u => `<a href="${u}" target="_blank" class="modal-url" style="display:block;margin-bottom:0.3rem;">${u}</a>`).join('')
+          : `<div class="modal-field-content">${f.value}</div>`;
+        return `<div class="modal-field"><div class="modal-field-label">${f.label}</div>${val}</div>`;
+      }).filter(Boolean).join('') +
+      `<div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(10,26,62,0.1); text-align:center;">
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.8rem;">※ このノートはまだスプシに保存されていません</div>
+        <button onclick="saveLastNote(this)"
+          style="padding:0.5rem 1.4rem; background:rgba(10,26,62,0.07); border:1px solid rgba(10,26,62,0.2);
+          color:var(--navy); font-family:'Noto Sans JP',sans-serif; font-size:0.78rem;
+          font-weight:600; cursor:pointer;">
+          スプシに保存する
+        </button>
+      </div>`;
+
+    } catch(err) {
+      body.innerHTML = `<div class="modal-no-data" style="color:var(--crimson);">⚠ 生成エラー: ${err.message}</div>`;
+    }
+  }
+
+  async function saveLastNote(btn) {
+    const data = window._lastGeneratedNote;
+    if (!data) return;
+    await saveNoteToSheet(data.searchWord, data.officialName, data.note, btn);
+  }
+
+  async function saveNoteToSheet(searchWord, officialName, note, btn) {
+    try {
+      btn = btn || event.target;
+      btn.textContent = '保存中...'; btn.disabled = true;
+      const res = await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        body: JSON.stringify({ action: 'save', searchWord, note: { ...note, officialName } }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const resultText = await res.text();
+      let result;
+      try { result = JSON.parse(resultText); }
+      catch(e) { throw new Error('保存応答が不正です'); }
+      if (result.status === 'ok') {
+        btn.textContent = '✓ 保存しました';
+        btn.style.background = 'rgba(0,112,60,0.08)';
+        btn.style.color = '#00703c';
+        btn.style.borderColor = '#00703c';
+      } else throw new Error(result.message);
+    } catch(err) {
+      alert('保存エラー: ' + err.message);
+    }
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('company-modal')) closeModalDirect();
+  }
+  function closeModalDirect() {
+    document.getElementById('company-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+  // ===== 企業クイズ =====
+  let quizCorrect = 0, quizTotal = 0, quizUsed = [];
+
+  function startQuiz() {
+    quizCorrect = 0; quizTotal = 0; quizUsed = [];
+    nextQuiz();
+  }
+
+  function nextQuiz() {
+    const valid = companyNotes.filter(r =>
+      r[0] && r[0].trim() && [r[2],r[3],r[4],r[5]].some(v => v && v.trim())
+    );
+    if (valid.length < 4) {
+      document.getElementById('quiz-box').innerHTML =
+        '<div class="quiz-start"><p class="quiz-start-desc">企業ノートが4社以上登録されると遊べるようになります。</p></div>';
+      return;
+    }
+    // 未出題を優先、全部出たらリセット
+    let pool = valid.filter(r => !quizUsed.includes(r[0]));
+    if (pool.length === 0) { quizUsed = []; pool = valid; }
+
+    const correct = pool[Math.floor(Math.random() * pool.length)];
+    quizUsed.push(correct[0]);
+
+    // 不正解3択: 正解以外からランダム
+    const others = valid.filter(r => r[0] !== correct[0]);
+    const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 3);
+    const choices = [...shuffled, correct].sort(() => Math.random() - 0.5);
+
+    // ヒント選択（空でないフィールドからランダムに最大2つ）
+    const hintDefs = [
+      { label: '事業内容', value: correct[2] },
+      { label: '強み・弱み', value: correct[3] },
+      { label: '志望動機メモ', value: correct[4] },
+      { label: '選考フロー', value: correct[5] },
+    ].filter(h => h.value && h.value.trim());
+    const hints = hintDefs.sort(() => Math.random() - 0.5).slice(0, 2);
+
+    const box = document.getElementById('quiz-box');
+    box.innerHTML = `
+      <div class="quiz-score-bar">
+        <div class="quiz-score">正解 <strong>${quizCorrect}</strong> / ${quizTotal}問</div>
+        <button class="quiz-skip-btn" onclick="nextQuiz()">スキップ</button>
+      </div>
+      <div class="quiz-hints">
+        ${hints.map(h => `
+          <div class="quiz-hint">
+            <div class="quiz-hint-label">${h.label}</div>
+            <div class="quiz-hint-text">${h.value}</div>
+          </div>`).join('')}
+      </div>
+      <div class="quiz-choices">
+        ${choices.map(r => {
+          const en = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          const ec = (correct[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          return `<button class="quiz-choice" data-chosen="${en}" data-correct="${ec}">${r[0]}</button>`;
+        }).join('')}
+      </div>
+      <div id="quiz-result"></div>
+    `;
+    box.querySelectorAll('.quiz-choice').forEach(btn => {
+      btn.addEventListener('click', () => answerQuiz(btn, btn.dataset.chosen, btn.dataset.correct));
+    });
+  }
+
+  function answerQuiz(btn, chosen, correctName) {
+    quizTotal++;
+    const isCorrect = chosen === correctName;
+    if (isCorrect) quizCorrect++;
+
+    // 全ボタン無効化・色付け
+    document.querySelectorAll('.quiz-choice').forEach(b => {
+      b.disabled = true;
+      if (b.textContent.trim() === correctName) b.classList.add(isCorrect ? 'correct' : 'reveal');
+      else if (b === btn && !isCorrect) b.classList.add('wrong');
+    });
+
+    const result = document.getElementById('quiz-result');
+    result.className = 'quiz-result ' + (isCorrect ? 'correct' : 'wrong');
+    result.textContent = isCorrect ? '正解！' : `不正解…正解は「${correctName}」でした`;
+
+    const box = document.getElementById('quiz-box');
+    // 次へボタン or 終了
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'quiz-next-btn';
+    if (quizTotal >= 5) {
+      nextBtn.textContent = '結果を見る';
+      nextBtn.onclick = showQuizResult;
+    } else {
+      nextBtn.textContent = `次の問題へ（${quizTotal}/5）→`;
+      nextBtn.onclick = nextQuiz;
+    }
+    box.appendChild(nextBtn);
+  }
+
+  function showQuizResult() {
+    const pct = Math.round(quizCorrect / quizTotal * 100);
+    const msg = pct === 100 ? '完璧！企業研究マスター' : pct >= 60 ? 'なかなかいい感じ！' : 'もっと企業ノートを読もう…';
+    document.getElementById('quiz-box').innerHTML = `
+      <div class="quiz-finish">
+        <div class="quiz-finish-score">${quizCorrect} / ${quizTotal}</div>
+        <div class="quiz-finish-label">${msg}</div>
+        <button class="quiz-start-btn" onclick="startQuiz()">もう一度挑戦する</button>
+      </div>
+    `;
+  }
+
+  // ===== お知らせ =====
+  async function loadNotice() {
+    if (!NOTICE_CSV) return;
+    try {
+      const rows = await fetchCSV(NOTICE_CSV);
+      const valid = rows.filter(r => r[0] && r[1]);
+      if (!valid.length) return;
+      const section = document.getElementById('notice-section');
+      const list = document.getElementById('notice-list');
+      section.style.display = 'block';
+      // 新しい順に最大5件
+      const recent = valid.sort((a, b) => {
+        const da = new Date(a[0].replace(/\//g,'-'));
+        const db = new Date(b[0].replace(/\//g,'-'));
+        return db - da;
+      }).slice(0, 5);
+      list.innerHTML = recent.map(r => {
+        const tag = r[3] ? r[3].trim() : '通常';
+        const tagClass = tag.includes('重要') ? 'tag-important' : tag.includes('イベント') ? 'tag-event' : 'tag-normal';
+        const tagLabel = tag.includes('重要') ? '重要' : tag.includes('イベント') ? 'イベント' : 'お知らせ';
+        return `<div class="notice-item ${tagClass}">
+          <span class="notice-tag ${tagClass}">${tagLabel}</span>
+          <span class="notice-date">${r[0]}</span>
+          <div class="notice-body">
+            <div class="notice-title">${r[1]}</div>
+            ${r[2] ? `<div class="notice-content">${r[2]}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    } catch(err) {
+      console.warn('NOTICE_CSV error:', err);
+    }
+  }
+
+  function initSelectionFormBtn() {
+    const btn = document.getElementById('selection-form-btn');
+    const onboardingLink = document.getElementById('onboarding-form-link');
+    if (SELECTION_FORM) {
+      btn.href = SELECTION_FORM;
+      if (onboardingLink) onboardingLink.href = SELECTION_FORM;
+    } else {
+      btn.style.display = 'none';
+      if (onboardingLink) onboardingLink.style.display = 'none';
+    }
+  }
+
+  // スクロールトップボタン
+  const scrollTopBtn = document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  async function loadAll() {
+    initSelectionFormBtn();
+    initStageSelector();
+    initProgressTracker();
+    initChecklist();
+    initPRTool();
+    // お知らせと企業ノートを並列取得（企業ノートは選考表示のfindNoteで必要）
+    await Promise.all([loadNotice(), loadCompanyNotes()]);
+    await Promise.all([loadSelection(), loadEvents(), loadPriority(), loadFiles(), loadBooks()]);
+    initCalendar();
+    initPastExams();
+    initBoardModal();
+    loadBoardPosts();
+    initAiTools();
+  }
+
+  // ===== ステージセレクター =====
+  const STAGE_KEY = 'keio_navi_stage_v1';
+  const STAGE_SECTIONS = {
+    '自己分析中':  ['company-notes','interview-checklist-section','self-pr-section','selection-section'],
+    'ES準備中':    ['ai-tools-section','selection-section','self-pr-section','es-board-section'],
+    '面接対策中':  ['ai-tools-section','interview-checklist-section','selection-section','progress-section'],
+    '内定待ち':    ['progress-section','calendar-section','selection-section','interview-checklist-section'],
+  };
+
+  function initStageSelector() {
+    const saved = localStorage.getItem(STAGE_KEY);
+    if (saved) applyStage(saved, false);
+    document.querySelectorAll('.stage-select-btn').forEach(btn => {
+      if (btn.dataset.stage === saved) btn.classList.add('active');
+    });
+  }
+
+  function setStage(stage) {
+    localStorage.setItem(STAGE_KEY, stage);
+    document.querySelectorAll('.stage-select-btn').forEach(b => b.classList.toggle('active', b.dataset.stage === stage));
+    applyStage(stage, true);
+  }
+
+  function applyStage(stage, animate) {
+    const priority = STAGE_SECTIONS[stage];
+    if (!priority) return;
+    const main = document.querySelector('.members-main');
+    const sections = Array.from(main.querySelectorAll('.m-section[id]'));
+    // priorityセクションを先頭に移動
+    priority.slice().reverse().forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || !main.contains(el)) return;
+      const ref = main.querySelector('.m-section[id]');
+      if (ref && el !== ref) main.insertBefore(el, ref);
+    });
+  }
+
+  // ===== 難易度投票 =====
+  const DIFF_KEY = 'keio_navi_difficulty_v1';
+  function getDifficultyVote(key) {
+    try { return (JSON.parse(localStorage.getItem(DIFF_KEY) || '{}'))[key] || 0; } catch { return 0; }
+  }
+  function voteDifficulty(key, n, el) {
+    const all = (() => { try { return JSON.parse(localStorage.getItem(DIFF_KEY) || '{}'); } catch { return {}; } })();
+    all[key] = n;
+    localStorage.setItem(DIFF_KEY, JSON.stringify(all));
+    // UI更新
+    const container = el.closest('.sel-difficulty');
+    if (!container) return;
+    container.querySelectorAll('.diff-star').forEach((s, i) => s.classList.toggle('filled', i < n));
+    let label = container.querySelector('.diff-voted-label');
+    if (!label) { label = document.createElement('span'); label.className = 'diff-voted-label'; container.appendChild(label); }
+    label.textContent = `難易度${n}`;
+    // 貢献スコア再計算
+    renderProgressDashboard(readProgress());
+  }
+
+  // ===== チェックリスト =====
+  const CL_KEY = 'keio_navi_checklist_v1';
+  const CL_GROUPS = [
+    { title: '面接前の準備', items: [
+      { id:'cl1', text:'企業研究は完了しているか' },
+      { id:'cl2', text:'自分の強み・弱みを整理したか' },
+      { id:'cl3', text:'逆質問を3つ以上準備したか' },
+      { id:'cl4', text:'志望動機を1分で話せるか' },
+      { id:'cl5', text:'提出したESの内容を確認したか' },
+    ]},
+    { title: '当日の準備', items: [
+      { id:'cl6', text:'服装・身だしなみを確認したか' },
+      { id:'cl7', text:'会場のアクセスを確認したか（余裕を持って出発）' },
+      { id:'cl8', text:'筆記用具・履歴書のコピーを用意したか' },
+      { id:'cl9', text:'携帯のマナーモードを設定したか' },
+    ]},
+    { title: 'よく聞かれる質問の準備', items: [
+      { id:'cl10', text:'自己紹介（1分）を練習したか' },
+      { id:'cl11', text:'ガクチカ（学生時代頑張ったこと）を話せるか' },
+      { id:'cl12', text:'志望動機を具体的に説明できるか' },
+      { id:'cl13', text:'自己PR（強み）を話せるか' },
+      { id:'cl14', text:'入社後やりたいことを伝えられるか' },
+    ]},
+  ];
+  const CL_TOTAL = CL_GROUPS.reduce((s, g) => s + g.items.length, 0);
+
+  function readChecklist() { try { return JSON.parse(localStorage.getItem(CL_KEY) || '[]'); } catch { return []; } }
+  function writeChecklist(arr) { localStorage.setItem(CL_KEY, JSON.stringify(arr)); }
+
+  function renderChecklist() {
+    const checked = readChecklist();
+    const count = checked.length;
+    const pct = Math.round(count / CL_TOTAL * 100);
+    document.getElementById('cl-fill').style.width = pct + '%';
+    document.getElementById('cl-progress-text').textContent = `${count} / ${CL_TOTAL} 完了（${pct}%）`;
+    document.getElementById('checklist-body').innerHTML = CL_GROUPS.map(g =>
+      `<div class="checklist-group">
+        <div class="checklist-group-title">${g.title}</div>
+        ${g.items.map(item => {
+          const done = checked.includes(item.id);
+          return `<div class="checklist-item" onclick="toggleCheck('${item.id}')">
+            <div class="checklist-box${done?' checked':''}"></div>
+            <span class="checklist-text${done?' checked':''}">${item.text}</span>
+          </div>`;
+        }).join('')}
+      </div>`
+    ).join('');
+  }
+
+  function toggleCheck(id) {
+    const arr = readChecklist();
+    const idx = arr.indexOf(id);
+    if (idx >= 0) arr.splice(idx, 1); else arr.push(id);
+    writeChecklist(arr);
+    renderChecklist();
+  }
+  function resetChecklist() { writeChecklist([]); renderChecklist(); }
+  function initChecklist() { renderChecklist(); }
+
+  // ===== 自己PR補助ツール =====
+  const PR_KEY = 'keio_navi_self_pr_v1';
+  const PR_STEPS = [
+    { letter:'P', name:'Point（結論）', hint:'私の強みは〇〇です', field:'p1' },
+    { letter:'R', name:'Reason（理由）', hint:'なぜなら〇〇だからです', field:'r1' },
+    { letter:'E', name:'Example（具体例）', hint:'例えば〇〇という経験では…', field:'e1' },
+    { letter:'P', name:'Point（まとめ）', hint:'この強みを活かして〇〇に貢献できます', field:'p2' },
+  ];
+
+  function readPR() { try { return JSON.parse(localStorage.getItem(PR_KEY) || '{}'); } catch { return {}; } }
+
+  function initPRTool() {
+    const saved = readPR();
+    document.getElementById('pr-steps').innerHTML = PR_STEPS.map(s =>
+      `<div class="pr-step">
+        <div class="pr-step-head">
+          <span class="pr-step-letter">${s.letter}</span>
+          <span class="pr-step-name">${s.name}</span>
+          <span class="pr-step-hint">${s.hint}</span>
+        </div>
+        <div class="pr-step-body">
+          <textarea class="pr-textarea" id="pr-${s.field}" placeholder="${s.hint}" oninput="updatePRPreview()">${(saved[s.field]||'').replace(/</g,'&lt;')}</textarea>
+        </div>
+      </div>`
+    ).join('');
+    updatePRPreview();
+  }
+
+  function updatePRPreview() {
+    const data = {};
+    PR_STEPS.forEach(s => {
+      const el = document.getElementById('pr-' + s.field);
+      data[s.field] = el ? el.value : '';
+    });
+    localStorage.setItem(PR_KEY, JSON.stringify(data));
+    const text = PR_STEPS.map(s => data[s.field].trim()).filter(Boolean).join('\n\n');
+    document.getElementById('pr-preview').textContent = text || '（入力するとここにプレビューが表示されます）';
+    document.getElementById('pr-char-count').textContent = text.length + '文字';
+  }
+
+  function copyPR() {
+    const text = document.getElementById('pr-preview').textContent;
+    if (!text || text.includes('入力すると')) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.pr-copy-btn');
+      const orig = btn.textContent;
+      btn.textContent = 'コピーしました！';
+      setTimeout(() => btn.textContent = orig, 1500);
+    });
+  }
+
+  // ===== ES添削掲示板 =====
+  const BOARD_POSTS_KEY = 'keio_navi_board_posts_v1';
+
+  function readLocalPosts() { try { return JSON.parse(localStorage.getItem(BOARD_POSTS_KEY) || '[]'); } catch { return []; } }
+  function writeLocalPosts(arr) { localStorage.setItem(BOARD_POSTS_KEY, JSON.stringify(arr)); }
+
+  async function loadBoardPosts() {
+    const countEl = document.getElementById('board-count');
+    const listEl = document.getElementById('board-list');
+    // まずlocalStorageのデータを表示
+    let posts = readLocalPosts();
+    // GASから取得を試みる
+    try {
+      const res = await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'readBoardPosts', sessionToken: KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '' }),
+      });
+      const data = await res.json();
+      if (data.status === 'ok' && Array.isArray(data.posts)) {
+        posts = data.posts;
+        writeLocalPosts(posts);
+      }
+    } catch(e) { /* GAS未設定時はlocalを使う */ }
+    renderBoardPosts(posts);
+    if (countEl) countEl.textContent = posts.length ? `${posts.length}件の投稿` : '投稿はまだありません';
+  }
+
+  function renderBoardPosts(posts) {
+    const listEl = document.getElementById('board-list');
+    const currentUser = KeioNaviAuth.getCurrentUser();
+    if (!posts.length) {
+      listEl.innerHTML = '<div class="m-empty">まだ投稿がありません。最初のESを共有してみよう！</div>';
+      return;
+    }
+    listEl.innerHTML = posts.map(p => {
+      const comments = (p.comments || []).map(c =>
+        `<div class="board-comment"><span class="board-comment-user">${c.username||'匿名'}</span>${(c.commentText||c.text||'').replace(/</g,'&lt;')}</div>`
+      ).join('');
+      return `<div class="board-card">
+        <div class="board-card-head">
+          <span class="board-card-company">${(p.company||'').replace(/</g,'&lt;')}</span>
+          <span class="board-card-user">${p.username||'匿名'} · ${p.createdAt ? new Date(p.createdAt).toLocaleDateString('ja-JP') : ''}</span>
+        </div>
+        <div class="board-card-q">${(p.question||'').replace(/</g,'&lt;')}</div>
+        <div class="board-card-text">${(p.esText||p.text||'').replace(/</g,'&lt;')}</div>
+        <div class="board-comments">
+          <div id="comments-${p.id}">${comments}</div>
+          <div class="board-comment-row">
+            <input class="board-comment-input" id="ci-${p.id}" placeholder="フィードバックを書く...">
+            <button class="board-comment-submit" onclick="submitComment('${p.id}')">送信</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function submitComment(postId) {
+    const input = document.getElementById('ci-' + postId);
+    const text = input.value.trim();
+    if (!text) return;
+    const currentUser = KeioNaviAuth.getCurrentUser();
+    const username = currentUser ? currentUser.username : '匿名';
+    // localStorageに追加
+    const posts = readLocalPosts();
+    const post = posts.find(p => p.id === postId);
+    if (post) {
+      if (!post.comments) post.comments = [];
+      const comment = { id: Date.now().toString(), postId, username, commentText: text, createdAt: new Date().toISOString() };
+      post.comments.push(comment);
+      writeLocalPosts(posts);
+    }
+    // GASにも送信
+    try {
+      await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addBoardComment', postId, commentText: text, sessionToken: KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '' }),
+      });
+    } catch(e) {}
+    input.value = '';
+    renderBoardPosts(readLocalPosts());
+  }
+
+  function initBoardModal() {
+    document.getElementById('board-post-btn').addEventListener('click', () => {
+      document.getElementById('bm-error').textContent = '';
+      document.getElementById('bm-company').value = '';
+      document.getElementById('bm-question').value = '';
+      document.getElementById('bm-text').value = '';
+      document.getElementById('board-modal').classList.add('open');
+    });
+    document.getElementById('board-modal-close').addEventListener('click', () => {
+      document.getElementById('board-modal').classList.remove('open');
+    });
+    document.getElementById('board-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('board-modal'))
+        document.getElementById('board-modal').classList.remove('open');
+    });
+    document.getElementById('bm-submit').addEventListener('click', async () => {
+      const company = document.getElementById('bm-company').value.trim();
+      const question = document.getElementById('bm-question').value.trim();
+      const esText = document.getElementById('bm-text').value.trim();
+      if (!company || !question || !esText) {
+        document.getElementById('bm-error').textContent = 'すべての項目を入力してください。'; return;
+      }
+      const currentUser = KeioNaviAuth.getCurrentUser();
+      const post = {
+        id: Date.now().toString(),
+        company, question, esText,
+        username: currentUser ? currentUser.username : '匿名',
+        createdAt: new Date().toISOString(),
+        comments: [],
+      };
+      const posts = readLocalPosts();
+      posts.unshift(post);
+      writeLocalPosts(posts);
+      // GASに送信
+      try {
+        await fetch(GAS_PROXY_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'writeBoardPost', ...post, sessionToken: KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '' }),
+        });
+      } catch(e) {}
+      document.getElementById('board-modal').classList.remove('open');
+      renderBoardPosts(readLocalPosts());
+      const countEl = document.getElementById('board-count');
+      if (countEl) countEl.textContent = `${readLocalPosts().length}件の投稿`;
+    });
+  }
+
+  // ===== 就活進捗トラッカー =====
+  const PROGRESS_KEY = 'keio_navi_progress_v1';
+  const PROGRESS_STAGES = ['ES提出', '書類選考', '一次面接', '二次面接', '最終面接'];
+
+  function readProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]'); } catch { return []; }
+  }
+  function writeProgress(list) {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(list));
+  }
+
+  function calcContribScore() {
+    const examCount = readExams ? readExams().length : 0;
+    const diffCount = (() => { try { return Object.keys(JSON.parse(localStorage.getItem(DIFF_KEY) || '{}')).length; } catch { return 0; } })();
+    const boardCount = readLocalPosts ? readLocalPosts().filter(p => p.username && KeioNaviAuth.getCurrentUser() && p.username === KeioNaviAuth.getCurrentUser().username).length : 0;
+    return examCount * 2 + diffCount * 1 + boardCount * 3;
+  }
+
+  function renderProgressDashboard(list) {
+    document.getElementById('dash-total').textContent = list.length;
+    document.getElementById('dash-active').textContent = list.filter(e => e.status === 'active').length;
+    document.getElementById('dash-offer').textContent = list.filter(e => e.status === 'offer').length;
+    const badgesEl = document.getElementById('dash-badges');
+    const score = calcContribScore();
+    const badges = [];
+    if (score >= 1) badges.push(`貢献 ${score}pt`);
+    if (list.filter(e => e.status === 'offer').length >= 1) badges.push('内定獲得');
+    if (list.length >= 10) badges.push('10社エントリー');
+    else if (list.length >= 5) badges.push('5社エントリー');
+    if (list.some(e => e.status === 'active' && PROGRESS_STAGES.indexOf(e.stage) >= 4)) badges.push('最終面接到達');
+    else if (list.some(e => e.status === 'active' && PROGRESS_STAGES.indexOf(e.stage) >= 2)) badges.push('面接突破');
+    badgesEl.innerHTML = badges.length
+      ? badges.map(b => `<span class="dash-badge">${b}</span>`).join('')
+      : '<span class="dash-badge-empty">企業を追加するとバッジが表示されます</span>';
+  }
+
+  function renderProgressList() {
+    const list = readProgress();
+    const el = document.getElementById('progress-list');
+    renderProgressDashboard(list);
+    if (!list.length) {
+      el.innerHTML = '<div class="m-empty">まだ登録されていません。「＋ 企業を追加」から登録してください。</div>';
+      return;
+    }
+    const sorted = [...list].sort((a, b) => {
+      if (a.status !== 'active' && b.status === 'active') return 1;
+      if (a.status === 'active' && b.status !== 'active') return -1;
+      const da = a.deadline ? new Date(a.deadline) : new Date('9999-12-31');
+      const db = b.deadline ? new Date(b.deadline) : new Date('9999-12-31');
+      return da - db;
+    });
+    el.innerHTML = sorted.map(entry => {
+      const stageIdx = Math.max(0, PROGRESS_STAGES.indexOf(entry.stage));
+      const isTerminal = entry.status === 'offer' || entry.status === 'rejected';
+      const stageChips = PROGRESS_STAGES.map((s, i) => {
+        let cls = isTerminal ? (i <= stageIdx ? 'done' : 'pending') : (i < stageIdx ? 'done' : i === stageIdx ? 'current' : 'pending');
+        return `<span class="stage-chip ${cls}" onclick="setProgressStage('${entry.id}',${i})">${s}</span>`;
+      }).join('');
+      const deadlineStr = entry.deadline
+        ? `<span style="font-size:0.68rem;color:var(--text-muted);">締切: ${entry.deadline.replace(/-/g,'/')}</span>` : '';
+      const terminalBtns = isTerminal
+        ? `<button onclick="setProgressStatus('${entry.id}','active')" style="font-size:0.68rem;padding:0.2rem 0.5rem;border:1px solid rgba(10,26,62,0.2);background:none;cursor:pointer;color:var(--text-muted);">継続中に戻す</button>`
+        : `<button onclick="setProgressStatus('${entry.id}','offer')" style="font-size:0.68rem;padding:0.2rem 0.5rem;border:1px solid var(--gold);background:none;cursor:pointer;color:#7a5f10;margin-right:0.3rem;">内定</button><button onclick="setProgressStatus('${entry.id}','rejected')" style="font-size:0.68rem;padding:0.2rem 0.5rem;border:1px solid rgba(10,26,62,0.2);background:none;cursor:pointer;color:var(--text-muted);">落選</button>`;
+      const statusBadge = entry.status === 'offer'
+        ? `<span style="font-size:0.65rem;background:rgba(201,168,76,0.15);color:#7a5f10;border:1px solid rgba(201,168,76,0.4);padding:0.15rem 0.5rem;font-weight:700;margin-left:0.4rem;">内定</span>`
+        : entry.status === 'rejected'
+        ? `<span style="font-size:0.65rem;background:rgba(10,26,62,0.06);color:var(--text-muted);padding:0.15rem 0.5rem;font-weight:700;margin-left:0.4rem;">落選</span>` : '';
+      return `<div class="progress-row">
+        <div class="progress-row-top">
+          <div><span class="progress-company">${entry.company}</span>${entry.industry ? `<span class="progress-industry" style="margin-left:0.5rem;">${entry.industry}</span>` : ''}${statusBadge}</div>
+          <button class="progress-del-btn" onclick="deleteProgress('${entry.id}')">削除</button>
+        </div>
+        <div class="progress-stages">${stageChips}</div>
+        <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">${deadlineStr}${terminalBtns}</div>
+        <input class="progress-note-input" type="text" value="${(entry.memo||'').replace(/"/g,'&quot;')}" placeholder="メモ..." oninput="saveProgressMemo('${entry.id}',this.value)">
+      </div>`;
+    }).join('');
+  }
+
+  function setProgressStage(id, stageIdx) {
+    const list = readProgress();
+    const entry = list.find(e => e.id === id);
+    if (!entry) return;
+    entry.stage = PROGRESS_STAGES[stageIdx];
+    entry.status = 'active';
+    writeProgress(list);
+    renderProgressList();
+    renderCalendar();
+  }
+
+  function setProgressStatus(id, status) {
+    const list = readProgress();
+    const entry = list.find(e => e.id === id);
+    if (!entry) return;
+    entry.status = status;
+    writeProgress(list);
+    renderProgressList();
+  }
+
+  function deleteProgress(id) {
+    writeProgress(readProgress().filter(e => e.id !== id));
+    renderProgressList();
+    renderCalendar();
+  }
+
+  function saveProgressMemo(id, val) {
+    const list = readProgress();
+    const entry = list.find(e => e.id === id);
+    if (entry) { entry.memo = val; writeProgress(list); }
+  }
+
+  function initProgressTracker() {
+    renderProgressList();
+    document.getElementById('progress-add-btn').addEventListener('click', () => {
+      document.getElementById('pm-error').textContent = '';
+      document.getElementById('pm-company').value = '';
+      document.getElementById('pm-industry').value = '';
+      document.getElementById('pm-deadline').value = '';
+      document.getElementById('progress-modal').classList.add('open');
+    });
+    document.getElementById('progress-modal-close').addEventListener('click', () => {
+      document.getElementById('progress-modal').classList.remove('open');
+    });
+    document.getElementById('progress-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('progress-modal'))
+        document.getElementById('progress-modal').classList.remove('open');
+    });
+    document.getElementById('pm-submit').addEventListener('click', () => {
+      const company = document.getElementById('pm-company').value.trim();
+      if (!company) { document.getElementById('pm-error').textContent = '企業名を入力してください。'; return; }
+      const list = readProgress();
+      list.unshift({
+        id: Date.now().toString(),
+        company,
+        industry: document.getElementById('pm-industry').value,
+        deadline: document.getElementById('pm-deadline').value,
+        stage: PROGRESS_STAGES[0],
+        status: 'active',
+        memo: '',
+      });
+      writeProgress(list);
+      document.getElementById('progress-modal').classList.remove('open');
+      renderProgressList();
+      renderCalendar();
+    });
+  }
+
+  // ===== 締切カレンダー =====
+  let calendarYear, calendarMonth;
+
+  function initCalendar() {
+    const now = new Date();
+    calendarYear = now.getFullYear();
+    calendarMonth = now.getMonth();
+    renderCalendar();
+    document.getElementById('cal-prev').addEventListener('click', () => {
+      calendarMonth--;
+      if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+      renderCalendar();
+    });
+    document.getElementById('cal-next').addEventListener('click', () => {
+      calendarMonth++;
+      if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+      renderCalendar();
+    });
+  }
+
+  function renderCalendar() {
+    if (calendarYear === undefined) return;
+    const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    document.getElementById('cal-month-label').textContent = `${calendarYear}年 ${monthNames[calendarMonth]}`;
+    const liked = KeioNaviAuth.getLikedCompanies();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const events = {};
+    const addEvent = (ds, name, type) => { if (!events[ds]) events[ds] = []; events[ds].push({ name, type }); };
+    // 選考情報から締切
+    selectionRows.forEach(r => {
+      if (!r[0] || !r[1]) return;
+      const normD = normalizeDate(r[1]);
+      if (!normD) return;
+      const d = new Date(normD.replace(/\//g,'-'));
+      if (isNaN(d)) return;
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const companyName = (r[0]||'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+      const isLiked = liked.some(c => selectionMatch(companyName, r[6]||'', c.name));
+      addEvent(ds, r[0], isLiked ? 'liked' : 'selection');
+    });
+    // 進捗トラッカーから締切
+    readProgress().forEach(entry => {
+      if (entry.deadline) addEvent(entry.deadline, entry.company, 'mine');
+    });
+    // グリッド描画
+    const firstDay = new Date(calendarYear, calendarMonth, 1);
+    const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+    const startDow = firstDay.getDay();
+    const dows = ['日','月','火','水','木','金','土'];
+    let html = dows.map(d => `<div class="calendar-dow">${d}</div>`).join('');
+    for (let i = 0; i < startDow; i++) html += `<div class="calendar-cell other-month"></div>`;
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const ds = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const isToday = ds === todayStr;
+      const dayEvents = events[ds] || [];
+      const evHtml = dayEvents.slice(0, 3).map(ev => {
+        const likedCls = ev.type === 'liked' ? ' liked' : '';
+        const mineStyle = ev.type === 'mine' ? ' style="background:var(--navy);"' : '';
+        return `<div class="calendar-deadline${likedCls}"${mineStyle} title="${ev.name}">${ev.name}</div>`;
+      }).join('');
+      const moreHtml = dayEvents.length > 3 ? `<div style="font-size:0.55rem;color:var(--text-muted);padding:0.1rem 0.2rem;">+${dayEvents.length-3}件</div>` : '';
+      html += `<div class="calendar-cell${isToday ? ' today' : ''}"><div class="calendar-cell-num">${day}</div>${evHtml}${moreHtml}</div>`;
+    }
+    const total = startDow + lastDay.getDate();
+    const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let i = 0; i < remaining; i++) html += `<div class="calendar-cell other-month"></div>`;
+    document.getElementById('calendar-grid').innerHTML = html;
+  }
+
+  // ===== 過去問ライブラリ =====
+  const EXAMS_KEY = 'keio_navi_past_exams_v1';
+
+  function readExams() {
+    try {
+      const raw = localStorage.getItem(EXAMS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  }
+
+  function writeExams(list) {
+    localStorage.setItem(EXAMS_KEY, JSON.stringify(list));
+  }
+
+  let examFacultyFilter = 'all';
+  let examSearchQuery = '';
+
+  function examTypeClass(type) {
+    if (type === '期末試験' || type === '定期試験') return 'type-final';
+    if (type === '中間試験') return 'type-mid';
+    if (type === 'レポート') return 'type-report';
+    return '';
+  }
+
+  function renderExams() {
+    const list = readExams();
+    const container = document.getElementById('exam-list');
+    const q = examSearchQuery.trim().toLowerCase();
+
+    const filtered = list.filter(e => {
+      if (examFacultyFilter !== 'all' && e.faculty !== examFacultyFilter) return false;
+      if (q && !e.subject.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="m-empty">' +
+        (list.length ? '条件に一致する過去問が見つかりませんでした。' : 'まだ登録された過去問はありません。最初の一件を追加してみよう！') +
+        '</div>';
+      return;
+    }
+
+    // 新着順
+    const sorted = [...filtered].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    const currentUser = KeioNaviAuth.getCurrentUser();
+
+    container.innerHTML = sorted.map(e => {
+      const hasLink = e.link && e.link.startsWith('http');
+      const hasMemo = e.memo && e.memo.trim();
+      const typeClass = examTypeClass(e.type);
+      const isOwn = currentUser && e.contributor === currentUser.username;
+      return `
+        <div class="exam-row" data-id="${e.id}">
+          <div>
+            <div class="exam-subject">${e.subject || '(科目名なし)'}</div>
+            <div class="exam-meta">
+              ${e.faculty ? `<span>${e.faculty}</span>` : ''}
+              ${e.period ? `<span>${e.period}</span>` : ''}
+            </div>
+            ${e.contributor ? `<div class="exam-contributor">共有者：${e.contributor}</div>` : ''}
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;">
+            ${e.type ? `<span class="exam-tag ${typeClass}">${e.type}</span>` : ''}
+          </div>
+          <div class="exam-actions">
+            ${hasMemo ? `<button class="exam-memo-btn" data-exam-memo="${e.id}">メモを見る</button>` : ''}
+            ${hasLink ? `<a href="${e.link}" class="exam-link-btn" target="_blank" rel="noopener">資料を開く →</a>` : ''}
+            ${isOwn ? `<button class="exam-delete-btn" data-exam-delete="${e.id}">削除</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('[data-exam-memo]').forEach(btn => {
+      btn.addEventListener('click', () => openExamDetail(btn.dataset.examMemo));
+    });
+    container.querySelectorAll('[data-exam-delete]').forEach(btn => {
+      btn.addEventListener('click', () => deleteExam(btn.dataset.examDelete));
+    });
+  }
+
+  function openExamDetail(id) {
+    const list = readExams();
+    const e = list.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('exam-detail-title').textContent = e.subject || '(科目名なし)';
+    const body = document.getElementById('exam-detail-body');
+    body.innerHTML = `
+      ${e.faculty || e.period || e.type ? `
+        <div class="modal-field">
+          <div class="modal-field-label">基本情報</div>
+          <div class="modal-field-content">${[e.faculty, e.period, e.type].filter(Boolean).join(' ／ ')}</div>
+        </div>` : ''}
+      ${e.memo ? `
+        <div class="modal-field">
+          <div class="modal-field-label">傾向・メモ</div>
+          <div class="modal-field-content">${e.memo.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        </div>` : ''}
+      ${e.link ? `
+        <div class="modal-field">
+          <div class="modal-field-label">資料リンク</div>
+          <div class="modal-field-content"><a href="${e.link}" target="_blank" rel="noopener" class="modal-url">${e.link}</a></div>
+        </div>` : ''}
+    `;
+    document.getElementById('exam-detail-overlay').classList.add('open');
+  }
+
+  function deleteExam(id) {
+    if (!confirm('この過去問情報を削除しますか？')) return;
+    const list = readExams().filter(e => e.id !== id);
+    writeExams(list);
+    renderExams();
+  }
+
+  function initPastExams() {
+    // 学部フィルター
+    document.getElementById('exam-faculty-filter').querySelectorAll('.exam-faculty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.exam-faculty-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        examFacultyFilter = btn.dataset.faculty;
+        renderExams();
+      });
+    });
+
+    // 科目検索
+    document.getElementById('exam-search').addEventListener('input', e => {
+      examSearchQuery = e.target.value;
+      renderExams();
+    });
+
+    // 追加ボタン
+    document.getElementById('exam-add-btn').addEventListener('click', () => {
+      document.getElementById('exam-form-error').textContent = '';
+      document.getElementById('ef-subject').value = '';
+      document.getElementById('ef-faculty').value = '';
+      document.getElementById('ef-period').value = '';
+      document.getElementById('ef-type').value = '';
+      document.getElementById('ef-link').value = '';
+      document.getElementById('ef-memo').value = '';
+      document.getElementById('exam-modal-overlay').classList.add('open');
+    });
+
+    // モーダルを閉じる
+    document.getElementById('exam-modal-close').addEventListener('click', () => {
+      document.getElementById('exam-modal-overlay').classList.remove('open');
+    });
+    document.getElementById('exam-modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('exam-modal-overlay'))
+        document.getElementById('exam-modal-overlay').classList.remove('open');
+    });
+
+    // 詳細モーダルを閉じる
+    document.getElementById('exam-detail-close').addEventListener('click', () => {
+      document.getElementById('exam-detail-overlay').classList.remove('open');
+    });
+    document.getElementById('exam-detail-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('exam-detail-overlay'))
+        document.getElementById('exam-detail-overlay').classList.remove('open');
+    });
+
+    // フォーム送信
+    document.getElementById('exam-submit-btn').addEventListener('click', () => {
+      const subject = document.getElementById('ef-subject').value.trim();
+      if (!subject) {
+        document.getElementById('exam-form-error').textContent = '科目名を入力してください。';
+        return;
+      }
+      const link = document.getElementById('ef-link').value.trim();
+      if (link && !link.startsWith('http')) {
+        document.getElementById('exam-form-error').textContent = 'リンクはhttpまたはhttpsで始まるURLを入力してください。';
+        return;
+      }
+      document.getElementById('exam-form-error').textContent = '';
+
+      const currentUser = KeioNaviAuth.getCurrentUser();
+      const entry = {
+        id: Date.now().toString(),
+        subject,
+        faculty: document.getElementById('ef-faculty').value,
+        period: document.getElementById('ef-period').value.trim(),
+        type: document.getElementById('ef-type').value,
+        link,
+        memo: document.getElementById('ef-memo').value.trim(),
+        contributor: currentUser ? currentUser.username : '匿名',
+        createdAt: new Date().toISOString(),
+      };
+
+      const list = readExams();
+      list.unshift(entry);
+      writeExams(list);
+      document.getElementById('exam-modal-overlay').classList.remove('open');
+      renderExams();
+    });
+
+    renderExams();
+  }
+
+  // ===== AI就活サポートツール =====
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzwvR3F4OL5gMd03q82nWXhCNWV2ZzCnCsb8vyyUgQjD_Jk46JDE4e-yiX9lSw_ZQZ5eA/exec';
+
+  function initAiTools() {
+    document.querySelectorAll('.ai-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ai-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.ai-tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('ai-tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+  }
+
+  function updateCharCount(textareaId, countId) {
+    const len = document.getElementById(textareaId).value.length;
+    document.getElementById(countId).textContent = len + ' 字';
+  }
+
+  async function callClaudeApi(toolType, input) {
+    const sessionToken = KeioNaviAuth.getSessionToken();
+    if (!sessionToken) throw new Error('ログインが必要です。');
+
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'callClaude', sessionToken, toolType, input }),
+      redirect: 'follow',
+    });
+    const data = await res.json().catch(() => null);
+    if (!data || data.status !== 'ok') throw new Error((data && data.message) || 'AI処理に失敗しました。');
+    return data.result;
+  }
+
+  function setAiLoading(btnId, resultId, errorId, loading) {
+    const btn = document.getElementById(btnId);
+    const result = document.getElementById(resultId);
+    const errEl = document.getElementById(errorId);
+    if (loading) {
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = '分析中…';
+      btn.innerHTML = '<span class="ai-spinner"></span><span class="btn-text">AIが分析中…</span>';
+      result.className = 'ai-result-box visible loading';
+      result.textContent = '🤖 AIが分析しています。しばらくお待ちください（30〜60秒）…';
+      errEl.textContent = '';
+    } else {
+      btn.disabled = false;
+    }
+  }
+
+  function showAiResult(btnId, resultId, originalLabel, text) {
+    const btn = document.getElementById(btnId);
+    btn.innerHTML = '<span class="btn-text">' + originalLabel + '</span>';
+    const result = document.getElementById(resultId);
+    result.className = 'ai-result-box visible';
+    result.textContent = text;
+  }
+
+  async function submitEsReview() {
+    const esText = document.getElementById('esr-text').value.trim();
+    if (!esText) { document.getElementById('esr-error').textContent = 'ESの内容を入力してください。'; return; }
+    document.getElementById('esr-error').textContent = '';
+    setAiLoading('esr-submit-btn', 'esr-result', 'esr-error', true);
+    try {
+      const result = await callClaudeApi('esReview', {
+        company:  document.getElementById('esr-company').value.trim(),
+        question: document.getElementById('esr-question').value.trim(),
+        esText,
+      });
+      showAiResult('esr-submit-btn', 'esr-result', '✨ AIに添削してもらう', result);
+    } catch (err) {
+      document.getElementById('esr-error').textContent = err.message;
+      document.getElementById('esr-result').className = 'ai-result-box';
+      const btn = document.getElementById('esr-submit-btn');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">✨ AIに添削してもらう</span>';
+    }
+  }
+
+  async function submitInterviewCoach() {
+    const answer = document.getElementById('ic-answer').value.trim();
+    if (!answer) { document.getElementById('ic-error').textContent = '回答を入力してください。'; return; }
+    document.getElementById('ic-error').textContent = '';
+    setAiLoading('ic-submit-btn', 'ic-result', 'ic-error', true);
+    try {
+      const result = await callClaudeApi('interviewCoach', {
+        question: document.getElementById('ic-question').value.trim(),
+        jobType:  document.getElementById('ic-jobtype').value.trim(),
+        answer,
+      });
+      showAiResult('ic-submit-btn', 'ic-result', '🎤 AIコーチに評価してもらう', result);
+    } catch (err) {
+      document.getElementById('ic-error').textContent = err.message;
+      document.getElementById('ic-result').className = 'ai-result-box';
+      const btn = document.getElementById('ic-submit-btn');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">🎤 AIコーチに評価してもらう</span>';
+    }
+  }
+
+  async function submitEsRewrite() {
+    const originalEs = document.getElementById('rw-original').value.trim();
+    const targetCompany = document.getElementById('rw-company').value.trim();
+    if (!originalEs) { document.getElementById('rw-error').textContent = '元のES内容を入力してください。'; return; }
+    if (!targetCompany) { document.getElementById('rw-error').textContent = '志望企業名を入力してください。'; return; }
+    document.getElementById('rw-error').textContent = '';
+    setAiLoading('rw-submit-btn', 'rw-result', 'rw-error', true);
+    try {
+      const result = await callClaudeApi('esRewrite', {
+        originalEs,
+        targetCompany,
+        targetQuestion: document.getElementById('rw-question').value.trim(),
+      });
+      showAiResult('rw-submit-btn', 'rw-result', '🔄 AIに流用ESを作ってもらう', result);
+    } catch (err) {
+      document.getElementById('rw-error').textContent = err.message;
+      document.getElementById('rw-result').className = 'ai-result-box';
+      const btn = document.getElementById('rw-submit-btn');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">🔄 AIに流用ESを作ってもらう</span>';
+    }
+  }
+</script>
+</body>
+</html>

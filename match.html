@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企業マッチング | 慶應就活ナビ</title>
+<meta name="description" content="慶應就活ナビの企業マッチング機能。気になる企業をスワイプして、自分に合った就職先を見つけよう。">
+<meta name="robots" content="noindex, nofollow">
+
+<!-- OGP -->
+<meta property="og:title" content="企業マッチング | 慶應就活ナビ">
+<meta property="og:description" content="スワイプで気になる企業を探そう。慶應生のための就活支援コミュニティ。">
+<meta property="og:image" content="https://naotama1123.github.io/keio-syukatu-navi/ogp.jpg">
+<meta property="og:url" content="https://naotama1123.github.io/keio-syukatu-navi/match.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="慶應就活ナビ">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="企業マッチング | 慶應就活ナビ">
+<meta name="twitter:description" content="スワイプで気になる企業を探そう。慶應生のための就活支援コミュニティ。">
+<meta name="twitter:image" content="https://naotama1123.github.io/keio-syukatu-navi/ogp.jpg">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1a3e; --crimson: #c0001a; --gold: #c9a84c;
+    --gold-light: #e8c96c; --cream: #faf7f2; --text: #1a1a1a;
+    --text-muted: #6b6b6b; --green: #00703c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: #0d1f4a; font-family: 'Noto Sans JP', sans-serif; display: flex; flex-direction: column; }
+
+  nav {
+    flex-shrink: 0; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.2rem;
+    background: rgba(10,26,62,0.97);
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+  }
+  .nav-back { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--gold); }
+  .nav-title { font-family: 'Noto Serif JP', serif; font-size: 0.88rem; color: var(--gold-light); font-weight: 700; }
+  .like-pill {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.72rem; color: var(--gold); font-weight: 700;
+    background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2);
+    padding: 0.25rem 0.8rem; cursor: pointer; transition: all 0.2s;
+  }
+  .like-pill:hover { background: rgba(201,168,76,0.2); }
+  .nav-utility {
+    background: none; border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.56); font-size: 0.72rem;
+    padding: 0.3rem 0.75rem; font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .nav-utility:hover { border-color: var(--crimson); color: var(--crimson); }
+
+  .main {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 1rem;
+    background: linear-gradient(160deg, #0d1f4a 0%, #0a1a3e 60%, #111c3e 100%);
+    overflow: hidden;
+  }
+
+  /* Progress */
+  .progress-wrap { width: 100%; max-width: 380px; margin-bottom: 1rem; }
+  .progress-bg { height: 2px; background: rgba(255,255,255,0.07); border-radius: 1px; }
+  .progress-fill { height: 2px; background: var(--gold); border-radius: 1px; transition: width 0.4s ease; }
+  .progress-label { font-size: 0.62rem; color: rgba(255,255,255,0.2); text-align: right; margin-top: 0.4rem; letter-spacing: 0.06em; }
+
+  /* Stack */
+  .card-wrap { width: 100%; max-width: 380px; }
+  .card-stack { position: relative; height: 450px; }
+
+  .company-card {
+    position: absolute; inset: 0; border-radius: 16px;
+    overflow: hidden; cursor: grab; user-select: none;
+    will-change: transform; display: flex; flex-direction: column;
+    background: var(--cream);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .company-card:active { cursor: grabbing; }
+  .company-card.animating { transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.35s ease; }
+  .company-card.returning { transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  .company-card[data-layer="1"] { z-index: 3; }
+  .company-card[data-layer="2"] { z-index: 2; transform: scale(0.96) translateY(10px); filter: brightness(0.82); transition: transform 0.3s ease, filter 0.3s ease; }
+  .company-card[data-layer="3"] { z-index: 1; transform: scale(0.92) translateY(20px); filter: brightness(0.65); transition: transform 0.3s ease, filter 0.3s ease; }
+
+  /* Card Header */
+  .card-header { padding: 1.8rem 1.5rem 1.4rem; position: relative; overflow: hidden; flex-shrink: 0; min-height: 135px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .card-header-bg { position: absolute; inset: 0; }
+  .card-header-noise { position: absolute; inset: 0; opacity: 0.03; background-image: repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%); background-size: 10px 10px; }
+  .card-header-gold { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--gold); }
+  .card-industry { position: relative; z-index: 1; font-size: 0.58rem; color: var(--gold); font-weight: 700; letter-spacing: 0.2em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+  .card-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+  .card-name { position: relative; z-index: 1; font-family: 'Noto Serif JP', serif; font-size: 1.55rem; color: white; font-weight: 700; line-height: 1.2; }
+
+  /* Card Body */
+  .card-body { padding: 1.1rem 1.5rem; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 0.9rem; }
+  .card-fl { }
+  .card-fl-label { font-size: 0.57rem; color: var(--crimson); font-weight: 700; letter-spacing: 0.18em; margin-bottom: 0.3rem; }
+  .card-fl-text { font-size: 0.79rem; color: var(--text); line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .card-footer { padding: 0.7rem 1.5rem 1rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; flex-shrink: 0; border-top: 1px solid rgba(10,26,62,0.06); }
+  .chip { font-size: 0.6rem; padding: 0.18rem 0.6rem; background: rgba(10,26,62,0.06); color: var(--navy); border-radius: 20px; font-weight: 600; }
+  .chip-link { font-size: 0.6rem; padding: 0.18rem 0.6rem; background: rgba(192,0,26,0.06); color: var(--crimson); border-radius: 20px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+  .chip-link:hover { background: rgba(192,0,26,0.12); }
+  .card-note-btn { margin-left: auto; font-size: 0.6rem; padding: 0.22rem 0.7rem; background: rgba(10,26,62,0.07); color: var(--navy); border: 1px solid rgba(10,26,62,0.12); border-radius: 20px; font-weight: 600; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; flex-shrink: 0; }
+  .card-note-btn:hover { background: var(--navy); color: white; }
+
+  /* Stamps */
+  .stamp { position: absolute; z-index: 10; pointer-events: none; font-size: 1rem; font-weight: 900; letter-spacing: 0.12em; padding: 0.35rem 0.9rem; border: 3px solid; border-radius: 4px; opacity: 0; transition: opacity 0.05s; }
+  .stamp-like { top: 1.2rem; left: 1.2rem; color: var(--green); border-color: var(--green); transform: rotate(-12deg); }
+  .stamp-skip { top: 1.2rem; right: 1.2rem; color: var(--crimson); border-color: var(--crimson); transform: rotate(12deg); }
+
+  /* Industry filter */
+  .ind-filter { display:flex; flex-wrap:wrap; gap:0.4rem; width:100%; max-width:380px; margin-bottom:0.7rem; justify-content:center; }
+  .ind-chip {
+    font-size:0.58rem; padding:0.22rem 0.7rem; border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.55);
+    border-radius:20px; cursor:pointer; font-family:'Noto Sans JP',sans-serif;
+    font-weight:600; letter-spacing:0.06em; transition:all 0.18s; white-space:nowrap;
+  }
+  .ind-chip:hover { border-color:rgba(201,168,76,0.4); color:rgba(255,255,255,0.85); }
+  .ind-chip.active { background:rgba(201,168,76,0.18); border-color:var(--gold); color:var(--gold-light); }
+
+  /* Actions */
+  .actions { width: 100%; max-width: 380px; display: flex; align-items: center; justify-content: center; gap: 1.5rem; padding: 1.1rem 0 0.6rem; }
+  .abtn { border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; }
+  .abtn:active { transform: scale(0.9) !important; }
+  .abtn-skip { width: 64px; height: 64px; font-size: 1.25rem; background: rgba(255,255,255,0.12); box-shadow: 0 4px 20px rgba(0,0,0,0.3); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.25); }
+  .abtn-skip:hover { transform: scale(1.06); color: var(--crimson); background: rgba(192,0,26,0.15); box-shadow: 0 6px 24px rgba(192,0,26,0.25); border-color: var(--crimson); }
+  .abtn-like { width: 64px; height: 64px; font-size: 1.55rem; color: white; background: linear-gradient(135deg, #00703c, #009450); box-shadow: 0 8px 30px rgba(0,112,60,0.4); }
+  .abtn-like:hover { transform: scale(1.08); box-shadow: 0 12px 36px rgba(0,112,60,0.5); }
+
+
+  .swipe-hint { font-size: 0.6rem; color: rgba(255,255,255,0.16); text-align: center; letter-spacing: 0.08em; }
+
+  /* Feedback pop */
+  .feedback { position: fixed; top: 45%; left: 50%; transform: translate(-50%,-50%) scale(0); font-size: 4rem; pointer-events: none; z-index: 999; }
+  .feedback.pop { animation: fbpop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes fbpop { 0%{transform:translate(-50%,-50%) scale(0);opacity:1} 60%{transform:translate(-50%,-50%) scale(1.2);opacity:1} 100%{transform:translate(-50%,-50%) scale(1);opacity:0} }
+
+
+  /* Deadline Banner */
+  .deadline-alert {
+    display: none; position: fixed; top: 56px; left: 0; right: 0; z-index: 90;
+    background: var(--crimson); padding: 0.7rem 1.2rem;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .deadline-alert:hover { background: #e8001f; }
+  .deadline-alert-inner { max-width: 480px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .deadline-alert-text { font-size: 0.78rem; color: white; font-weight: 700; line-height: 1.5; }
+  .deadline-alert-sub { font-size: 0.68rem; color: rgba(255,255,255,0.7); font-weight: 400; margin-top: 0.1rem; }
+  .deadline-alert-arrow { font-size: 0.82rem; color: rgba(255,255,255,0.7); flex-shrink: 0; }
+  .deadline-alert-dismiss { background: none; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); font-size: 0.65rem; padding: 0.15rem 0.5rem; cursor: pointer; flex-shrink: 0; font-family: 'Noto Sans JP', sans-serif; }
+  .deadline-alert-dismiss:hover { background: rgba(255,255,255,0.1); }
+
+  /* Empty */
+  .empty { display:none; text-align:center; padding:2rem; max-width:360px; width:100%; }
+  .empty-icon { font-size:3rem; margin-bottom:1rem; }
+  .empty-title { font-family:'Noto Serif JP',serif; font-size:1.2rem; color:white; font-weight:700; margin-bottom:0.7rem; }
+  .empty-desc { font-size:0.8rem; color:rgba(255,255,255,0.35); line-height:1.9; margin-bottom:1.8rem; }
+  .empty-btn { padding:0.75rem 2rem; background:var(--crimson); color:white; border:none; font-family:'Noto Sans JP',sans-serif; font-size:0.82rem; font-weight:700; cursor:pointer; border-radius:4px; transition:background 0.2s; }
+  .empty-btn:hover { background:#e8001f; }
+
+  /* Loading */
+  .loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; }
+  .spinner { width:32px; height:32px; border:2px solid rgba(201,168,76,0.15); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-txt { font-size:0.75rem; color:rgba(255,255,255,0.25); }
+
+  /* Modal */
+  .overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.82); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
+  .overlay.open { display:flex; }
+  .modal { background:var(--cream); width:100%; max-width:480px; max-height:78vh; border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 -20px 60px rgba(0,0,0,0.5); }
+  .modal-handle { width:36px; height:4px; background:rgba(10,26,62,0.12); border-radius:2px; margin:0.8rem auto 0; flex-shrink:0; }
+  .modal-head { background:var(--navy); padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .modal-head-title { font-family:'Noto Serif JP',serif; font-size:0.95rem; color:white; font-weight:700; }
+  .modal-close-btn { background:none; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .modal-close-btn:hover { border-color:var(--crimson); color:var(--crimson); }
+  .modal-scroll { overflow-y:auto; flex:1; padding:0.8rem; }
+  .liked-empty-msg { text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:0.82rem; line-height:1.8; }
+  .liked-row { display:flex; align-items:center; justify-content:space-between; gap:0.8rem; padding:0.9rem 1rem; background:white; border-radius:10px; margin-bottom:0.4rem; border-left:3px solid var(--green); }
+  .liked-row-name { font-size:0.88rem; font-weight:700; color:var(--navy); margin-bottom:0.15rem; }
+  .liked-row-ind { font-size:0.62rem; color:var(--gold); font-weight:700; letter-spacing:0.1em; }
+  .liked-row-link { font-size:0.68rem; color:white; background:var(--navy); text-decoration:none; padding:0.3rem 0.75rem; border-radius:4px; white-space:nowrap; transition:background 0.2s; flex-shrink:0; }
+  .liked-row-link:hover { background:var(--crimson); }
+  .liked-row-nol { font-size:0.68rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+  .modal-clear-btn { width:100%; margin-top:0.4rem; padding:0.65rem; background:none; border:1px solid rgba(192,0,26,0.18); color:var(--crimson); font-family:'Noto Sans JP',sans-serif; font-size:0.72rem; cursor:pointer; border-radius:6px; transition:all 0.2s; }
+  .modal-clear-btn:hover { background:rgba(192,0,26,0.05); }
+
+
+  /* NOTE MODAL */
+  .note-overlay { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.88); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
+  .note-overlay.open { display:flex; }
+  .note-modal { background:var(--cream); width:100%; max-width:480px; max-height:82vh; border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 -20px 60px rgba(0,0,0,0.5); }
+  .note-modal-handle { width:36px; height:4px; background:rgba(10,26,62,0.12); border-radius:2px; margin:0.8rem auto 0; flex-shrink:0; }
+  .note-modal-head { background:var(--navy); padding:1rem 1.5rem; display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-shrink:0; border-bottom:2px solid var(--gold); }
+  .note-modal-name { font-family:'Noto Serif JP',serif; font-size:1.1rem; color:white; font-weight:700; }
+  .note-modal-ind { font-size:0.65rem; color:var(--gold); font-weight:700; letter-spacing:0.1em; margin-top:0.2rem; }
+  .note-modal-close { background:none; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+  .note-modal-close:hover { border-color:var(--crimson); color:var(--crimson); }
+  .note-modal-body { overflow-y:auto; flex:1; padding:1.2rem; display:flex; flex-direction:column; gap:1rem; }
+  .note-field-label { font-size:0.6rem; color:var(--crimson); font-weight:700; letter-spacing:0.15em; margin-bottom:0.35rem; }
+  .note-field-content { font-size:0.82rem; color:var(--text); line-height:1.8; white-space:pre-wrap; background:white; padding:0.8rem 1rem; border-left:2px solid rgba(201,168,76,0.3); }
+  .note-url { font-size:0.78rem; color:var(--navy); word-break:break-all; text-decoration:underline; text-underline-offset:3px; display:block; margin-bottom:0.3rem; }
+  .liked-row { cursor:pointer; transition:background 0.15s; }
+  .liked-row:hover { background:rgba(10,26,62,0.04); }
+  .liked-row-arrow { font-size:0.72rem; color:var(--text-muted); flex-shrink:0; }
+  /* マイメモ */
+  .my-memo-wrap { display:flex; flex-direction:column; gap:0.4rem; }
+  .my-memo-ta { width:100%; min-height:80px; border:1px solid rgba(10,26,62,0.14); border-radius:6px; padding:0.6rem 0.75rem; font-family:'Noto Sans JP',sans-serif; font-size:0.79rem; line-height:1.7; color:var(--text); resize:vertical; background:white; }
+  .my-memo-ta:focus { outline:none; border-color:var(--gold); }
+  .my-memo-save { align-self:flex-end; padding:0.3rem 1rem; background:var(--navy); color:white; border:none; border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; transition:background 0.2s; }
+  .my-memo-save:hover { background:var(--crimson); }
+  .my-memo-saved { font-size:0.65rem; color:var(--green); align-self:flex-end; opacity:0; transition:opacity 0.3s; }
+  .my-memo-saved.show { opacity:1; }
+
+  @media (max-width:400px) {
+    .card-stack { height:420px; }
+    .card-name { font-size:1.35rem; }
+  }
+
+  /* ===== PASSWORD SCREEN ===== */
+  #pw-screen {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: #0a1a3e; padding: 2rem;
+  }
+  .pw-box {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.2);
+    padding: 3rem 2.5rem; max-width: 400px; width: 100%; text-align: center;
+    position: relative;
+  }
+  .pw-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #c0001a, #c9a84c);
+  }
+  .pw-icon { font-size: 2rem; margin-bottom: 1.2rem; }
+  .pw-title { font-family: 'Noto Serif JP', serif; font-size: 1.2rem; color: white; margin-bottom: 0.5rem; }
+  .pw-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 2rem; line-height: 1.8; }
+  .pw-input {
+    width: 100%; padding: 0.85rem 1rem; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15); color: white;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 1rem;
+    text-align: center; letter-spacing: 0.2em; outline: none;
+    transition: border-color 0.2s; margin-bottom: 1rem;
+  }
+  .pw-input:focus { border-color: #c9a84c; }
+  .pw-btn {
+    display: block;
+    width: 100%; padding: 0.9rem; background: #0a1a3e;
+    border: 1px solid rgba(201,168,76,0.4); color: #e8c96c;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.88rem;
+    font-weight: 500; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .pw-btn:hover { background: rgba(201,168,76,0.1); }
+  .pw-error { font-size: 0.78rem; color: #c0001a; margin-top: 0.8rem; min-height: 1.2em; }
+  .gate-actions { display: grid; gap: 0.75rem; }
+  .pw-link-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: rgba(255,255,255,0.72);
+    text-decoration: none; padding: 0.85rem 1rem;
+    border: 1px solid rgba(255,255,255,0.14); transition: all 0.2s;
+  }
+  .pw-link-btn:hover { border-color: #c9a84c; color: #e8c96c; }
+
+</style>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "YOUR_PROJECT_ID");
+</script>
+</head>
+<body>
+
+
+<!-- PASSWORD SCREEN -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-icon">👤</div>
+    <div class="pw-title">企業マッチング</div>
+    <p class="pw-sub" id="match-gate-copy">このページは慶應就活ナビのメンバー限定です。<br>個人アカウントでログインすると使えます。</p>
+    <div class="gate-actions">
+      <a class="pw-btn" id="match-login-btn" href="account.html?mode=login&amp;returnTo=match.html">ログインして入る →</a>
+      <a class="pw-link-btn" href="account.html?mode=signup&amp;returnTo=match.html">新しくアカウントを作る</a>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div style="display:flex; align-items:center; gap:0.55rem;">
+    <a href="members.html" class="nav-back">← 会員ページ</a>
+    <a href="account.html" class="nav-back" id="match-account-link">マイページ</a>
+  </div>
+  <div class="nav-title">企業マッチング</div>
+  <div style="display:flex; align-items:center; gap:0.55rem;">
+    <button class="nav-utility" id="match-logout-btn" onclick="logoutMatch()" style="display:none;">ログアウト</button>
+    <div class="like-pill" onclick="openModal()">♥ <span id="like-count">0</span></div>
+  </div>
+</nav>
+
+<!-- DEADLINE ALERT -->
+<div class="deadline-alert" id="deadline-alert" onclick="openModal()">
+  <div class="deadline-alert-inner">
+    <div>
+      <div class="deadline-alert-text" id="deadline-alert-text"></div>
+      <div class="deadline-alert-sub" id="deadline-alert-sub"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <span class="deadline-alert-arrow">リストを見る →</span>
+      <button class="deadline-alert-dismiss" onclick="dismissAlert(event)">✕</button>
+    </div>
+  </div>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="main" id="main">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-txt">読み込み中...</div>
+  </div>
+
+  <div id="card-ui" style="display:none;flex-direction:column;align-items:center;width:100%;">
+    <div class="ind-filter" id="ind-filter">
+      <button class="ind-chip active" data-ind="all">すべて</button>
+      <button class="ind-chip" data-ind="商社">商社</button>
+      <button class="ind-chip" data-ind="コンサル">コンサル</button>
+      <button class="ind-chip" data-ind="金融">金融</button>
+      <button class="ind-chip" data-ind="メーカー">メーカー</button>
+      <button class="ind-chip" data-ind="広告">広告</button>
+      <button class="ind-chip" data-ind="IT">IT</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bg"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+      <div class="progress-label" id="plabel"></div>
+    </div>
+    <div class="card-wrap">
+      <div class="card-stack" id="stack"></div>
+    </div>
+    <div class="actions">
+      <button class="abtn abtn-skip" onclick="swipe('left')">✕</button>
+      <button class="abtn abtn-like" onclick="swipe('right')">♥</button>
+    </div>
+    <div class="swipe-hint">← スキップ　　気になる →</div>
+  </div>
+
+  <div class="empty" id="empty">
+    <div class="empty-icon">✓</div>
+    <div class="empty-title">全部チェックしました！</div>
+    <div class="empty-desc">気になる企業は♥ から確認できます。<br>企業ノートが増えるとまた楽しめます。</div>
+    <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem;">
+      <button class="empty-btn" onclick="restart()">もう一度スワイプする</button>
+      <a href="members.html" style="padding:0.75rem 2rem; background:rgba(255,255,255,0.12); color:white; font-family:'Noto Sans JP',sans-serif; font-size:0.82rem; font-weight:700; border-radius:4px; text-decoration:none; border:1px solid rgba(255,255,255,0.2); transition:background 0.2s;">会員ページへ →</a>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div class="modal-head-title">気になる企業 <span id="modal-cnt" style="color:var(--gold);margin-left:0.5rem;"></span></div>
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-scroll" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzwvR3F4OL5gMd03q82nWXhCNWV2ZzCnCsb8vyyUgQjD_Jk46JDE4e-yiX9lSw_ZQZ5eA/exec';
+
+let companies = [], selectionRows = [], idx = 0, sessionSeen = new Set();
+let liked = [];
+let dragging = false, sx = 0, sy = 0, cx = 0;
+let topCard = null;
+let hasInitialized = false;
+let industryFilter = 'all';
+
+const IND_COLORS = {
+  '総合商社':'#112b5c','商社':'#112b5c','コンサル':'#221048','コンサルティング':'#221048',
+  '金融':'#0a2e21','メガバンク':'#0a2e21','銀行':'#0a2e21','証券':'#0a2e21',
+  '広告':'#4a1218','マスコミ':'#3a1a10','IT':'#0a2248','ソフトウェア':'#0a2248',
+  'SIer':'#0a2248','メーカー':'#0e2a10','不動産':'#2e2008','インフラ':'#1a1a2e',
+};
+function hdrColor(ind) {
+  for (const [k,v] of Object.entries(IND_COLORS)) { if (ind && ind.includes(k)) return v; }
+  return '#122050';
+}
+
+async function fetchViaGAS(sheetKey) {
+  const res = await fetch(GAS_PROXY_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'read', sheetKey }),
+    redirect: 'follow',
+  });
+  const data = await res.json();
+  if (data.status !== 'ok') throw new Error(data.message || '読み込みに失敗しました');
+  return data.rows;
+}
+
+async function init() {
+  try {
+    selectionRows = await fetchViaGAS('selection').catch(()=>[]);
+    const rows = await fetchViaGAS('company');
+    companies = rows.filter(r=>r[0]&&r[0].trim()).map(r=>({
+      name:r[0]||'',industry:r[1]||'',business:r[2]||'',
+      strength:r[3]||'',motive:r[4]||'',process:r[5]||'',url:r[6]||'',
+      alias:r[7]||'',
+    }));
+    companies.sort(()=>Math.random()-0.5);
+  } catch(e) { companies = sample(); }
+  document.getElementById('loading').style.display='none';
+  const ui=document.getElementById('card-ui'); ui.style.display='flex';
+  initIndFilter();
+  updateCount(); render(); checkDeadlines();
+}
+
+function filteredCompanies() {
+  if (industryFilter === 'all') return companies;
+  return companies.filter(c => c.industry && c.industry.includes(industryFilter));
+}
+
+function getNext() {
+  const pool0 = filteredCompanies();
+  if (!pool0.length) return companies[Math.floor(Math.random() * companies.length)];
+  // 未表示の企業をフィルタ
+  let pool = pool0.filter(c => !sessionSeen.has(c.name));
+  // 全部見たらセッションリセット（ただし直前の企業は除外）
+  if (!pool.length) {
+    const last = [...sessionSeen].slice(-1)[0];
+    sessionSeen.clear();
+    if (last) sessionSeen.add(last);
+    pool = pool0.filter(c => !sessionSeen.has(c.name));
+  }
+  // ランダムに1社選ぶ
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  sessionSeen.add(pick.name);
+  return pick;
+}
+
+function initIndFilter() {
+  document.querySelectorAll('.ind-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      industryFilter = chip.dataset.ind;
+      document.querySelectorAll('.ind-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      sessionSeen.clear();
+      render();
+    });
+  });
+}
+
+function render() {
+  const stack = document.getElementById('stack');
+  stack.innerHTML = '';
+  if (!companies.length || !filteredCompanies().length) { showEmpty(); return; }
+  updateProg();
+  // 上から3枚分のカードをプレビュー生成
+  const preview = [];
+  const tempSeen = new Set(sessionSeen);
+  for (let i = 0; i < 3; i++) {
+    let pool = companies.filter(c => !tempSeen.has(c.name));
+    if (!pool.length) { tempSeen.clear(); pool = companies; }
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    tempSeen.add(pick.name); preview.push(pick);
+  }
+  preview.slice().reverse().forEach((c, ri) => {
+    const layer = preview.length - ri;
+    stack.appendChild(makeCard(c, layer));
+  });
+  topCard = stack.querySelector('[data-layer="1"]');
+  if (topCard) attachDrag(topCard);
+}
+
+function makeCard(c, layer) {
+  const card=document.createElement('div');
+  card.className='company-card'; card.dataset.layer=layer; card.dataset.name=c.name;
+  const bg=hdrColor(c.industry);
+  const urls=(c.url||'').split(/[|;]/).map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  const firstUrl=urls[0]||'';
+  const biz0 = c.business ? c.business.split(/[。\n]/)[0] : '';
+  const shortBiz = biz0 ? (biz0.slice(0,60) + (biz0.length>60?'…':'')) : '';
+  const str0 = c.strength ? c.strength.split(/\n/)[0].replace(/【強み】/,'') : '';
+  const shortStr = str0 ? (str0.slice(0,50) + (str0.length>50?'…':'')) : '';
+  const escapedName = c.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  card.innerHTML=`
+    <div class="stamp stamp-like">LIKE</div>
+    <div class="stamp stamp-skip">SKIP</div>
+    <div class="card-header">
+      <div class="card-header-bg" style="background:linear-gradient(135deg,#0a1a3e 0%,${bg} 100%)"></div>
+      <div class="card-header-noise"></div>
+      <div class="card-header-gold"></div>
+      <div class="card-industry"><span class="card-dot"></span>${c.industry||'業界未設定'}</div>
+      <div class="card-name">${c.name}</div>
+    </div>
+    <div class="card-body">
+      ${shortBiz?`<div class="card-fl"><div class="card-fl-label">事業内容</div><div class="card-fl-text">${shortBiz}</div></div>`:''}
+      ${shortStr?`<div class="card-fl"><div class="card-fl-label">強み</div><div class="card-fl-text">${shortStr}</div></div>`:''}
+    </div>
+    <div class="card-footer">
+      ${c.industry?`<span class="chip">${c.industry}</span>`:''}
+      <button class="card-note-btn" data-name="${escapedName}">詳細 →</button>
+    </div>`;
+  // 詳細ボタン: ドラッグを起こさずノートモーダルを開く
+  card.querySelector('.card-note-btn').addEventListener('pointerdown', e => e.stopPropagation());
+  card.querySelector('.card-note-btn').addEventListener('mousedown', e => e.stopPropagation());
+  card.querySelector('.card-note-btn').addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+  card.querySelector('.card-note-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    openNoteModal(c.name);
+  });
+  return card;
+}
+
+function attachDrag(card) {
+  card.addEventListener('mousedown', down);
+  card.addEventListener('touchstart', down, {passive:true});
+}
+function down(e) {
+  dragging=true;
+  const p=e.touches?e.touches[0]:e;
+  sx=p.clientX; sy=p.clientY; cx=0;
+  document.addEventListener('mousemove', move);
+  document.addEventListener('touchmove', move, {passive:true});
+  document.addEventListener('mouseup', up);
+  document.addEventListener('touchend', up);
+}
+function move(e) {
+  if(!dragging||!topCard) return;
+  const p=e.touches?e.touches[0]:e;
+  cx=p.clientX-sx;
+  const cy=(p.clientY-sy)*0.25;
+  const rot=cx*0.06;
+  topCard.style.transform=`translateX(${cx}px) translateY(${cy}px) rotate(${rot}deg)`;
+  const like=topCard.querySelector('.stamp-like');
+  const skip=topCard.querySelector('.stamp-skip');
+  const t=50;
+  if(cx>t){like.style.opacity=Math.min((cx-t)/80,1);skip.style.opacity=0;}
+  else if(cx<-t){skip.style.opacity=Math.min((-cx-t)/80,1);like.style.opacity=0;}
+  else{like.style.opacity=0;skip.style.opacity=0;}
+}
+function up() {
+  if(!dragging) return; dragging=false;
+  document.removeEventListener('mousemove',move); document.removeEventListener('touchmove',move);
+  document.removeEventListener('mouseup',up); document.removeEventListener('touchend',up);
+  if(cx>100) swipe('right');
+  else if(cx<-100) swipe('left');
+  else {
+    if(topCard){
+      topCard.classList.add('returning');
+      topCard.style.transform='';
+      topCard.querySelectorAll('.stamp').forEach(s=>s.style.opacity=0);
+      setTimeout(()=>topCard&&topCard.classList.remove('returning'),400);
+    }
+  }
+}
+
+function swipe(dir) {
+  if(!topCard) return;
+  const name = topCard.dataset.name;
+  const c = companies.find(x => x.name === name);
+  if(!c) return;
+  topCard.classList.add('animating');
+  topCard.style.transform=`translateX(${dir==='right'?'130%':'-130%'}) rotate(${dir==='right'?'20deg':'-20deg'})`;
+  topCard.style.opacity='0'; topCard.dataset.layer='0';
+  if(dir==='right') {
+    liked = KeioNaviAuth.addLikedCompany(c);
+    pop('♥'); updateCount();
+  } else { pop('✕'); }
+  // 次のカードをスタックに追加（無限ループ）
+  setTimeout(()=>{
+    const stack=document.getElementById('stack');
+    // 古いトップカードを削除
+    const old = stack.querySelector('[data-layer="0"]');
+    if(old) old.remove();
+    // 残りのカードを繰り上げ
+    stack.querySelectorAll('.company-card').forEach(card=>{
+      const l = parseInt(card.dataset.layer);
+      if(l>0) { card.dataset.layer = l-1; }
+    });
+    // 新しい3枚目を追加
+    const next = getNext();
+    const newCard = makeCard(next, 3);
+    stack.insertBefore(newCard, stack.firstChild);
+    // トップカードにドラッグ付与
+    topCard = stack.querySelector('[data-layer="1"]');
+    if(topCard) attachDrag(topCard);
+    updateProg();
+  }, 320);
+}
+
+function pop(emoji) {
+  const el=document.getElementById('feedback');
+  el.textContent=emoji; el.classList.remove('pop');
+  void el.offsetWidth; el.classList.add('pop');
+}
+
+function updateProg() {
+  const pool = filteredCompanies();
+  const seen = pool.filter(c => sessionSeen.has(c.name)).length;
+  const total = pool.length;
+  const pct = total ? Math.min((seen / total) * 100, 100) : 0;
+  document.getElementById('pfill').style.width = pct + '%';
+  const label = industryFilter === 'all' ? `今回 ${seen} / ${total} 社チェック済み` : `[${industryFilter}] ${seen} / ${total} 社`;
+  document.getElementById('plabel').textContent = label;
+}
+function updateCount() { document.getElementById('like-count').textContent=liked.length; }
+
+function showEmpty() {
+  // 企業が0社の場合のみ
+  document.getElementById('card-ui').style.display='none';
+  document.getElementById('empty').style.display='block';
+}
+function restart() {
+  sessionSeen.clear(); idx=0;
+  document.getElementById('empty').style.display='none';
+  document.getElementById('card-ui').style.display='flex';
+  render();
+}
+function openNote() {
+  const c=companies[idx]; if(!c) return;
+  const urls=(c.url||'').split(/[|;]/).map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  window.open(urls[0]||'members.html','_blank');
+}
+
+
+
+  // ===== 企業名マッチングユーティリティ =====
+  function normalizeName(s) {
+    return (s || '')
+      .replace(/株式会社|有限会社|合同会社|（株）|\(株\)|HD|ホールディングス|グループ|コーポレーション/g, '')
+      .replace(/\s+/g, '').trim();
+  }
+
+  function companyMatch(a, b) {
+    const na = normalizeName(a);
+    const nb = normalizeName(b);
+    if (!na || !nb) return false;
+    // ① 完全一致
+    if (na === nb) return true;
+    // ② 一方が他方を含む かつ 文字数差が5以下（三井不動産 vs 三井不動産ファシリティーズは差9なので弾く）
+    const diff = Math.abs(na.length - nb.length);
+    if (diff <= 5) {
+      if (na.includes(nb) || nb.includes(na)) return true;
+    }
+    return false;
+  }
+
+  // エイリアス列（H列）も考慮したマッチング（選考情報スプシ用）
+  function selectionMatch(rowName, alias, targetName) {
+    if (companyMatch(rowName, targetName)) return true;
+    if (alias && companyMatch(alias, targetName)) return true;
+    return false;
+  }
+const MATCH_MEMO_KEY = 'keio_navi_match_memo_v1';
+function getMatchMemo(name) {
+  try { return JSON.parse(localStorage.getItem(MATCH_MEMO_KEY)||'{}')[name] || ''; } catch(e) { return ''; }
+}
+function saveMatchMemo(name, val) {
+  try {
+    const all = JSON.parse(localStorage.getItem(MATCH_MEMO_KEY)||'{}');
+    if (val) all[name] = val; else delete all[name];
+    localStorage.setItem(MATCH_MEMO_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+
+function openNoteModal(name) {
+  const c = [...companies, ...liked].find(x =>
+    companyMatch(x.name, name) || (x.alias && companyMatch(x.alias, name))
+  );
+  if (!c) return;
+  document.getElementById('note-modal-name').textContent = c.name;
+  document.getElementById('note-modal-ind').textContent = c.industry || '';
+  const body = document.getElementById('note-modal-body');
+
+  // 企業ノートフィールド
+  const fields = [
+    { label: '事業内容メモ', value: c.business },
+    { label: '強み・弱み', value: c.strength },
+    { label: '志望動機メモ', value: c.motive },
+    { label: '選考フロー', value: c.process },
+    { label: '参考URL', value: c.url, isUrl: true },
+  ];
+  let html = fields.map(f => {
+    if (!f.value) return '';
+    const val = f.isUrl
+      ? f.value.split(/[|;]/).map(u => u.trim()).filter(Boolean)
+          .map(u => `<a href="${u}" target="_blank" class="note-url">${u}</a>`).join('')
+      : `<div class="note-field-content">${f.value}</div>`;
+    return `<div><div class="note-field-label">${f.label}</div>${val}</div>`;
+  }).filter(Boolean).join('');
+
+  // 選考情報スプシから企業名でマッチング
+  const today = new Date();
+  const matched = selectionRows.filter(r => {
+    const rowName = (r[0] || '').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+    const alias = r[7] || ''; // H列: 別名・エイリアス
+    return selectionMatch(rowName, alias, name);
+  });
+
+  if (matched.length) {
+    const selHtml = matched.map(r => {
+      const d = r[1] ? new Date(r[1].replace(/\//g,'-')) : null;
+      const diff = d ? Math.ceil((d - today) / (1000*60*60*24)) : null;
+      const urgent = diff !== null && diff >= 0 && diff <= 7;
+      const deadlineStr = r[1]
+        ? (urgent ? `<span style="color:var(--crimson);font-weight:700;">⚠ ${r[1]}（残${diff}日）</span>` : r[1])
+        : '未定';
+      const tag = r[2] || '';
+      const link = r[3]?.startsWith('http') ? r[3] : '';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;padding:0.6rem 0;border-bottom:1px solid rgba(10,26,62,0.06);">
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--navy);">${r[0]}</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">${tag} ／ 締切: ${deadlineStr}</div>
+        </div>
+        ${link ? `<a href="${link}" target="_blank" style="font-size:0.68rem;color:white;background:var(--navy);padding:0.3rem 0.7rem;text-decoration:none;border-radius:3px;white-space:nowrap;flex-shrink:0;">ES →</a>` : ''}
+      </div>`;
+    }).join('');
+    html += `<div><div class="note-field-label">選考情報</div><div style="background:white;padding:0.6rem 1rem;border-left:2px solid rgba(201,168,76,0.3);">${selHtml}</div></div>`;
+  }
+
+  // マイメモ
+  const memoVal = getMatchMemo(name);
+  html += `<div>
+    <div class="note-field-label">マイメモ</div>
+    <div class="my-memo-wrap">
+      <textarea class="my-memo-ta" id="match-memo-ta" placeholder="この企業についてのメモ（自分だけに見えます）">${memoVal}</textarea>
+      <span class="my-memo-saved" id="match-memo-saved">保存しました ✓</span>
+      <button class="my-memo-save" id="match-memo-save-btn">保存</button>
+    </div>
+  </div>`;
+
+  body.innerHTML = html || '<div style="text-align:center;padding:2rem;color:var(--text-muted);">ノートの内容がまだありません。</div>';
+
+  document.getElementById('match-memo-save-btn').addEventListener('click', () => {
+    const val = document.getElementById('match-memo-ta').value.trim();
+    saveMatchMemo(name, val);
+    const saved = document.getElementById('match-memo-saved');
+    saved.classList.add('show');
+    setTimeout(() => saved.classList.remove('show'), 2000);
+  });
+
+  document.getElementById('note-overlay').classList.add('open');
+}
+function closeNoteModal() { document.getElementById('note-overlay').classList.remove('open'); }
+function noteOverlayClick(e) { if (e.target === document.getElementById('note-overlay')) closeNoteModal(); }
+
+
+function checkDeadlines() {
+  if (!liked.length || !selectionRows.length) return;
+  const today = new Date();
+  const alerts = [];
+
+  liked.forEach(c => {
+    const matches = selectionRows.filter(r => {
+      const rowName = (r[0]||'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
+      const alias = r[7] || '';
+      return selectionMatch(rowName, alias, c.name);
+    });
+    matches.forEach(r => {
+      if (!r[1]) return;
+      const d = new Date(r[1].replace(/\//g,'-'));
+      const diff = Math.ceil((d - today) / (1000*60*60*24));
+      if (diff >= 0 && diff <= 7) {
+        alerts.push({ company: c.name, title: r[0], deadline: r[1], diff, tag: r[2]||'' });
+      }
+    });
+  });
+
+  if (!alerts.length) return;
+
+  // 締切が近い順にソート
+  alerts.sort((a,b) => a.diff - b.diff);
+
+  const banner = document.getElementById('deadline-alert');
+  const textEl = document.getElementById('deadline-alert-text');
+  const subEl = document.getElementById('deadline-alert-sub');
+
+  if (alerts.length === 1) {
+    const a = alerts[0];
+    textEl.textContent = `⚠ ${a.company} の締切まで残${a.diff}日`;
+    subEl.textContent = `${a.title}（${a.tag}）`;
+  } else {
+    textEl.textContent = `⚠ 気になる企業 ${alerts.length} 社の締切が近づいています`;
+    subEl.textContent = alerts.map(a => `${a.company}（残${a.diff}日）`).join('・');
+  }
+  banner.style.display = 'block';
+
+  // バナー分だけmainをずらす
+  document.querySelector('.main').style.paddingTop = '2.8rem';
+}
+
+function dismissAlert(e) {
+  e.stopPropagation();
+  document.getElementById('deadline-alert').style.display = 'none';
+  document.querySelector('.main').style.paddingTop = '';
+}
+
+function openModal() {
+  document.getElementById('modal-cnt').textContent=liked.length+'社';
+  const body=document.getElementById('modal-body');
+  if(!liked.length){body.innerHTML='<div class="liked-empty-msg">まだ気になる企業がありません。<br>右にスワイプして選んでみましょう。</div>';}
+  else{
+    body.innerHTML=liked.map(c=>{
+      const escapedName = c.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="liked-row" data-company="${escapedName}">
+        <div><div class="liked-row-name">${c.name}</div><div class="liked-row-ind">${c.industry||''}</div></div>
+        <span class="liked-row-arrow">ノートを見る →</span>
+      </div>`;
+    }).join('')+`<button class="modal-clear-btn" onclick="clearLiked()">リストをリセット</button>`;
+    body.querySelectorAll('.liked-row[data-company]').forEach(row => {
+      row.addEventListener('click', () => openNoteModal(row.dataset.company));
+    });
+  }
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); document.body.style.overflow=''; }
+function overlayClick(e){ if(e.target===document.getElementById('overlay')) closeModal(); }
+function clearLiked(){
+  if(!confirm('リストをリセットしますか？')) return;
+  liked = [];
+  KeioNaviAuth.clearLikedCompanies();
+  updateCount(); closeModal();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') swipe('right');
+  if(e.key==='ArrowLeft') swipe('left');
+  if(e.key==='Escape') { closeModal(); closeNoteModal(); }
+});
+
+function sample(){return[
+  {name:'三菱商事',industry:'総合商社',business:'総合商社として、エネルギー・金属・機械・化学品・食料など幅広い分野で事業を展開。近年は事業投資モデルへシフト。',strength:'【強み】圧倒的なグローバルネットワーク・資本力\n【弱み】資源価格への依存度が高い',motive:'総合商社の中でも最大規模の事業投資ポートフォリオ',process:'ES → 玉手箱 → GD → 面接3回 → 最終',url:'https://www.mitsubishicorp.com/jp/ja/recruit/'},
+  {name:'マッキンゼー',industry:'コンサルティング',business:'世界最大級の戦略コンサルファーム。経営戦略・組織・DXなど企業の重要課題を解決。',strength:'【強み】ブランド・OBネットワーク・高報酬\n【弱み】激務・プロジェクト依存',motive:'スタート地点として最高峰の環境',process:'ES → ケース面接3〜4回 → オファー',url:'https://www.mckinsey.com/jp/careers'},
+  {name:'電通',industry:'広告',business:'国内最大手の総合広告会社。マス広告からデジタル・PRまで幅広くカバー。',strength:'【強み】クライアント基盤・クリエイティブ力\n【弱み】デジタルシフトの課題',motive:'日本の広告業界のトップを経験できる',process:'ES → 筆記 → 面接複数回 → 最終',url:'https://recruit.dentsu.co.jp/'},
+];}
+function applyMatchAuthUi(user) {
+  document.getElementById('pw-screen').style.display = 'none';
+  document.getElementById('match-logout-btn').style.display = 'inline-flex';
+  document.getElementById('match-account-link').textContent = user.username + ' さん';
+}
+
+function updateMatchGate() {
+  const copy = document.getElementById('match-gate-copy');
+  const loginBtn = document.getElementById('match-login-btn');
+  if (copy) {
+    copy.innerHTML = 'このページは慶應就活ナビのメンバー限定です。<br>個人アカウントでログインすると使えます。';
+  }
+  if (loginBtn) {
+    loginBtn.href = 'account.html?mode=login&returnTo=match.html';
+  }
+}
+
+function logoutMatch() {
+  KeioNaviAuth.logout();
+  location.reload();
+}
+
+function bootMatchPage() {
+  const user = KeioNaviAuth.getCurrentUser();
+  if (!user) {
+    updateMatchGate();
+    updateCount();
+    return;
+  }
+
+  liked = KeioNaviAuth.getLikedCompanies();
+  applyMatchAuthUi(user);
+  updateCount();
+
+  if (!hasInitialized) {
+    hasInitialized = true;
+    init();
+  }
+}
+
+bootMatchPage();
+</script>
+
+<!-- NOTE MODAL -->
+<div class="note-overlay" id="note-overlay" onclick="noteOverlayClick(event)">
+  <div class="note-modal">
+    <div class="note-modal-handle"></div>
+    <div class="note-modal-head">
+      <div>
+        <div class="note-modal-name" id="note-modal-name"></div>
+        <div class="note-modal-ind" id="note-modal-ind"></div>
+      </div>
+      <button class="note-modal-close" onclick="closeNoteModal()">✕</button>
+    </div>
+    <div class="note-modal-body" id="note-modal-body"></div>
+  </div>
+</div>
+
+</body>
+</html>

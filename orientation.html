@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新入生の方へ | 慶應就活ナビ</title>
+<meta name="description" content="慶應就活ナビへようこそ。就活を、ひとりで戦わなくていい。新入生向けの就活支援コミュニティ紹介ページです。">
+
+<!-- OGP -->
+<meta property="og:title" content="新入生の方へ | 慶應就活ナビ">
+<meta property="og:description" content="就活は、今から始まっている。慶應生のための就活支援コミュニティへようこそ。">
+<meta property="og:image" content="https://naotama1123.github.io/keio-syukatu-navi/ogp.jpg">
+<meta property="og:url" content="https://naotama1123.github.io/keio-syukatu-navi/orientation.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="慶應就活ナビ">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="新入生の方へ | 慶應就活ナビ">
+<meta name="twitter:description" content="就活は、今から始まっている。慶應生のための就活支援コミュニティへようこそ。">
+<meta name="twitter:image" content="https://naotama1123.github.io/keio-syukatu-navi/ogp.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1a3e;
+    --navy-light: #142254;
+    --crimson: #c0001a;
+    --crimson-light: #e8001f;
+    --gold: #c9a84c;
+    --gold-light: #e8c96c;
+    --cream: #faf7f2;
+    --gray: #f0ede6;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--text); font-family: 'Noto Sans JP', sans-serif; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 68px;
+    background: rgba(10,26,62,0.97); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .nav-logo { font-family: 'Noto Serif JP', serif; font-size: 1rem; color: var(--gold-light); text-decoration: none; letter-spacing: 0.05em; font-weight: 700; }
+  .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+  .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.82rem; letter-spacing: 0.05em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-cta {
+    padding: 0.5rem 1.2rem; background: var(--crimson); color: white !important;
+    font-size: 0.78rem !important; font-weight: 700; letter-spacing: 0.08em;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--crimson-light) !important; }
+  @media (max-width: 768px) { .nav-links { display: none; } }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; padding: 6rem 2rem 4rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(192,0,26,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.06) 0%, transparent 50%);
+  }
+  .hero-inner { position: relative; max-width: 800px; margin: 0 auto; text-align: center; }
+  .hero-badge {
+    display: inline-block; font-size: 0.65rem; letter-spacing: 0.2em;
+    color: var(--gold); border: 1px solid rgba(201,168,76,0.3);
+    padding: 0.4rem 1.2rem; margin-bottom: 2.5rem; font-weight: 700;
+  }
+  .hero-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    color: white; font-weight: 700; line-height: 1.3; margin-bottom: 1.5rem;
+  }
+  .hero-title span { color: var(--gold); }
+  .hero-desc { font-size: 1rem; color: rgba(255,255,255,0.6); line-height: 1.9; margin-bottom: 2.5rem; max-width: 560px; margin-left: auto; margin-right: auto; }
+  .hero-cta-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .btn-primary {
+    display: inline-block; padding: 1rem 2.5rem;
+    background: var(--crimson); color: white;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem;
+    font-weight: 700; letter-spacing: 0.1em; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--crimson-light); }
+  .btn-outline {
+    display: inline-block; padding: 0.9rem 2rem;
+    border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.7);
+    font-size: 0.82rem; letter-spacing: 0.08em; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .hero-note { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 1.5rem; }
+  .scroll-hint { margin-top: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .scroll-hint span { font-size: 0.62rem; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(201,168,76,0.5), transparent); }
+
+  /* SECTIONS */
+  .section { padding: 6rem 2rem; }
+  .section-inner { max-width: 1000px; margin: 0 auto; }
+  .section-label { font-size: 0.65rem; color: var(--gold); letter-spacing: 0.2em; font-weight: 700; margin-bottom: 1rem; }
+  .section-title { font-family: 'Noto Serif JP', serif; font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--navy); font-weight: 700; margin-bottom: 1.2rem; line-height: 1.4; }
+  .section-desc { font-size: 0.92rem; color: var(--text-muted); line-height: 1.9; max-width: 600px; }
+
+  /* WHY NOW */
+  .why-section { background: white; }
+  .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(10,26,62,0.08); margin-top: 3rem; }
+  .why-card { background: white; padding: 2rem; }
+  .why-num { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--crimson); opacity: 0.2; line-height: 1; margin-bottom: 1rem; font-weight: 700; }
+  .why-title { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.8rem; }
+  .why-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.8; }
+
+  /* WHAT YOU GET */
+  .get-section { background: var(--gray); }
+  .get-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(10,26,62,0.08); margin-top: 3rem; }
+  .get-card { background: var(--cream); padding: 2rem 2.5rem; display: flex; gap: 1.5rem; }
+  .get-icon { width: 44px; height: 44px; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .get-icon svg { width: 20px; height: 20px; }
+  .get-title { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+  .get-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.8; }
+
+  /* VOICES */
+  .voices-section { background: white; }
+  .voices-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(10,26,62,0.08); margin-top: 3rem; }
+  .voice-card { background: white; padding: 2rem; }
+  .voice-quote { font-size: 0.88rem; color: var(--text); line-height: 1.9; margin-bottom: 1.2rem; font-style: italic; border-left: 3px solid var(--gold); padding-left: 1rem; }
+  .voice-person { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+
+  /* EVENTS */
+  .events-section { background: var(--navy); }
+  .events-section .section-title { color: white; }
+  .events-section .section-desc { color: rgba(255,255,255,0.5); }
+  .events-section .section-label { color: var(--gold); }
+  .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.08); margin-top: 3rem; }
+  .event-card { background: rgba(255,255,255,0.04); padding: 2rem; border-top: 2px solid transparent; transition: border-color 0.2s; }
+  .event-card:hover { border-top-color: var(--gold); }
+  .event-date { font-size: 0.68rem; color: var(--gold); letter-spacing: 0.1em; font-weight: 700; margin-bottom: 0.6rem; }
+  .event-title { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
+  .event-desc { font-size: 0.78rem; color: rgba(255,255,255,0.45); line-height: 1.7; }
+
+  /* FAQ */
+  .faq-section { background: var(--gray); }
+  .faq-list { margin-top: 3rem; display: flex; flex-direction: column; gap: 1px; }
+  .faq-item { background: white; }
+  .faq-q { padding: 1.3rem 1.5rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .faq-q::after { content: '+'; font-size: 1.2rem; color: var(--gold); font-weight: 300; transition: transform 0.2s; }
+  .faq-item.open .faq-q::after { transform: rotate(45deg); }
+  .faq-a { display: none; padding: 0 1.5rem 1.3rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.9; border-top: 1px solid rgba(10,26,62,0.06); }
+  .faq-item.open .faq-a { display: block; }
+
+  /* CTA */
+  .cta-section { background: var(--crimson); padding: 6rem 2rem; text-align: center; }
+  .cta-title { font-family: 'Noto Serif JP', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); color: white; font-weight: 700; margin-bottom: 1rem; line-height: 1.4; }
+  .cta-desc { font-size: 0.9rem; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 2.5rem; }
+  .btn-white {
+    display: inline-block; padding: 1rem 3rem;
+    background: white; color: var(--crimson);
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem;
+    font-weight: 700; letter-spacing: 0.1em; text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn-white:hover { opacity: 0.9; }
+
+  /* FOOTER */
+  footer { background: var(--navy); padding: 2rem; text-align: center; }
+  footer a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.75rem; margin: 0 1rem; }
+  footer a:hover { color: var(--gold); }
+  .footer-note { font-size: 0.65rem; color: rgba(255,255,255,0.2); margin-top: 1rem; }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: rgba(255,255,255,0.8);
+    transition: all 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 68px; left: 0; right: 0;
+    background: rgba(10,26,62,0.98);
+    backdrop-filter: blur(12px);
+    z-index: 99;
+    flex-direction: column;
+    padding: 1.5rem 2rem 2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--gold-light, #e8c96c); }
+  .mobile-menu-cta {
+    margin-top: 1rem;
+    background: var(--crimson) !important;
+    color: white !important;
+    text-align: center;
+    padding: 0.9rem !important;
+    border: none !important;
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .why-grid, .get-grid, .voices-grid, .events-grid { grid-template-columns: 1fr; }
+    .section { padding: 4rem 1.5rem; }
+    .hamburger { display: flex; }
+    .nav-links { display: none; }
+  }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "YOUR_PROJECT_ID");
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">慶應就活ナビ</a>
+  <ul class="nav-links">
+    <li><a href="#why">なぜ今？</a></li>
+    <li><a href="#get">できること</a></li>
+    <li><a href="#events">イベント</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="https://docs.google.com/forms/d/e/1FAIpQLScL31q5XlLB7dtv1_37s-Ssm9DUQcJUDSCqYetDe3an48p8Hw/viewform?usp=publish-editor" class="nav-cta" target="_blank">参加する</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#why" onclick="closeMenu()">なぜ今？</a>
+  <a href="#get" onclick="closeMenu()">できること</a>
+  <a href="#events" onclick="closeMenu()">イベント</a>
+  <a href="#faq" onclick="closeMenu()">FAQ</a>
+  <a href="index.html" onclick="closeMenu()">トップページへ戻る</a>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLScL31q5XlLB7dtv1_37s-Ssm9DUQcJUDSCqYetDe3an48p8Hw/viewform?usp=publish-editor" class="mobile-menu-cta" target="_blank">参加する</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">2026年度 新入生の方へ</div>
+    <h1 class="hero-title">
+      就活は、<br><span>今から</span>始まっている。
+    </h1>
+    <p class="hero-desc">
+      「就活は3年生から」は過去の話。<br>
+      慶應就活ナビは、1年生から使える就活支援コミュニティです。<br>
+      情報・機会・仲間を、今から手に入れよう。
+    </p>
+    <div class="hero-cta-wrap">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScL31q5XlLB7dtv1_37s-Ssm9DUQcJUDSCqYetDe3an48p8Hw/viewform?usp=publish-editor" class="btn-primary" target="_blank">無料で参加する →</a>
+      <a href="#why" class="btn-outline">詳しく見る</a>
+    </div>
+    <p class="hero-note">※ 大学公式ではありません。有志の学生による非営利団体です。</p>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>SCROLL</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHY NOW -->
+<section class="section why-section" id="why">
+  <div class="section-inner">
+    <div class="section-label reveal">WHY NOW</div>
+    <h2 class="section-title reveal">1年生から入る理由</h2>
+    <p class="section-desc reveal">就活は「準備した人が勝つ」ゲームです。早く始めるほど、選択肢が広がります。</p>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-num">01</div>
+        <div class="why-title">業界研究は今から</div>
+        <div class="why-desc">「どんな仕事があるのか」を知らないまま3年生になる人がほとんど。企業分析ノートを今から読んでおくだけで、視野が広がります。</div>
+      </div>
+      <div class="why-card reveal" style="transition-delay:0.1s;">
+        <div class="why-num">02</div>
+        <div class="why-title">情報格差が存在する</div>
+        <div class="why-desc">就活の情報は人脈で流通します。早くから動いている人は、選考情報・OB紹介・内定者の体験談を持っています。このコミュニティはその格差を埋めます。</div>
+      </div>
+      <div class="why-card reveal" style="transition-delay:0.2s;">
+        <div class="why-num">03</div>
+        <div class="why-title">仲間が財産になる</div>
+        <div class="why-desc">同じ目標を持つ仲間と早くから繋がっておくことで、情報共有だけでなく、ES添削・面接練習・メンタルサポートができる関係が生まれます。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="section get-section" id="get">
+  <div class="section-inner">
+    <div class="section-label reveal">WHAT YOU GET</div>
+    <h2 class="section-title reveal">参加すると使えるもの</h2>
+    <p class="section-desc">アカウント登録後に使える会員ページには、就活を有利に進めるためのコンテンツが揃っています。</p>
+    <div class="get-grid">
+      <div class="get-card">
+        <div class="get-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="get-title">企業分析ノート</div>
+          <div class="get-desc">三菱商事・マッキンゼー・電通など、主要企業の事業内容・強み弱み・選考フローをまとめたノート。業界研究の起点として今すぐ使えます。</div>
+        </div>
+      </div>
+      <div class="get-card">
+        <div class="get-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="get-title">選考情報・締切カレンダー</div>
+          <div class="get-desc">メンバーが集めたインターン・本選考の締切情報をリアルタイムで確認。「気づいたら締切が過ぎていた」を防ぎます。</div>
+        </div>
+      </div>
+
+      <div class="get-card">
+        <div class="get-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="get-title">企業研究クイズ</div>
+          <div class="get-desc">蓄積された企業ノートをもとに、どの企業かを当てる4択クイズ。楽しみながら業界・企業知識が身につきます。</div>
+        </div>
+      </div>
+      <div class="get-card">
+        <div class="get-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="get-title">過去問ライブラリ</div>
+          <div class="get-desc">メンバーが持ち寄った慶應の講義の過去問・試験情報を学部・科目別に検索できます。テスト対策も仲間と一緒に。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section class="section events-section" id="events">
+  <div class="section-inner">
+    <div class="section-label">UPCOMING EVENTS</div>
+    <h2 class="section-title">新歓イベント案内</h2>
+    <p class="section-desc">参加すると、コミュニティの雰囲気や使い方を直接体験できます。</p>
+    <div class="events-grid" id="orientation-events">
+      <div class="event-card" style="grid-column:1/-1; text-align:center; color:rgba(255,255,255,0.3); font-size:0.82rem;">読み込み中...</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section" id="faq">
+  <div class="section-inner">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">よくある質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">1年生でも参加できますか？</div>
+        <div class="faq-a">もちろんです。むしろ早く入るほど得られる情報量が増えます。就活は3年生になってから始めるイメージがありますが、業界研究・企業ノート閲覧・先輩との繋がりは今から使えます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">費用はかかりますか？</div>
+        <div class="faq-a">完全無料です。有志の学生による非営利団体として運営しています。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">どのくらい時間を取られますか？</div>
+        <div class="faq-a">強制参加のイベントはありません。LINEで週1回の通知を受け取り、気になったときにHPを開くだけでも十分です。使いたいときに使える形です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">慶應生以外でも参加できますか？</div>
+        <div class="faq-a">現在は慶應生限定のコミュニティとして運営しています。他大学への展開は将来的に検討しています。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">大学公式の団体ですか？</div>
+        <div class="faq-a">いいえ。慶應義塾大学とは一切関係のない、有志の学生による自主的な非営利団体です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">参加後にやめることはできますか？</div>
+        <div class="faq-a">いつでも退会できます。退会希望の場合はお問い合わせフォームよりご連絡ください。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="cta-title">今すぐ、仲間に加わろう。</h2>
+  <p class="cta-desc">登録は無料・1分で完了します。<br>慶應の就活コミュニティで、一歩先へ。</p>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLScL31q5XlLB7dtv1_37s-Ssm9DUQcJUDSCqYetDe3an48p8Hw/viewform?usp=publish-editor" class="btn-white" target="_blank">参加フォームへ進む →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html">トップページ</a>
+  <a href="account.html">ログイン / アカウント</a>
+  <a href="index.html#contact">お問い合わせ</a>
+  <div class="footer-note">© 2026 慶應就活ナビ — 大学公式ではありません。有志の学生による非営利団体です。</div>
+</footer>
+
+<script>
+
+  // ===== 新歓イベント スプシ連携（GASプロキシ経由）=====
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzwvR3F4OL5gMd03q82nWXhCNWV2ZzCnCsb8vyyUgQjD_Jk46JDE4e-yiX9lSw_ZQZ5eA/exec';
+
+  async function loadOrientationEvents() {
+    const el = document.getElementById('orientation-events');
+    const sample = [
+      ['2026年4月 第2週予定', '就活ナビ説明会', 'HPのデモを見ながら、コミュニティの使い方を紹介。参加者はその場でアカウント登録まで完了できます。'],
+      ['2026年4月 第3週予定', '業界研究入門会', '商社・金融・コンサル・メーカーなど主要業界を先輩メンバーが解説。就活の全体像をつかむ最初の一歩に。'],
+      ['2026年5月 予定', '先輩との座談会', '内定先が決まった4年生・就活中の3年生に何でも聞ける座談会。リアルな就活体験を直接聞けます。'],
+    ];
+
+    let rows = sample;
+    if (GAS_PROXY_URL) {
+      try {
+        const res = await fetch(GAS_PROXY_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'read', sheetKey: 'orientation' }),
+          redirect: 'follow',
+        });
+        const data = await res.json();
+        if (data.status === 'ok' && data.rows.length) rows = data.rows;
+        else rows = [];
+      } catch(e) { rows = []; }
+    }
+
+    if (!rows.length) {
+      el.innerHTML = '<div class="event-card" style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.4);font-size:0.85rem;padding:3rem;">現在イベントを準備中です。<br>決まり次第お知らせします。</div>';
+      return;
+    }
+    el.innerHTML = rows.map(r => `
+      <div class="event-card">
+        <div class="event-date">${r[0] || ''}</div>
+        <div class="event-title">${r[1] || ''}</div>
+        <div class="event-desc">${r[2] || ''}</div>
+      </div>`).join('');
+  }
+
+  loadOrientationEvents();
+
+  // スクロールアニメーション
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => revealObs.observe(el));
+
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+  function toggleMenu() {
+    document.getElementById('hamburger').classList.toggle('open');
+    document.getElementById('mobile-menu').classList.toggle('open');
+  }
+  function closeMenu() {
+    document.getElementById('hamburger').classList.remove('open');
+    document.getElementById('mobile-menu').classList.remove('open');
+  }
+</script>
+</body>
+</html>
