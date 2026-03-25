@@ -1821,11 +1821,12 @@
     if (!GAS_PROXY_URL) throw new Error('GAS_PROXY_URLが設定されていません');
     const res = await fetch(GAS_PROXY_URL, {
       method: 'POST',
-        body: JSON.stringify({ action: 'read', sheetKey }),
+      body: JSON.stringify({ action: 'read', sheetKey }),
       redirect: 'follow',
     });
     const data = await res.json();
     if (data.status !== 'ok') throw new Error(data.message || '読み込みに失敗しました');
+    if (!Array.isArray(data.rows)) throw new Error('GASからのレスポンスが不正です（rows がありません）');
     return data.rows;
   }
 
