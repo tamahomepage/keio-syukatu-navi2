@@ -3577,7 +3577,7 @@
   }
 
   // ===== AI就活サポートツール =====
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzwvR3F4OL5gMd03q82nWXhCNWV2ZzCnCsb8vyyUgQjD_Jk46JDE4e-yiX9lSw_ZQZ5eA/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0YzBfa9k1Vs85mK6X3d_LHXScftOsomumLAQ31Rpcs7LQO4HinyIzZGhl1-7BppfpVw/exec';
 
   function initAiTools() {
     document.querySelectorAll('.ai-tab-btn').forEach(btn => {
@@ -3601,7 +3601,6 @@
 
     const res = await fetch(GAS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'callClaude', sessionToken, toolType, input }),
       redirect: 'follow',
     });

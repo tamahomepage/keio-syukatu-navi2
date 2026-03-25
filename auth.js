@@ -186,7 +186,6 @@
     try {
       response = await fetch(GAS_PROXY_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         redirect: 'follow',
         signal: controller.signal,
