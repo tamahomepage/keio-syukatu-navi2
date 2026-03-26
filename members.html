@@ -4254,7 +4254,7 @@
       ${e.memo ? `
         <div class="modal-field">
           <div class="modal-field-label">傾向・メモ</div>
-          <div class="modal-field-content">${e.memo.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+          <div class="modal-field-content">${e.memo.replace(/\x3c/g, '\x26lt;').replace(/>/g, '&gt;')}</div>
         </div>` : ''}
       ${e.link ? `
         <div class="modal-field">
@@ -4388,7 +4388,7 @@
       html += `<h2>${company}</h2>`;
       groups[company].forEach(entry => {
         entry.questions.forEach(q => {
-          html += `<div class="question">${q.question || '設問'}</div><div class="answer">${(q.answer || '').replace(/</g, '&lt;')}</div>`;
+          html += `<div class="question">${q.question || '設問'}</div><div class="answer">${(q.answer || '').replace(/\x3c/g, '\x26lt;')}</div>`;
         });
       });
     });
@@ -4429,11 +4429,11 @@
       ];
       starFields.forEach(f => {
         if (entry[f.key]) {
-          html += `<div class="label">${f.label}</div><div class="content">${(entry[f.key] || '').replace(/</g, '&lt;')}</div>`;
+          html += `<div class="label">${f.label}</div><div class="content">${(entry[f.key] || '').replace(/\x3c/g, '\x26lt;')}</div>`;
         }
       });
       if (entry.fullText) {
-        html += `<div class="label">本文</div><div class="content">${entry.fullText.replace(/</g, '&lt;')}</div>`;
+        html += `<div class="label">本文</div><div class="content">${entry.fullText.replace(/\x3c/g, '\x26lt;')}</div>`;
       }
     });
     html += '</body></html>';
