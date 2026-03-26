@@ -1414,7 +1414,7 @@
           <div>
             <div class="onboarding-step-title">過去問を共有する</div>
             <div class="onboarding-step-desc">持っている講義の過去問を登録してください。学部・科目別に検索できます。</div>
-            <a class="onboarding-step-link" href="writing.html">ES保管庫へ →</a>
+            <a class="onboarding-step-link" href="#es-bank-section">ES保管庫へ →</a>
           </div>
         </div>
       </div>
@@ -1487,36 +1487,939 @@
     </div>
 
     <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
-      <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">QUICK ACCESS</div>
-      <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">機能メニュー</div>
+      <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">RESEARCH</div>
+      <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">企業を知る</div>
       <div style="width:40px; height:2px; background:var(--gold); margin-top:0.5rem;"></div>
     </div>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1rem; margin-bottom:2rem;">
-      <a href="research.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
-        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">RESEARCH</div>
-        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">企業を知る</div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">企業ノート・選考情報・クイズ・イベント</div>
-      </a>
-      <a href="writing.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
-        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">WRITE</div>
-        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">ES・ガクチカを書く</div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">ES保管庫・ガクチカ・添削・AI支援</div>
-      </a>
-      <a href="interview-page.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
-        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">INTERVIEW</div>
-        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">面接対策</div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">面接ノート・チェックリスト・自分史</div>
-      </a>
-      <a href="resources.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
-        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">RESOURCES</div>
-        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">リソース</div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">先行案内・限定資料・輪読会</div>
-      </a>
+
+    <!-- ランダム企業ノート -->
+    <div class="m-section" id="random-notes-section" style="display:none;">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">TODAY'S PICK</div>
+          <div class="m-section-title" id="random-notes-title">今日のおすすめ企業ノート</div>
+        </div>
+      </div>
+      <div class="company-notes-grid" id="random-notes-grid"></div>
     </div>
+
+    <!-- 企業分析ノート検索 -->
+    <div class="m-section" id="company-notes">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">COMPANY NOTES</div>
+          <div class="m-section-title">企業分析ノート</div>
+        </div>
+      </div>
+      <div class="company-search-wrap">
+        <input type="text" id="company-search-input" class="company-search-input" placeholder="企業名で検索..." oninput="searchCompanyNotes()">
+      </div>
+      <div class="company-notes-grid" id="company-notes-grid">
+        <div class="m-empty">企業名を入力して検索してください。</div>
+      </div>
+    </div>
+
+    <!-- 企業クイズ -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">QUIZ</div>
+          <div class="m-section-title">企業研究クイズ</div>
+        </div>
+      </div>
+      <div class="quiz-box" id="quiz-box">
+        <div class="quiz-start">
+          <p class="quiz-start-desc">企業ノートの情報をヒントに、どの会社か当てよう！</p>
+          <button class="quiz-start-btn" onclick="startQuiz()">クイズを始める →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ① 選考情報・ES共有 -->
+    <div class="m-section" id="selection-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">SELECTION INFO</div>
+          <div class="m-section-title">選考情報・ES共有</div>
+        </div>
+      </div>
+      <!-- 特集フィルター -->
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:0.68rem; color:var(--crimson); letter-spacing:0.1em; font-weight:600;">特集</span>
+        <div style="flex:1; height:1px; background:rgba(10,26,62,0.08);"></div>
+      </div>
+      <div class="industry-filter" style="margin-bottom:1rem;">
+        <button class="industry-btn feature-btn active" data-feature="all" onclick="setFeature('all')">すべて</button>
+        <button class="industry-btn feature-btn" data-feature="大手" onclick="setFeature('大手')">🏢 大手</button>
+        <button class="industry-btn feature-btn" data-feature="ベンチャー" onclick="setFeature('ベンチャー')">🚀 ベンチャー</button>
+      </div>
+      <!-- 業界フィルター -->
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:0.68rem; color:var(--text-muted); letter-spacing:0.1em; font-weight:600;">業界</span>
+        <div style="flex:1; height:1px; background:rgba(10,26,62,0.08);"></div>
+      </div>
+      <div class="industry-filter" id="industry-filter" style="margin-bottom:1rem;">
+        <button class="industry-btn active" data-industry="all" onclick="setIndustry('all')">すべて</button>
+        <button class="industry-btn" data-industry="メーカー" onclick="setIndustry('メーカー')">メーカー</button>
+        <button class="industry-btn" data-industry="商社" onclick="setIndustry('商社')">商社</button>
+        <button class="industry-btn" data-industry="小売" onclick="setIndustry('小売')">小売</button>
+        <button class="industry-btn" data-industry="金融" onclick="setIndustry('金融')">金融</button>
+        <button class="industry-btn" data-industry="サービス・インフラ" onclick="setIndustry('サービス・インフラ')">サービス・インフラ</button>
+        <button class="industry-btn" data-industry="ソフトウェア" onclick="setIndustry('ソフトウェア')">ソフトウェア</button>
+        <button class="industry-btn" data-industry="マスコミ" onclick="setIndustry('マスコミ')">広告・出版・マスコミ</button>
+        <button class="industry-btn" data-industry="官公庁" onclick="setIndustry('官公庁')">官公庁・公社・団体</button>
+        <button class="industry-btn" data-industry="コンサル" onclick="setIndustry('コンサル')">コンサル</button>
+      </div>
+      <div class="sort-row">
+        <button class="sort-btn active" id="sort-btn" onclick="toggleSort()">↑ 締切が近い順</button>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap;">
+        <button class="submit-selection-btn" style="border:1.5px solid var(--navy); background:none; color:var(--navy); cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-weight:700; font-size:0.78rem; padding:0.5rem 1rem;" onclick="openRecruitFetchModal()">AI で選考情報を収集</button>
+        <a id="selection-form-btn" href="#" target="_blank" class="submit-selection-btn">
+          ＋ 選考情報を投稿する
+        </a>
+      </div>
+      <div class="deadline-banner" id="deadline-banner">
+        <div class="deadline-banner-header">
+          <span class="deadline-banner-label">URGENT</span>
+          <span class="deadline-banner-title" id="deadline-banner-title"></span>
+        </div>
+        <div class="deadline-banner-list" id="deadline-banner-list"></div>
+      </div>
+      <div class="selection-list" id="selection-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="selection-note"></p>
+    </div>
+
+    <!-- ② 企業イベント情報 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">EVENTS</div>
+          <div class="m-section-title">企業イベント情報</div>
+        </div>
+      </div>
+      <div class="sort-row">
+        <button class="sort-btn active" id="event-sort-btn" onclick="toggleEventSort()">↑ 日付が近い順</button>
+      </div>
+      <div class="event-list" id="event-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="event-note"></p>
+    </div>
+
+    <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
+      <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">WRITE</div>
+      <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">ES・ガクチカを書く</div>
+      <div style="width:40px; height:2px; background:var(--gold); margin-top:0.5rem;"></div>
+    </div>
+
+    <!-- ===== ガクチカ保管庫 ===== -->
+    <div class="m-section" id="gakuchika-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">MY GAKUCHIKA</div>
+          <div class="m-section-title">ガクチカ保管庫</div>
+        </div>
+      </div>
+      <div class="m-section-body">
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.6;">エピソードをSTAR法（状況・課題・行動・結果）でメモしておくと、ES生成・面接対策に活用できます。</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <button class="gk-add-btn" onclick="openGakuchikaModal()" style="flex:1;margin-bottom:0;">＋ ガクチカを追加する</button>
+          <button class="gk-add-btn" onclick="exportGakuchikaToPdf()" style="flex:0 0 auto;width:auto;padding:0.45rem 1rem;margin-bottom:0;border-style:solid;border-color:var(--navy);color:var(--navy);">PDF出力</button>
+        </div>
+        <div id="gakuchika-list"><div class="m-loading">読み込み中...</div></div>
+        <div style="margin-top:1rem;text-align:center;">
+          <button class="gk-btn accent" onclick="openGkGenModal()" style="font-size:0.8rem;padding:0.45rem 1.2rem;">✦ ガクチカからESを生成する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ES保管庫 ===== -->
+    <div class="m-section" id="es-bank-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">MY ES BANK</div>
+          <div class="m-section-title">ES保管庫</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <button class="es-bank-add-btn" onclick="openEsBankModal()" style="flex:1;margin-bottom:0;">＋ ESを追加する</button>
+        <button class="es-bank-add-btn" onclick="exportEsToPdf()" style="flex:0 0 auto;width:auto;padding:0.45rem 1rem;margin-bottom:0;border-style:solid;border-color:var(--navy);color:var(--navy);">PDF出力</button>
+      </div>
+      <div id="es-bank-list"><div class="m-loading">読み込み中...</div></div>
+    </div>
+
+    <!-- ES添削掲示板 -->
+    <div class="m-section" id="es-board-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">ES REVIEW</div>
+          <div class="m-section-title">ES添削掲示板</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">自分のESを投稿してメンバーからフィードバックをもらおう。コメントは匿名で投稿できます。</p>
+      <div class="board-toolbar">
+        <span style="font-size:0.78rem;color:var(--text-muted);" id="board-count">読み込み中...</span>
+        <button class="board-post-btn" id="board-post-btn">＋ ESを投稿する</button>
+      </div>
+      <div id="board-list"></div>
+    </div>
+
+    <!-- 自己PR補助ツール（PREP法） -->
+    <div class="m-section" id="self-pr-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">SELF PR</div>
+          <div class="m-section-title">自己PR補助ツール（PREP法）</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">PREP法（結論→理由→具体例→結論）で自己PRを組み立てよう。入力した内容は自動でプレビューに反映されます。</p>
+      <div id="pr-steps"></div>
+      <div class="pr-preview-wrap"><div class="pr-preview" id="pr-preview">（入力するとここにプレビューが表示されます）</div></div>
+      <div class="pr-char-count" id="pr-char-count">0文字</div>
+      <button class="pr-copy-btn" onclick="copyPR()">クリップボードにコピー</button>
+    </div>
+
+    <!-- ===== AI就活サポートツール ===== -->
+    <div class="m-section" id="ai-tools-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="8" r="4" fill="white" stroke="none"/><path d="M16 8h4M18 6v4" stroke="white" stroke-width="1.5"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">AI TOOLS</div>
+          <div class="m-section-title">AI就活サポートツール</div>
+        </div>
+      </div>
+      <p class="ai-note">⚠ AI回答は参考情報です。最終判断は必ずご自身で行ってください。GASを経由してAnthropicのAPIを呼び出しています（要ログイン）。</p>
+
+      <!-- タブ切り替え -->
+      <div class="ai-tool-tabs">
+        <button class="ai-tab-btn active" data-tab="es-review">📝 ES添削</button>
+        <button class="ai-tab-btn coming-soon" disabled>🎤 面接練習<span class="soon-badge">近日公開</span></button>
+        <button class="ai-tab-btn coming-soon" disabled>🔄 ES流用<span class="soon-badge">近日公開</span></button>
+      </div>
+
+      <!-- ─── タブ1: ES自動添削 ─── -->
+      <div class="ai-tab-panel active" id="ai-tab-es-review">
+        <div class="ai-form-group">
+          <label class="ai-label">企業名（任意）</label>
+          <input type="text" class="ai-input" id="esr-company" placeholder="例：〇〇商事、△△銀行">
+        </div>
+        <div class="esr-questions" id="esr-questions">
+          <div class="esr-question-block" data-index="0">
+            <div class="esr-question-num">設問 1</div>
+            <div style="display:flex;gap:0.6rem;margin-bottom:0.55rem;">
+              <div class="ai-form-group" style="flex:1;margin-bottom:0;">
+                <input type="text" class="ai-input esr-q-input" placeholder="設問テキスト（任意）">
+              </div>
+              <div class="ai-form-group" style="width:90px;margin-bottom:0;">
+                <input type="number" class="ai-input esr-limit-input" placeholder="字数制限" min="1" style="text-align:center;">
+              </div>
+            </div>
+            <div class="ai-form-group" style="margin-bottom:0.25rem;">
+              <textarea class="ai-textarea esr-t-input" placeholder="ES内容をここに貼り付けてください..." oninput="updateEsrCharCount(this)"></textarea>
+              <div class="ai-char-count">0 字</div>
+            </div>
+          </div>
+        </div>
+        <div class="esr-actions-row">
+          <button class="es-bank-add-btn" style="width:auto;flex:1;min-width:130px;margin-bottom:0;" onclick="addEsrQuestion()">＋ 設問を追加</button>
+          <button class="es-bank-btn primary" onclick="openLoadFromBankModal()" style="padding:0.45rem 0.9rem;white-space:nowrap;">📂 保管庫から読み込む</button>
+        </div>
+        <button class="ai-submit-btn" id="esr-submit-btn" onclick="submitEsReview()">
+          <span class="btn-text">✨ AIに添削してもらう</span>
+        </button>
+        <div class="ai-error-msg" id="esr-error"></div>
+        <div class="ai-result-box" id="esr-result"></div>
+        <!-- チャットエリア（添削後に表示） -->
+        <div class="es-chat-area" id="esr-chat-area" style="display:none;">
+          <div class="es-chat-intro">💬 修正したESを貼り直したり、気になる点を質問したりしながらAIと一緒にブラッシュアップできます</div>
+          <div class="es-chat-messages" id="esr-chat-messages"></div>
+          <div class="es-chat-input-row">
+            <textarea class="es-chat-input" id="esr-chat-input" placeholder="例：「第2段落を修正しました。確認してください」「もっと具体性を出すにはどうすればいいですか？」"></textarea>
+            <button class="es-chat-send-btn" id="esr-chat-send" onclick="sendEsrChat()">送信</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── タブ2: 面接練習AIコーチ ─── -->
+      <div class="ai-tab-panel" id="ai-tab-interview-coach">
+        <div class="ai-form-group">
+          <label class="ai-label">面接質問</label>
+          <input type="text" class="ai-input" id="ic-question" placeholder="例：あなたの強みを教えてください">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">志望職種（任意）</label>
+          <input type="text" class="ai-input" id="ic-jobtype" placeholder="例：総合職、営業、エンジニア">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">あなたの回答 <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea" id="ic-answer" placeholder="面接で話す回答をここに入力してください..." oninput="updateCharCount('ic-answer','ic-char')"></textarea>
+          <div class="ai-char-count" id="ic-char">0 字</div>
+        </div>
+        <button class="ai-submit-btn" id="ic-submit-btn" onclick="submitInterviewCoach()">
+          <span class="btn-text">🎤 AIコーチに評価してもらう</span>
+        </button>
+        <div class="ai-error-msg" id="ic-error"></div>
+        <div class="ai-result-box" id="ic-result"></div>
+      </div>
+
+      <!-- ─── タブ3: ES流用支援 ─── -->
+      <div class="ai-tab-panel" id="ai-tab-es-rewrite">
+        <div class="ai-form-group">
+          <label class="ai-label">元のES <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea" id="rw-original" placeholder="流用したい元のESを貼り付けてください..." oninput="updateCharCount('rw-original','rw-char1')"></textarea>
+          <div class="ai-char-count" id="rw-char1">0 字</div>
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">志望企業名 <span style="color:var(--crimson)">*</span></label>
+          <input type="text" class="ai-input" id="rw-company" placeholder="例：△△銀行">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">新しい設問（任意）</label>
+          <input type="text" class="ai-input" id="rw-question" placeholder="例：志望動機を300字以内で教えてください">
+        </div>
+        <button class="ai-submit-btn" id="rw-submit-btn" onclick="submitEsRewrite()">
+          <span class="btn-text">🔄 AIに流用ESを作ってもらう</span>
+        </button>
+        <div class="ai-error-msg" id="rw-error"></div>
+        <div class="ai-result-box" id="rw-result"></div>
+      </div>
+    </div>
+
+    <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
+      <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">INTERVIEW</div>
+      <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">面接対策</div>
+      <div style="width:40px; height:2px; background:var(--gold); margin-top:0.5rem;"></div>
+    </div>
+
+    <!-- ===== 面接対策ノート ===== -->
+    <div class="m-section" id="interview-prep-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">INTERVIEW PREP</div>
+          <div class="m-section-title">面接対策ノート</div>
+        </div>
+      </div>
+      <div class="m-section-body">
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.65;">企業別に深掘り質問を自動生成。回答をメモしてAIに添削してもらい、面接本番に備えましょう。</div>
+
+        <!-- 企業チップ -->
+        <div class="ip-company-chips" id="ip-company-chips">
+          <button class="ip-add-chip-btn" onclick="ipOpenAddCompany()">＋ 企業を追加</button>
+        </div>
+
+        <!-- 企業が未登録のとき -->
+        <div class="ip-empty-company" id="ip-no-company">企業を追加して面接対策を始めましょう。</div>
+
+        <!-- 企業パネル群 -->
+        <div id="ip-panels"></div>
+      </div>
+    </div>
+
+    <!-- 面接チェックリスト -->
+    <div class="m-section" id="interview-checklist-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">INTERVIEW PREP</div>
+          <div class="m-section-title">面接チェックリスト</div>
+        </div>
+      </div>
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="cl-fill" style="width:0%"></div></div>
+      <div class="checklist-progress-text"><span id="cl-progress-text">0 / 0 完了</span><button class="checklist-reset-btn" onclick="resetChecklist()" style="font-size:0.7rem;color:var(--text-muted);background:none;border:1px solid rgba(10,26,62,0.15);padding:0.2rem 0.6rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">リセット</button></div>
+      <div id="checklist-body"></div>
+    </div>
+
+    <!-- ===== 自分史作成ツール ===== -->
+    <div class="m-section" id="jibunshi-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">PERSONAL HISTORY</div>
+          <div class="m-section-title">自分史作成ツール</div>
+        </div>
+      </div>
+      <div class="m-section-body">
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.7;">
+          三井物産ESを参考にした自分史フォーマット。<br>
+          各時代のエピソードをメモすると、AIが字数配分・文体を守って自分史を生成します。<br>
+          <span style="font-size:0.72rem;">目標2000字（最大2500字）／ 小学:中学:高校:大学 = 10:20:30:40</span>
+        </div>
+
+        <!-- 字数合計インジケーター -->
+        <div class="js-total-counter" id="js-total-counter" style="display:none;">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.2rem;">生成済み自分史の文字数</div>
+            <div class="js-total-num" id="js-total-num">0字</div>
+          </div>
+          <div class="js-total-status" id="js-total-status"></div>
+        </div>
+
+        <!-- 各時代 入力アコーディオン -->
+        <div class="js-period-accordion">
+          <!-- 小学校以前 -->
+          <div class="js-period">
+            <button class="js-period-header" onclick="toggleJsPeriod(this)">
+              <div class="js-period-header-left">
+                <span class="js-period-badge elem">ELEMENTARY</span>
+                <span class="js-period-label">小学校以前</span>
+                <span class="js-period-target">目安 約200字 (10%)</span>
+              </div>
+              <span class="js-period-arrow">▼</span>
+            </button>
+            <div class="js-period-body">
+              <div class="js-period-hint">家庭環境・習い事・遊び・印象的な体験など。「なぜそれに熱中したか」を一言添えると◎</div>
+              <textarea class="ai-textarea" id="js-elem" placeholder="例）サッカーを5歳から始め、チームで動くことの楽しさを知った。父の影響で毎週図書館に通い、読書が習慣になった。" style="min-height:100px;" oninput="updateJsCharCount()"></textarea>
+            </div>
+          </div>
+          <!-- 中学時代 -->
+          <div class="js-period">
+            <button class="js-period-header" onclick="toggleJsPeriod(this)">
+              <div class="js-period-header-left">
+                <span class="js-period-badge junior">JUNIOR HIGH</span>
+                <span class="js-period-label">中学時代</span>
+                <span class="js-period-target">目安 約400字 (20%)</span>
+              </div>
+              <span class="js-period-arrow">▼</span>
+            </button>
+            <div class="js-period-body">
+              <div class="js-period-hint">部活・勉強・人間関係など。転換点・葛藤・それを乗り越えた経緯を端的に。</div>
+              <textarea class="ai-textarea" id="js-junior" placeholder="例）吹奏楽部でパートリーダーを務めた。メンバーの意欲の差に悩んだが、個別に話し合いの場を設けることで課題を解決。チームを動かすことへの関心が生まれた。" style="min-height:120px;" oninput="updateJsCharCount()"></textarea>
+            </div>
+          </div>
+          <!-- 高校時代 -->
+          <div class="js-period">
+            <button class="js-period-header" onclick="toggleJsPeriod(this)">
+              <div class="js-period-header-left">
+                <span class="js-period-badge high">HIGH SCHOOL</span>
+                <span class="js-period-label">高校時代</span>
+                <span class="js-period-target">目安 約600字 (30%)</span>
+              </div>
+              <span class="js-period-arrow">▼</span>
+            </button>
+            <div class="js-period-body">
+              <div class="js-period-hint">最も力を入れたこと・リーダー経験・失敗と学び。大学進学の動機と接続できるとなおよい。</div>
+              <textarea class="ai-textarea" id="js-high" placeholder="例）生徒会長として文化祭を主導。企画段階で予算削減を余儀なくされ、外部スポンサー獲得を提案。交渉の結果、過去最大規模の出展数を実現した。この経験が課題解決への自信の源となっている。" style="min-height:140px;" oninput="updateJsCharCount()"></textarea>
+            </div>
+          </div>
+          <!-- 大学以降 -->
+          <div class="js-period">
+            <button class="js-period-header" onclick="toggleJsPeriod(this)">
+              <div class="js-period-header-left">
+                <span class="js-period-badge college">UNIVERSITY</span>
+                <span class="js-period-label">大学以降</span>
+                <span class="js-period-target">目安 約800字 (40%)</span>
+              </div>
+              <span class="js-period-arrow">▼</span>
+            </button>
+            <div class="js-period-body">
+              <div class="js-period-hint">学業・サークル・インターン・留学・アルバイトなど。自分の強みがどう発揮されたか・どう深まったかを中心に。</div>
+              <textarea class="ai-textarea" id="js-college" placeholder="例）経済学部で計量経済学を専攻。3年次にコンサルのインターンで仮説思考の実践を経験。また体育会ラグビー部では副将としてチーム再建に関わり、戦略立案・対話によるモチベーション向上を実践した。" style="min-height:160px;" oninput="updateJsCharCount()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ガクチカ参照オプション -->
+        <div class="ai-form-group" id="js-gk-ref-section">
+          <label class="ai-label" style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+            <input type="checkbox" id="js-use-gakuchika" style="width:15px;height:15px;cursor:pointer;" onchange="toggleJsGkSelector()">
+            登録済みのガクチカを自分史に組み込む
+          </label>
+          <div id="js-gk-selector" style="display:none;margin-top:0.65rem;">
+            <div style="font-size:0.73rem;color:var(--text-muted);margin-bottom:0.5rem;">組み込むガクチカを選択（複数可）</div>
+            <div id="js-gk-selector-list" style="display:flex;flex-direction:column;gap:0.3rem;max-height:160px;overflow-y:auto;border:1px solid rgba(10,26,62,0.1);padding:0.5rem;"></div>
+          </div>
+        </div>
+
+        <!-- 任意: アピールしたい特性 -->
+        <div class="ai-form-group">
+          <label class="ai-label">全時代を通じて伝えたい特性・価値観（任意）</label>
+          <input type="text" class="ai-input" id="js-traits" placeholder="例：粘り強さ、チームで課題を解決する力、好奇心と行動力">
+        </div>
+
+        <button class="ai-submit-btn" id="js-generate-btn" onclick="submitJibunshi()">✦ 自分史を生成する</button>
+
+        <!-- 出力エリア -->
+        <div class="js-output-area" id="js-output-area" style="display:none;">
+          <div class="js-section-counter" id="js-section-counter"></div>
+          <div class="js-char-bar-wrap">
+            <div class="js-char-bar-label">
+              <span>文字数</span>
+              <span id="js-bar-label-text"></span>
+            </div>
+            <div class="js-char-bar-track"><div class="js-char-bar-fill ok" id="js-bar-fill"></div></div>
+          </div>
+          <div class="js-output-text" id="js-output-text"></div>
+          <div class="js-action-row">
+            <button class="es-view-copy-btn" onclick="copyJibunshi()" style="font-size:0.8rem;padding:0.5rem 1rem;">コピー</button>
+            <button class="gk-btn accent" onclick="saveJibunshiToEsBank()" style="font-size:0.8rem;padding:0.5rem 1rem;">ES保管庫に保存</button>
+          </div>
+
+          <!-- チャット -->
+          <div class="js-chat-area" id="js-chat-area">
+            <div style="font-size:0.8rem;font-weight:700;color:var(--navy);margin-bottom:0.75rem;">✦ AIと対話して修正・ブラッシュアップ</div>
+            <div class="es-chat-msgs" id="js-chat-msgs"></div>
+            <div class="es-chat-input-row">
+              <textarea class="es-chat-input" id="js-chat-input" placeholder="「高校時代をもう少し具体的に」「大学部分を短くして」など自由に指示できます" rows="2" onkeydown="jsHandleChatKey(event)"></textarea>
+              <button class="es-chat-send" onclick="sendJsChat()">送信</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
+      <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">RESOURCES</div>
+      <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">リソース</div>
+      <div style="width:40px; height:2px; background:var(--gold); margin-top:0.5rem;"></div>
+    </div>
+
+    <!-- ③ イベント先行案内 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">PRIORITY ACCESS</div>
+          <div class="m-section-title">イベント先行案内</div>
+        </div>
+      </div>
+      <div class="priority-list" id="priority-list">
+        <div class="m-loading">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="priority-note"></p>
+    </div>
+
+    <!-- ③ 限定資料・ファイル -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">FILES</div>
+          <div class="m-section-title">限定資料・ファイル</div>
+        </div>
+      </div>
+      <div class="files-grid" id="files-grid">
+        <div class="m-loading" style="grid-column:1/-1;">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="files-note"></p>
+    </div>
+
+    <!-- ④ 輪読会 貸出状況 -->
+    <div class="m-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">BOOKS</div>
+          <div class="m-section-title">輪読会 貸出状況</div>
+        </div>
+      </div>
+      <div class="books-grid" id="books-grid">
+        <div class="m-loading" style="grid-column:1/-1;">読み込み中...</div>
+      </div>
+      <p class="sheet-note" id="books-note"></p>
+    </div>
+
+
 
   </div>
 </div>
 
+<!-- ===== 過去問追加モーダル ===== -->
+<div class="exam-modal-overlay" id="exam-modal-overlay">
+  <div class="exam-modal-box">
+    <div class="exam-modal-header">
+      <div class="exam-modal-title">過去問を追加する</div>
+      <button class="modal-close" id="exam-modal-close">✕</button>
+    </div>
+    <div class="exam-modal-body">
+      <div class="exam-field">
+        <label>科目名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="ef-subject" placeholder="例：経済学入門、線形代数学">
+      </div>
+      <div class="exam-field">
+        <label>学部</label>
+        <select id="ef-faculty">
+          <option value="">選択してください</option>
+          <option>文学部</option>
+          <option>経済学部</option>
+          <option>法学部</option>
+          <option>商学部</option>
+          <option>医学部</option>
+          <option>理工学部</option>
+          <option>総合政策学部</option>
+          <option>環境情報学部</option>
+          <option>看護医療学部</option>
+          <option>薬学部</option>
+        </select>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
+        <div class="exam-field">
+          <label>年度・学期</label>
+          <input type="text" id="ef-period" placeholder="例：2024年度後期">
+        </div>
+        <div class="exam-field">
+          <label>試験種別</label>
+          <select id="ef-type">
+            <option value="">選択してください</option>
+            <option value="期末試験">期末試験</option>
+            <option value="中間試験">中間試験</option>
+            <option value="小テスト">小テスト</option>
+            <option value="レポート">レポート</option>
+            <option value="定期試験">定期試験</option>
+          </select>
+        </div>
+      </div>
+      <div class="exam-field">
+        <label>資料リンク（Google Drive など）</label>
+        <input type="url" id="ef-link" placeholder="https://drive.google.com/...">
+        <div class="exam-field-note">問題・解答をアップしたリンクがあれば貼ってください</div>
+      </div>
+      <div class="exam-field">
+        <label>傾向・メモ</label>
+        <textarea id="ef-memo" placeholder="出題範囲、難易度、おすすめの対策など自由に書いてください"></textarea>
+      </div>
+      <div class="exam-form-error" id="exam-form-error"></div>
+      <button class="exam-submit-btn" id="exam-submit-btn">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 過去問詳細モーダル ===== -->
+<div class="exam-detail-overlay" id="exam-detail-overlay">
+  <div class="exam-detail-box">
+    <div class="exam-modal-header">
+      <div class="exam-modal-title" id="exam-detail-title">科目名</div>
+      <button class="modal-close" id="exam-detail-close">✕</button>
+    </div>
+    <div class="modal-body" id="exam-detail-body"></div>
+  </div>
+</div>
+
+<!-- 面接対策 企業追加・編集モーダル -->
+<div class="ip-modal-overlay" id="ip-company-modal">
+  <div class="ip-modal">
+    <div class="es-modal-title" id="ip-cm-title">企業を追加する</div>
+    <input type="hidden" id="ip-cm-id">
+    <div class="ai-form-group">
+      <label class="ai-label">企業名 <span style="color:var(--crimson)">*</span></label>
+      <input type="text" class="ai-input" id="ip-cm-name" placeholder="例：三井物産">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">業界</label>
+      <input type="text" class="ai-input" id="ip-cm-industry" placeholder="例：総合商社">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">職種・コース</label>
+      <input type="text" class="ai-input" id="ip-cm-position" placeholder="例：総合職、デジタル職">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">選考状況</label>
+      <select class="es-modal-select" id="ip-cm-status">
+        <option value="">未設定</option>
+        <option value="ES提出前">ES提出前</option>
+        <option value="ES提出済">ES提出済</option>
+        <option value="一次面接">一次面接</option>
+        <option value="二次面接">二次面接</option>
+        <option value="最終面接">最終面接</option>
+        <option value="内定">内定</option>
+      </select>
+    </div>
+    <div class="ai-error-msg" id="ip-cm-error"></div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="ipCloseCompanyModal()">キャンセル</button>
+      <button class="es-modal-save" onclick="ipSaveCompany()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 面接対策 カスタム質問追加モーダル -->
+<div class="ip-modal-overlay" id="ip-cq-modal">
+  <div class="ip-modal">
+    <div class="es-modal-title">質問を追加する</div>
+    <input type="hidden" id="ip-cq-company-id">
+    <div class="ai-form-group">
+      <label class="ai-label">質問文 <span style="color:var(--crimson)">*</span></label>
+      <textarea class="ai-textarea" id="ip-cq-question" placeholder="例：あなたが最も誇りに思う経験を教えてください。" style="min-height:80px;"></textarea>
+    </div>
+    <div class="ai-error-msg" id="ip-cq-error"></div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="ipCloseCqModal()">キャンセル</button>
+      <button class="es-modal-save" onclick="ipSaveCustomQuestion()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ガクチカ 追加・編集モーダル -->
+<div class="gk-modal-overlay" id="gk-modal">
+  <div class="gk-modal">
+    <div class="gk-modal-title" id="gk-modal-title">ガクチカを追加する</div>
+    <input type="hidden" id="gk-modal-id">
+    <div class="ai-form-group">
+      <label class="ai-label">タイトル <span style="color:var(--crimson)">*</span></label>
+      <input type="text" class="ai-input" id="gk-modal-title-input" placeholder="例：テニスサークルでの主将経験">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">カテゴリ</label>
+      <div class="gk-category-grid" id="gk-cat-grid">
+        <button class="gk-cat-btn" data-cat="部活・サークル" onclick="selectGkCat(this)">部活・サークル</button>
+        <button class="gk-cat-btn" data-cat="バイト" onclick="selectGkCat(this)">バイト</button>
+        <button class="gk-cat-btn" data-cat="研究・ゼミ" onclick="selectGkCat(this)">研究・ゼミ</button>
+        <button class="gk-cat-btn" data-cat="インターン" onclick="selectGkCat(this)">インターン</button>
+        <button class="gk-cat-btn" data-cat="ボランティア" onclick="selectGkCat(this)">ボランティア</button>
+        <button class="gk-cat-btn" data-cat="留学・海外経験" onclick="selectGkCat(this)">留学・海外経験</button>
+        <button class="gk-cat-btn" data-cat="資格・自己学習" onclick="selectGkCat(this)">資格・自己学習</button>
+        <button class="gk-cat-btn" data-cat="その他" onclick="selectGkCat(this)">その他</button>
+      </div>
+      <input type="hidden" id="gk-modal-category">
+    </div>
+    <div class="gk-star-hint">💡 STAR法でメモすると、ESや面接でそのまま活用できます（入力は任意）</div>
+    <div class="ai-form-group">
+      <div class="gk-section-label">S — 状況（Situation）</div>
+      <textarea class="ai-textarea" id="gk-modal-situation" placeholder="当時どんな状況・環境にいたか" style="min-height:70px;"></textarea>
+    </div>
+    <div class="ai-form-group">
+      <div class="gk-section-label">T — 課題・目標（Task）</div>
+      <textarea class="ai-textarea" id="gk-modal-task" placeholder="直面した課題や設定した目標" style="min-height:70px;"></textarea>
+    </div>
+    <div class="ai-form-group">
+      <div class="gk-section-label">A — 行動（Action）</div>
+      <textarea class="ai-textarea" id="gk-modal-action" placeholder="自分がとった具体的な行動（なぜその行動を選んだか）" style="min-height:90px;"></textarea>
+    </div>
+    <div class="ai-form-group">
+      <div class="gk-section-label">R — 結果・成果（Result）</div>
+      <textarea class="ai-textarea" id="gk-modal-result" placeholder="結果・成果（数値や具体的な変化があると◎）" style="min-height:70px;"></textarea>
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">アピールポイント・学び</label>
+      <textarea class="ai-textarea" id="gk-modal-appeal" placeholder="このエピソードで伝えたい強み・学んだこと" style="min-height:70px;"></textarea>
+    </div>
+    <div class="ai-error-msg" id="gk-modal-error"></div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="closeGakuchikaModal()">キャンセル</button>
+      <button class="es-modal-save" onclick="saveGakuchikaEntry()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ガクチカ 閲覧モーダル -->
+<div class="es-view-overlay" id="gk-view-modal">
+  <div class="es-view-modal">
+    <div class="es-view-modal-header">
+      <div>
+        <div class="es-view-company" id="gk-view-title"></div>
+        <div class="es-view-industry" id="gk-view-category"></div>
+      </div>
+      <button class="es-view-close" onclick="closeGkViewModal()">✕</button>
+    </div>
+    <div id="gk-view-star-sections"></div>
+    <div class="es-view-section" id="gk-view-appeal-section">
+      <div class="es-view-label">アピールポイント・学び</div>
+      <div class="es-view-memo" id="gk-view-appeal"></div>
+    </div>
+    <div class="es-view-actions">
+      <button class="es-view-copy-btn" onclick="openGkGenModalWithEntry(currentGkViewId)">このガクチカでES生成</button>
+      <button class="es-view-edit-btn" id="gk-view-edit-btn">編集する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ガクチカ → ES生成モーダル -->
+<div class="gk-gen-overlay" id="gk-gen-modal">
+  <div class="gk-gen-modal">
+    <div class="es-modal-title">ガクチカからESを生成する</div>
+    <div class="ai-form-group">
+      <label class="ai-label">使用するガクチカを選択（複数可）</label>
+      <div class="gk-gen-select-list" id="gk-gen-select-list"></div>
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">志望企業名</label>
+      <input type="text" class="ai-input" id="gk-gen-company" placeholder="例：三菱商事">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">設問テキスト</label>
+      <input type="text" class="ai-input" id="gk-gen-question" placeholder="例：学生時代に最も力を入れたこと（400字以内）">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">字数制限</label>
+      <input type="number" class="ai-input" id="gk-gen-charlimit" placeholder="例：400（空欄で制限なし）" min="1">
+    </div>
+    <div class="ai-error-msg" id="gk-gen-error"></div>
+    <div id="gk-gen-result" style="display:none;">
+      <div class="gk-gen-result">
+        <div class="es-view-label" style="margin-bottom:0.5rem;">生成結果</div>
+        <div class="gk-gen-result-text" id="gk-gen-result-text"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
+          <button class="es-view-copy-btn" onclick="copyGkGenResult()" style="font-size:0.78rem;padding:0.45rem 0.9rem;">コピー</button>
+          <button class="gk-btn accent" onclick="saveGkGenToEsBank()" style="font-size:0.78rem;padding:0.45rem 0.9rem;">ES保管庫に保存</button>
+        </div>
+      </div>
+    </div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="closeGkGenModal()">閉じる</button>
+      <button class="es-modal-save" id="gk-gen-submit-btn" onclick="submitGkGen()">ESを生成する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES保管庫 追加・編集モーダル -->
+<div class="es-modal-overlay" id="es-bank-modal">
+  <div class="es-modal">
+    <div class="es-modal-title" id="es-bank-modal-title">ESを追加する</div>
+    <input type="hidden" id="es-modal-id">
+    <div class="ai-form-group">
+      <label class="ai-label">会社名 <span style="color:var(--crimson)">*</span></label>
+      <input type="text" class="ai-input" id="es-modal-company" placeholder="例：三菱商事">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">業界</label>
+      <input type="text" class="ai-input" id="es-modal-industry" placeholder="例：総合商社、メガバンク">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">設問テキスト</label>
+      <input type="text" class="ai-input" id="es-modal-question" placeholder="例：学生時代に最も力を入れたこと（400字）">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">ES内容 <span style="color:var(--crimson)">*</span></label>
+      <textarea class="ai-textarea" id="es-modal-estext" placeholder="ESの内容を貼り付けてください..." style="min-height:160px;"></textarea>
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">選考結果</label>
+      <select class="es-modal-select" id="es-modal-result">
+        <option value="">未確定</option>
+        <option value="通過">通過</option>
+        <option value="不通過">不通過</option>
+      </select>
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-label">メモ（工夫した点など）</label>
+      <textarea class="ai-textarea" id="es-modal-memo" placeholder="任意" style="min-height:80px;"></textarea>
+    </div>
+    <div class="ai-error-msg" id="es-modal-error"></div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="closeEsBankModal()">キャンセル</button>
+      <button class="es-modal-save" onclick="saveEsBankEntry()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES保管庫 読み込みモーダル -->
+<div class="es-load-modal-overlay" id="es-load-modal">
+  <div class="es-load-modal">
+    <div class="es-modal-title">保管庫から読み込む</div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">追加したいESをクリックしてください（複数選択可）</p>
+    <div id="es-load-list"></div>
+    <div class="es-modal-actions">
+      <button class="es-modal-cancel" onclick="closeLoadFromBankModal()">キャンセル</button>
+      <button class="es-modal-save" onclick="applyLoadFromBank()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES保管庫 閲覧モーダル -->
+<div class="es-view-overlay" id="es-view-modal">
+  <div class="es-view-modal">
+    <div class="es-view-modal-header">
+      <div>
+        <div class="es-view-company" id="es-view-company"></div>
+        <div class="es-view-industry" id="es-view-industry"></div>
+      </div>
+      <button class="es-view-close" onclick="closeEsViewModal()">✕</button>
+    </div>
+    <div class="es-view-section" id="es-view-question-section">
+      <div class="es-view-label">設問</div>
+      <div class="es-view-question-text" id="es-view-question"></div>
+    </div>
+    <div class="es-view-section">
+      <div class="es-view-label">ES内容</div>
+      <div class="es-view-estext" id="es-view-estext"></div>
+      <div class="es-view-charcount" id="es-view-charcount"></div>
+    </div>
+    <div class="es-view-meta-row">
+      <div id="es-view-result-badge"></div>
+    </div>
+    <div class="es-view-section" id="es-view-memo-section">
+      <div class="es-view-label">メモ</div>
+      <div class="es-view-memo" id="es-view-memo"></div>
+    </div>
+    <div class="es-view-actions">
+      <button class="es-view-copy-btn" onclick="copyEsViewText()">コピー</button>
+      <button class="es-view-edit-btn" id="es-view-edit-btn" onclick="">編集する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES添削掲示板 投稿モーダル -->
+<div class="board-modal-overlay" id="board-modal">
+  <div class="board-modal-box">
+    <div class="board-modal-header">
+      <span class="board-modal-title">ESを投稿する</span>
+      <button id="board-modal-close" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.1rem;cursor:pointer;padding:0;">✕</button>
+    </div>
+    <div class="board-modal-body">
+      <div>
+        <label class="board-field-label">企業名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-company" class="board-field-input" placeholder="例：三菱商事">
+      </div>
+      <div>
+        <label class="board-field-label">設問 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-question" class="board-field-input" placeholder="例：学生時代に最も力を入れたことを400字以内で">
+      </div>
+      <div>
+        <label class="board-field-label">ESの内容 <span style="color:var(--crimson);">*</span></label>
+        <textarea id="bm-text" class="board-field-textarea" placeholder="ここにESの内容を貼り付けてください..."></textarea>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);line-height:1.7;background:rgba(10,26,62,0.04);padding:0.7rem 0.9rem;">
+        投稿は全会員に公開されます。個人を特定できる情報は含めないようにしてください。
+      </div>
+      <div style="font-size:0.78rem;color:var(--crimson);min-height:1em;" id="bm-error"></div>
+      <button id="bm-submit" class="board-submit-btn">投稿する</button>
+    </div>
+  </div>
+</div>
 
 <!-- 進捗トラッカー 追加モーダル -->
 <div class="progress-modal-overlay" id="progress-modal">
@@ -2808,11 +3711,20 @@
   }, { passive: true });
 
   async function loadAll() {
+    initSelectionFormBtn();
     initProgressTracker();
+    initChecklist();
+    initPRTool();
     // お知らせと企業ノートを並列取得（企業ノートは選考表示のfindNoteで必要）
     await Promise.all([loadNotice(), loadCompanyNotes()]);
-    await loadSelection();
+    await Promise.all([loadSelection(), loadEvents(), loadPriority(), loadFiles(), loadBooks()]);
     initCalendar();
+    initPastExams();
+    initBoardModal();
+    loadBoardPosts();
+    loadEsBank();
+    loadGakuchika();
+    initAiTools();
   }
 
   // ===== ステージセレクター =====
