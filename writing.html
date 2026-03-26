@@ -559,7 +559,11 @@
       <div id="pr-steps"></div>
       <div class="pr-preview-wrap"><div class="pr-preview" id="pr-preview">（入力するとここにプレビューが表示されます）</div></div>
       <div class="pr-char-count" id="pr-char-count">0文字</div>
-      <button class="pr-copy-btn" onclick="copyPR()">クリップボードにコピー</button>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <button class="pr-copy-btn" onclick="copyPR()">クリップボードにコピー</button>
+        <button class="pr-copy-btn" onclick="aiReviewPR()" id="pr-ai-btn" style="background:var(--navy);color:white;border-color:var(--navy);">AIに添削してもらう</button>
+      </div>
+      <div id="pr-ai-result" style="display:none;margin-top:1.2rem;padding:1rem;background:var(--gray);font-size:0.82rem;line-height:1.8;white-space:pre-wrap;border-left:3px solid var(--gold);"></div>
     </div>
 
     <!-- ===== AI就活サポートツール ===== -->
@@ -996,6 +1000,35 @@
     var text = PR_STEPS.map(function(s) { return data[s.field].trim(); }).filter(Boolean).join('\n\n');
     document.getElementById('pr-preview').textContent = text || '（入力するとここにプレビューが表示されます）';
     document.getElementById('pr-char-count').textContent = text.length + '文字';
+  }
+
+  async function aiReviewPR() {
+    var text = document.getElementById('pr-preview').textContent;
+    if (!text || text.includes('入力すると')) { alert('先にPREP法で自己PRを入力してください。'); return; }
+
+    var btn = document.getElementById('pr-ai-btn');
+    var resultEl = document.getElementById('pr-ai-result');
+    btn.disabled = true;
+    btn.textContent = 'AI分析中...';
+    resultEl.style.display = 'block';
+    resultEl.textContent = '分析中...';
+
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'interviewCoach',
+        input: {
+          question: '自己PRをしてください（1分程度）',
+          answer: text,
+          jobType: ''
+        }
+      });
+      resultEl.textContent = data.result || 'AI分析結果が空でした。';
+    } catch (e) {
+      resultEl.textContent = 'エラー: ' + e.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'AIに添削してもらう';
   }
 
   function copyPR() {
@@ -1913,5 +1946,13 @@
     }
   })();
 </script>
+<style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
+<nav class="bottom-tab-bar">
+  <a href="members.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>ホーム</span></a>
+  <a href="research.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>企業</span></a>
+  <a href="writing.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>ES</span></a>
+  <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
+  <a href="resources.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
+</nav>
 </body>
 </html>
