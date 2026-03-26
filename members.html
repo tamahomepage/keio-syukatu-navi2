@@ -3733,7 +3733,7 @@
           <span class="pr-step-hint">${s.hint}</span>
         </div>
         <div class="pr-step-body">
-          <textarea class="pr-textarea" id="pr-${s.field}" placeholder="${s.hint}" oninput="updatePRPreview()">${(saved[s.field]||'').replace(/</g,'&lt;')}</textarea>
+          <textarea class="pr-textarea" id="pr-${s.field}" placeholder="${s.hint}" oninput="updatePRPreview()">${(saved[s.field]||'').replace(/\x3c/g,'\x26lt;')}</textarea>
         </div>
       </div>`
     ).join('');
@@ -3799,15 +3799,15 @@
     }
     listEl.innerHTML = posts.map(p => {
       const comments = (p.comments || []).map(c =>
-        `<div class="board-comment"><span class="board-comment-user">${c.username||'匿名'}</span>${(c.commentText||c.text||'').replace(/</g,'&lt;')}</div>`
+        `<div class="board-comment"><span class="board-comment-user">${c.username||'匿名'}</span>${(c.commentText||c.text||'').replace(/\x3c/g,'\x26lt;')}</div>`
       ).join('');
       return `<div class="board-card">
         <div class="board-card-head">
-          <span class="board-card-company">${(p.company||'').replace(/</g,'&lt;')}</span>
+          <span class="board-card-company">${(p.company||'').replace(/\x3c/g,'\x26lt;')}</span>
           <span class="board-card-user">${p.username||'匿名'} · ${p.createdAt ? new Date(p.createdAt).toLocaleDateString('ja-JP') : ''}</span>
         </div>
-        <div class="board-card-q">${(p.question||'').replace(/</g,'&lt;')}</div>
-        <div class="board-card-text">${(p.esText||p.text||'').replace(/</g,'&lt;')}</div>
+        <div class="board-card-q">${(p.question||'').replace(/\x3c/g,'\x26lt;')}</div>
+        <div class="board-card-text">${(p.esText||p.text||'').replace(/\x3c/g,'\x26lt;')}</div>
         <div class="board-comments">
           <div id="comments-${p.id}">${comments}</div>
           <div class="board-comment-row">
