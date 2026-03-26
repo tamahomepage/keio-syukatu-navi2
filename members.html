@@ -1761,6 +1761,13 @@
   const BOOKS_KEY     = 'books';
   const EVENT_KEY     = 'event';
   const COMPANY_KEY   = 'company';
+  const STAGE_KEY = 'keio_navi_stage_v1';
+  const STAGE_SECTIONS = {
+    '自己分析中':  ['company-notes','interview-checklist-section','self-pr-section','selection-section'],
+    'ES準備中':    ['ai-tools-section','selection-section','self-pr-section','es-board-section'],
+    '面接対策中':  ['ai-tools-section','interview-checklist-section','selection-section','progress-section'],
+    '内定待ち':    ['progress-section','calendar-section','selection-section','interview-checklist-section'],
+  };
   const NOTICE_CSV     = ''; // ← お知らせスプシのCSV URLを貼る（列: 日付・タイトル・内容・タグ）
   const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
   const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbx0YzBfa9k1Vs85mK6X3d_LHXScftOsomumLAQ31Rpcs7LQO4HinyIzZGhl1-7BppfpVw/exec';
@@ -2869,13 +2876,6 @@
   }
 
   // ===== ステージセレクター =====
-  const STAGE_KEY = 'keio_navi_stage_v1';
-  const STAGE_SECTIONS = {
-    '自己分析中':  ['company-notes','interview-checklist-section','self-pr-section','selection-section'],
-    'ES準備中':    ['ai-tools-section','selection-section','self-pr-section','es-board-section'],
-    '面接対策中':  ['ai-tools-section','interview-checklist-section','selection-section','progress-section'],
-    '内定待ち':    ['progress-section','calendar-section','selection-section','interview-checklist-section'],
-  };
 
   function initStageSelector() {
     const saved = localStorage.getItem(STAGE_KEY);
