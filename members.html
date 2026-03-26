@@ -1372,17 +1372,6 @@
 
   <div class="members-main">
 
-    <!-- 就活ステージセレクター -->
-    <div class="stage-banner" id="stage-banner">
-      <span class="stage-banner-label">今の状況</span>
-      <div class="stage-btns" id="stage-btns">
-        <button class="stage-select-btn" data-stage="自己分析中" onclick="setStage('自己分析中')">自己分析中</button>
-        <button class="stage-select-btn" data-stage="ES準備中" onclick="setStage('ES準備中')">ES準備中</button>
-        <button class="stage-select-btn" data-stage="面接対策中" onclick="setStage('面接対策中')">面接対策中</button>
-        <button class="stage-select-btn" data-stage="内定待ち" onclick="setStage('内定待ち')">内定待ち</button>
-      </div>
-    </div>
-
     <!-- オンボーディング -->
     <div class="onboarding-section" id="onboarding-section">
       <div class="onboarding-label">FIRST STEPS</div>
@@ -3715,7 +3704,6 @@
 
   async function loadAll() {
     initSelectionFormBtn();
-    initStageSelector();
     initProgressTracker();
     initChecklist();
     initPRTool();
