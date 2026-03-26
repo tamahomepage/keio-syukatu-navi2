@@ -1311,16 +1311,8 @@
 <!-- NAV -->
 <nav>
   <a href="index.html" class="nav-logo">慶應就活ナビ</a>
-  <div class="nav-desktop-links" style="display:flex; align-items:center; gap:0.5rem; justify-content:flex-end;">
-    <span class="nav-member-badge" id="member-badge" style="display:none;font-size:0.72rem;color:var(--gold-light);"></span>
-    <a href="research.html" class="nav-back" style="color:rgba(255,255,255,0.8); font-size:0.72rem; padding:0.25rem 0.6rem;">企業</a>
-    <a href="writing.html" class="nav-back" style="color:rgba(255,255,255,0.8); font-size:0.72rem; padding:0.25rem 0.6rem;">ES</a>
-    <a href="interview-page.html" class="nav-back" style="color:rgba(255,255,255,0.8); font-size:0.72rem; padding:0.25rem 0.6rem;">面接</a>
-    <a href="resources.html" class="nav-back" style="color:rgba(255,255,255,0.8); font-size:0.72rem; padding:0.25rem 0.6rem;">資料</a>
-    <a href="community.html" class="nav-back" style="color:rgba(255,255,255,0.8); font-size:0.72rem; padding:0.25rem 0.6rem;">仲間</a>
-    <a href="account.html" class="nav-back" style="color:var(--gold); border:1px solid rgba(201,168,76,0.3); font-size:0.72rem; padding:0.25rem 0.6rem;">マイページ</a>
-    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logout()">ログアウト</button>
-  </div>
+  <span class="nav-member-badge" id="member-badge" style="display:none;font-size:0.72rem;color:var(--gold-light);"></span>
+  <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logout()">ログアウト</button>
   <button class="hamburger-m" id="hamburger-m" onclick="toggleMobileMenuM()">
     <span></span><span></span><span></span>
   </button>
@@ -1617,7 +1609,7 @@
   };
   const NOTICE_CSV     = ''; // ← お知らせスプシのCSV URLを貼る（列: 日付・タイトル・内容・タグ）
   const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbySxshhSgSjIKqZaAaY-r5edcw720ukOrR-GDNXypUnqX29p1IQ8mhnHLoMgSzrn6zAzg/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
   const LENDING_FORM  = 'https://docs.google.com/forms/d/e/1FAIpQLScmV_ubANH5RNIHD_wEH3yakHbs5YqdegrPysSfpFo4veAg4Q/viewform'; // 列: タイトル, 著者, 状態(貸出可/貸出中), 現在の保有者
   let hasLoadedMembersContent = false;
 
@@ -3653,7 +3645,7 @@
   }
 
   // ===== AI就活サポートツール =====
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbySxshhSgSjIKqZaAaY-r5edcw720ukOrR-GDNXypUnqX29p1IQ8mhnHLoMgSzrn6zAzg/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
 
   // ── GAS認証API 共通呼び出し ──────────────────────────────────────────────
   async function callAuthApi(action, extraPayload) {
@@ -4922,6 +4914,8 @@
   else updateAuthGate();
 </script>
 
+<div style="text-align:center;padding:1.5rem 1rem 0.5rem;font-size:0.6rem;color:rgba(10,26,62,0.25);line-height:1.7;max-width:500px;margin:2rem auto 0;">本サイトに掲載されている企業情報はAIによる独自分析または公開情報に基づくものであり、各企業の公式見解ではありません。正確な情報は各企業の公式サイトをご確認ください。</div>
+
 <!-- 固定下部タブバー -->
 <style>
   .bottom-tab-bar {
@@ -4941,9 +4935,9 @@
   body { padding-bottom: 60px; }
 </style>
 <nav class="bottom-tab-bar">
-  <a href="members.html" class="bottom-tab active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    <span>ホーム</span>
+  <a href="account.html" class="bottom-tab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>マイページ</span>
   </a>
   <a href="research.html" class="bottom-tab">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
