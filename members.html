@@ -2535,9 +2535,7 @@
     }
   }
 
-  const currentMember = KeioNaviAuth.getCurrentUser();
-  if (currentMember) showMembers(currentMember);
-  else updateAuthGate();
+  // ※ 初期化コード（currentMember判定）はスクリプト末尾に移動済み
 
   async function fetchCSV(sheetName) {
     if (!GAS_PROXY_URL) throw new Error('GAS_PROXY_URLが設定されていません');
@@ -5705,6 +5703,11 @@
       btn.innerHTML = '<span class="btn-text">🔄 AIに流用ESを作ってもらう</span>';
     }
   }
+
+  // ===== 初期化（すべての関数・定数定義の後に実行） =====
+  const currentMember = KeioNaviAuth.getCurrentUser();
+  if (currentMember) showMembers(currentMember);
+  else updateAuthGate();
 </script>
 </body>
 </html>
