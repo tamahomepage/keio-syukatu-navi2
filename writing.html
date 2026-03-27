@@ -1308,7 +1308,7 @@
         }
       });
     });
-    html += '<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body></html>';
+    html += '\x3c/body>\x3c/html>';
     var w = window.open('', '_blank');
     w.document.write(html);
     w.document.close();
@@ -1352,7 +1352,7 @@
         html += '<div class="label">本文</div><div class="content">' + entry.fullText.replace(/\x3c/g, '\x26lt;') + '</div>';
       }
     });
-    html += '<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body></html>';
+    html += '\x3c/body>\x3c/html>';
     var w = window.open('', '_blank');
     w.document.write(html);
     w.document.close();

@@ -1325,28 +1325,40 @@
   var miQuestionCount = 0;
   var recognition = null;
 
+  var miCompany = '', miCourse = '', miRound = '';
+
   function startMockInterview() {
     var type = document.getElementById('mi-type').value;
+    miCompany = (document.getElementById('mi-company') || {}).value || '';
+    miCourse = (document.getElementById('mi-course') || {}).value || '';
+    miRound = (document.getElementById('mi-round') || {}).value || '';
     miMessages = [];
     miQuestionCount = 0;
     document.getElementById('mi-start-btn').style.display = 'none';
     document.getElementById('mi-session').style.display = 'block';
     document.getElementById('mi-result').style.display = 'none';
     document.getElementById('mi-chat').innerHTML = '';
+    if (miCompany) {
+      appendBubble('interviewer', '（' + miCompany + (miCourse ? ' ' + miCourse : '') + (miRound ? ' ' + miRound : '') + ' の面接を開始します）');
+    }
     askNextQuestion(type);
   }
 
   async function askNextQuestion(type) {
     appendBubble('interviewer', '考え中...');
-    var systemPrompt = 'あなたは日本企業の採用面接官です。学生に対して1つだけ質問してください。質問文のみを返してください。';
+    var companyContext = '';
+    if (miCompany) companyContext += '企業: ' + miCompany + '\n';
+    if (miCourse) companyContext += 'コース・職種: ' + miCourse + '\n';
+    if (miRound) companyContext += '面接段階: ' + miRound + '\n';
+    var systemPrompt = 'あなたは日本企業の採用面接官です。' + (miCompany ? miCompany + 'の' + (miRound || '') + '面接官として振る舞ってください。' : '') + '学生に対して1つだけ質問してください。質問文のみを返してください。';
     var typePrompts = {
-      general: '一般的な面接質問（自己PR、ガクチカ、強み弱み等）を1つしてください。',
-      motivation: '志望動機に関する質問を1つしてください。',
-      behavioral: '困難や挫折の経験に関する行動面接の質問を1つしてください。',
-      final: '将来のビジョンやキャリアプランに関する最終面接の質問を1つしてください。'
+      general: (companyContext ? companyContext + '\n' : '') + '一般的な面接質問（自己PR、ガクチカ、強み弱み等）を1つしてください。',
+      motivation: (companyContext ? companyContext + '\n' : '') + '志望動機に関する質問を1つしてください。' + (miCompany ? 'なぜ' + miCompany + 'を志望するのか深掘りしてください。' : ''),
+      behavioral: (companyContext ? companyContext + '\n' : '') + '困難や挫折の経験に関する行動面接の質問を1つしてください。',
+      final: (companyContext ? companyContext + '\n' : '') + '将来のビジョンやキャリアプランに関する' + (miRound === '最終面接' ? '役員面接' : '最終面接') + 'の質問を1つしてください。'
     };
     var context = miMessages.length > 0
-      ? '過去の質問と回答:\n' + miMessages.map(function(m){return m.role + ': ' + m.text;}).join('\n') + '\n\n前の質問・回答を踏まえて、深掘りまたは新しい観点の質問を1つしてください。'
+      ? (companyContext ? companyContext + '\n' : '') + '過去の質問と回答:\n' + miMessages.map(function(m){return m.role + ': ' + m.text;}).join('\n') + '\n\n前の質問・回答を踏まえて、深掘りまたは新しい観点の質問を1つしてください。'
       : typePrompts[type] || typePrompts.general;
     try {
       var data = await callAuthApi('callClaude', {
@@ -1408,7 +1420,7 @@
         toolType: 'esChatMessage',
         input: {
           systemPrompt: 'あなたは採用面接の評価者です。以下の模擬面接のやり取りを評価してください。',
-          messages: [{role:'user', content: '以下の模擬面接を評価してください。\n\n' + transcript + '\n\n評価項目:\n1. 総合評価（S/A/B/C）\n2. 良かった点\n3. 改善点\n4. 具体的なアドバイス\n5. 次回の面接で意識すべきこと'}]
+          messages: [{role:'user', content: (miCompany ? '【企業】' + miCompany + (miCourse ? '（' + miCourse + '）' : '') + (miRound ? ' ' + miRound : '') + '\n\n' : '') + '以下の模擬面接を評価してください。\n\n' + transcript + '\n\n評価項目:\n1. 総合評価（S/A/B/C）\n2. 良かった点\n3. 改善点\n4. 具体的なアドバイス' + (miCompany ? '\n5. ' + miCompany + 'の面接で特に意識すべきこと' : '\n5. 次回の面接で意識すべきこと')}]
         }
       });
       document.getElementById('mi-feedback').textContent = data.result || '評価の生成に失敗しました。';
@@ -1475,14 +1487,38 @@
   </div>
   <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">AIが面接官として質問します。マイクボタンを押して音声で回答、またはテキスト入力もできます。回答後にAIがフィードバックします。</p>
 
-  <div style="margin-bottom:1rem;">
-    <label style="font-size:0.78rem;color:var(--text-muted);">面接タイプ</label>
-    <select id="mi-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-      <option value="general">一般面接（自己PR・ガクチカ中心）</option>
-      <option value="motivation">志望動機面接</option>
-      <option value="behavioral">行動面接（困難・挫折経験）</option>
-      <option value="final">最終面接（将来ビジョン）</option>
-    </select>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+    <div>
+      <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
+      <input type="text" id="mi-company" placeholder="例: 三菱商事" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+    </div>
+    <div>
+      <label style="font-size:0.78rem;color:var(--text-muted);">コース・職種</label>
+      <input type="text" id="mi-course" placeholder="例: 総合職" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
+    <div>
+      <label style="font-size:0.78rem;color:var(--text-muted);">面接タイプ</label>
+      <select id="mi-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        <option value="general">一般面接（自己PR・ガクチカ中心）</option>
+        <option value="motivation">志望動機面接</option>
+        <option value="behavioral">行動面接（困難・挫折経験）</option>
+        <option value="final">最終面接（将来ビジョン）</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:0.78rem;color:var(--text-muted);">何次面接</label>
+      <select id="mi-round" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        <option value="">指定なし</option>
+        <option value="1次面接">1次面接</option>
+        <option value="2次面接">2次面接</option>
+        <option value="3次面接">3次面接</option>
+        <option value="最終面接">最終面接</option>
+        <option value="リクルーター面談">リクルーター面談</option>
+        <option value="インターン選考">インターン選考</option>
+      </select>
+    </div>
   </div>
 
   <button id="mi-start-btn" onclick="startMockInterview()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬面接を始める</button>
