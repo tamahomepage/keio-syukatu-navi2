@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>アカウント | 慶應就活ナビ</title>
 <meta name="description" content="慶應就活ナビの個人アカウント作成・ログイン・プロフィール管理ページです。">
 
@@ -1578,5 +1578,5 @@
     showFlash('ログインまたは登録が完了すると、元のページへ戻ります。', 'info');
   }
 </script>
-</body>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

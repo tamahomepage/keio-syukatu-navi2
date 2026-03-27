@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>面接対策 ｜ 慶應就活ナビ</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -639,8 +639,8 @@
 <script src="auth.js"></script>
 <script>
   // ===== Constants =====
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbwPyNAlQK0-91H_EQxBW1Myhe-l_sBKmem817msbi-qEmTefqTmeo8UDj9LKWaLy_jHvQ/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbwPyNAlQK0-91H_EQxBW1Myhe-l_sBKmem817msbi-qEmTefqTmeo8UDj9LKWaLy_jHvQ/exec';
 
   // ===== callAuthApi =====
   async function callAuthApi(action, extraPayload) {
@@ -1320,11 +1320,368 @@
     }
   }
 
+  // ===== AI模擬面接 =====
+  var miMessages = [];
+  var miQuestionCount = 0;
+  var recognition = null;
+
+  function startMockInterview() {
+    var type = document.getElementById('mi-type').value;
+    miMessages = [];
+    miQuestionCount = 0;
+    document.getElementById('mi-start-btn').style.display = 'none';
+    document.getElementById('mi-session').style.display = 'block';
+    document.getElementById('mi-result').style.display = 'none';
+    document.getElementById('mi-chat').innerHTML = '';
+    askNextQuestion(type);
+  }
+
+  async function askNextQuestion(type) {
+    appendBubble('interviewer', '考え中...');
+    var systemPrompt = 'あなたは日本企業の採用面接官です。学生に対して1つだけ質問してください。質問文のみを返してください。';
+    var typePrompts = {
+      general: '一般的な面接質問（自己PR、ガクチカ、強み弱み等）を1つしてください。',
+      motivation: '志望動機に関する質問を1つしてください。',
+      behavioral: '困難や挫折の経験に関する行動面接の質問を1つしてください。',
+      final: '将来のビジョンやキャリアプランに関する最終面接の質問を1つしてください。'
+    };
+    var context = miMessages.length > 0
+      ? '過去の質問と回答:\n' + miMessages.map(function(m){return m.role + ': ' + m.text;}).join('\n') + '\n\n前の質問・回答を踏まえて、深掘りまたは新しい観点の質問を1つしてください。'
+      : typePrompts[type] || typePrompts.general;
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'esChatMessage',
+        input: {
+          systemPrompt: systemPrompt,
+          messages: [{role:'user', content: context}]
+        }
+      });
+      var question = data.result || '自己PRをお願いします。';
+      replaceLast('interviewer', question);
+      miMessages.push({role:'面接官', text: question});
+      miQuestionCount++;
+    } catch(e) {
+      replaceLast('interviewer', '自己PRをお願いします。');
+      miMessages.push({role:'面接官', text:'自己PRをお願いします。'});
+      miQuestionCount++;
+    }
+  }
+
+  function appendBubble(type, text) {
+    var chat = document.getElementById('mi-chat');
+    var role = type === 'interviewer' ? '面接官' : 'あなた';
+    chat.innerHTML += '<div class="mi-bubble ' + type + '"><div class="mi-role">' + role + '</div>' + text + '</div>';
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function replaceLast(type, text) {
+    var chat = document.getElementById('mi-chat');
+    var bubbles = chat.querySelectorAll('.mi-bubble.' + type);
+    if (bubbles.length) {
+      var role = type === 'interviewer' ? '面接官' : 'あなた';
+      bubbles[bubbles.length-1].innerHTML = '<div class="mi-role">' + role + '</div>' + text;
+    }
+  }
+
+  async function sendMiAnswer() {
+    var input = document.getElementById('mi-input');
+    var answer = input.value.trim();
+    if (!answer) return;
+    appendBubble('user', answer);
+    miMessages.push({role:'あなた', text: answer});
+    input.value = '';
+    if (miQuestionCount >= 5) {
+      endMockInterview();
+      return;
+    }
+    var type = document.getElementById('mi-type').value;
+    askNextQuestion(type);
+  }
+
+  async function endMockInterview() {
+    document.getElementById('mi-session').style.display = 'none';
+    document.getElementById('mi-result').style.display = 'block';
+    document.getElementById('mi-feedback').textContent = 'フィードバックを生成中...';
+    var transcript = miMessages.map(function(m){return m.role + ': ' + m.text;}).join('\n\n');
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'esChatMessage',
+        input: {
+          systemPrompt: 'あなたは採用面接の評価者です。以下の模擬面接のやり取りを評価してください。',
+          messages: [{role:'user', content: '以下の模擬面接を評価してください。\n\n' + transcript + '\n\n評価項目:\n1. 総合評価（S/A/B/C）\n2. 良かった点\n3. 改善点\n4. 具体的なアドバイス\n5. 次回の面接で意識すべきこと'}]
+        }
+      });
+      document.getElementById('mi-feedback').textContent = data.result || '評価の生成に失敗しました。';
+    } catch(e) {
+      document.getElementById('mi-feedback').textContent = 'エラー: ' + e.message;
+    }
+    document.getElementById('mi-start-btn').style.display = 'block';
+  }
+
+  function toggleMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('お使いのブラウザは音声認識に対応していません。Chromeをお試しください。');
+      return;
+    }
+    if (recognition) {
+      recognition.stop();
+      recognition = null;
+      document.getElementById('mi-mic-btn').style.background = 'var(--navy)';
+      document.getElementById('mi-listening').style.display = 'none';
+      return;
+    }
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    document.getElementById('mi-mic-btn').style.background = 'var(--crimson)';
+    document.getElementById('mi-listening').style.display = 'block';
+    recognition.onresult = function(event) {
+      var transcript = '';
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      document.getElementById('mi-input').value = transcript;
+    };
+    recognition.onerror = function() {
+      recognition = null;
+      document.getElementById('mi-mic-btn').style.background = 'var(--navy)';
+      document.getElementById('mi-listening').style.display = 'none';
+    };
+    recognition.onend = function() {
+      recognition = null;
+      document.getElementById('mi-mic-btn').style.background = 'var(--navy)';
+      document.getElementById('mi-listening').style.display = 'none';
+    };
+    recognition.start();
+  }
+
   // ===== 初期化 =====
   var currentMember = KeioNaviAuth.getCurrentUser();
   if (currentMember) showMembers(currentMember);
   else updateAuthGate();
 </script>
+<!-- AI模擬面接 -->
+<div class="m-section" id="mock-interview-section" style="padding:0 5vw;">
+  <div class="m-section-header">
+    <div class="m-section-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </div>
+    <div>
+      <div class="m-section-label">AI MOCK INTERVIEW</div>
+      <div class="m-section-title">AI模擬面接</div>
+    </div>
+  </div>
+  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">AIが面接官として質問します。マイクボタンを押して音声で回答、またはテキスト入力もできます。回答後にAIがフィードバックします。</p>
+
+  <div style="margin-bottom:1rem;">
+    <label style="font-size:0.78rem;color:var(--text-muted);">面接タイプ</label>
+    <select id="mi-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+      <option value="general">一般面接（自己PR・ガクチカ中心）</option>
+      <option value="motivation">志望動機面接</option>
+      <option value="behavioral">行動面接（困難・挫折経験）</option>
+      <option value="final">最終面接（将来ビジョン）</option>
+    </select>
+  </div>
+
+  <button id="mi-start-btn" onclick="startMockInterview()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬面接を始める</button>
+
+  <div id="mi-session" style="display:none;margin-top:1.5rem;">
+    <div id="mi-chat" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;"></div>
+
+    <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+      <textarea id="mi-input" placeholder="回答を入力..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:60px;resize:vertical;"></textarea>
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <button id="mi-mic-btn" onclick="toggleMic()" style="width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:1.2rem;cursor:pointer;" title="マイクで回答">&#127908;</button>
+        <button onclick="sendMiAnswer()" style="width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;color:var(--navy);font-size:1rem;cursor:pointer;" title="送信">&#8594;</button>
+      </div>
+    </div>
+    <div id="mi-listening" style="display:none;text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--crimson);font-weight:700;">&#128308; 聞き取り中...</div>
+
+    <button onclick="endMockInterview()" style="margin-top:1rem;padding:0.5rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">面接を終了する</button>
+  </div>
+
+  <div id="mi-result" style="display:none;margin-top:1.5rem;padding:1.2rem;background:var(--gray);border-left:3px solid var(--gold);">
+    <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">総合フィードバック</div>
+    <div id="mi-feedback" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;"></div>
+  </div>
+</div>
+
+<style>
+.mi-bubble { padding:0.8rem 1rem; margin-bottom:0.8rem; font-size:0.84rem; line-height:1.7; max-width:85%; }
+.mi-bubble.interviewer { background:var(--navy); color:white; border-radius:0 12px 12px 12px; margin-right:auto; }
+.mi-bubble.user { background:rgba(201,168,76,0.12); color:var(--text); border-radius:12px 0 12px 12px; margin-left:auto; }
+.mi-bubble .mi-role { font-size:0.68rem; font-weight:700; margin-bottom:0.3rem; opacity:0.7; }
+</style>
+
+<!-- ===== 面接振り返りノート ===== -->
+<div class="m-section" id="review-section" style="padding:0 5vw;">
+  <div class="m-section-header">
+    <div class="m-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div>
+      <div class="m-section-label">INTERVIEW REVIEW</div>
+      <div class="m-section-title">面接振り返りノート</div>
+    </div>
+  </div>
+  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;margin-top:1rem;">面接直後に振り返りをメモしておくと、次の面接に活かせます。</p>
+  <button onclick="openReviewForm()" style="width:100%;padding:0.65rem;background:none;border:1.5px dashed rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.82rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;">+ 振り返りを追加</button>
+  <div id="review-list"><div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">読み込み中...</div></div>
+</div>
+
+<!-- 振り返りフォームモーダル -->
+<div class="ip-modal-overlay" id="review-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center;padding:1rem;">
+  <div style="background:white;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;">
+    <div style="background:var(--navy);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+      <span style="color:white;font-family:'Noto Serif JP',serif;font-size:0.95rem;font-weight:700;">面接振り返りを記録</span>
+      <button onclick="closeReviewForm()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.2rem;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:1.5rem;">
+      <input type="hidden" id="rv-edit-id">
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">日付</label>
+        <input type="date" id="rv-date" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">面接タイプ</label>
+        <select id="rv-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+          <option value="1次面接">1次面接</option>
+          <option value="2次面接">2次面接</option>
+          <option value="最終面接">最終面接</option>
+          <option value="リクルーター面談">リクルーター面談</option>
+          <option value="インターン選考">インターン選考</option>
+        </select>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">聞かれた質問</label>
+        <textarea id="rv-questions" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="面接で聞かれた質問を記録..."></textarea>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">自分の回答</label>
+        <textarea id="rv-answers" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="自分がどう回答したか..."></textarea>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">反省点</label>
+        <textarea id="rv-reflection" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="うまくいかなかった点、改善すべき点..."></textarea>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">次回の改善</label>
+        <textarea id="rv-improvement" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="次の面接で意識すること..."></textarea>
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">自己評価</label>
+        <select id="rv-rating" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+          <option value="1">1 - 不十分</option>
+          <option value="2">2 - やや不十分</option>
+          <option value="3" selected>3 - 普通</option>
+          <option value="4">4 - まあまあ</option>
+          <option value="5">5 - 十分にできた</option>
+        </select>
+      </div>
+      <button onclick="saveReview()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 面接振り返りノート =====
+var reviewsCache = [];
+
+async function loadReviews() {
+  var el = document.getElementById('review-list');
+  try {
+    var data = await callAuthApi('readMyInterviewReviews');
+    reviewsCache = data.reviews || [];
+    renderReviews();
+  } catch (e) {
+    el.innerHTML = '\x3cdiv style="text-align:center;padding:1.5rem;color:var(--crimson);font-size:0.82rem;">' + e.message + '\x3c/div>';
+  }
+}
+
+function renderReviews() {
+  var el = document.getElementById('review-list');
+  if (!reviewsCache.length) {
+    el.innerHTML = '\x3cdiv style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">まだ振り返りがありません。面接後にメモを残しましょう。\x3c/div>';
+    return;
+  }
+  var stars = function(n) { var s=''; for(var i=0;i<5;i++) s += i < n ? '\u2605' : '\u2606'; return s; };
+  el.innerHTML = reviewsCache.map(function(r) {
+    return '\x3cdiv style="border:1px solid rgba(10,26,62,0.1);padding:1rem;margin-bottom:0.8rem;background:white;">'
+      + '\x3cdiv style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">'
+      + '\x3cspan style="font-size:0.82rem;font-weight:700;color:var(--navy);">' + (r.interviewType || '') + '\x3c/span>'
+      + '\x3cspan style="font-size:0.72rem;color:var(--text-muted);">' + (r.date || '') + '\x3c/span>'
+      + '\x3c/div>'
+      + '\x3cdiv style="font-size:0.78rem;color:var(--gold);margin-bottom:0.5rem;">' + stars(parseInt(r.rating)||0) + '\x3c/div>'
+      + (r.questions ? '\x3cdiv style="font-size:0.78rem;margin-bottom:0.4rem;"\x3e\x3cstrong>質問:\x3c/strong> ' + r.questions.substring(0,100) + (r.questions.length>100?'...':'') + '\x3c/div>' : '')
+      + (r.reflection ? '\x3cdiv style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.4rem;"\x3e\x3cstrong>反省:\x3c/strong> ' + r.reflection.substring(0,80) + (r.reflection.length>80?'...':'') + '\x3c/div>' : '')
+      + '\x3cdiv style="display:flex;gap:0.5rem;margin-top:0.6rem;">'
+      + '\x3cbutton onclick="editReview(\'' + r.id + '\')" style="padding:0.3rem 0.8rem;font-size:0.72rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;">編集\x3c/button>'
+      + '\x3cbutton onclick="deleteReview(\'' + r.id + '\')" style="padding:0.3rem 0.8rem;font-size:0.72rem;background:none;border:1px solid rgba(192,0,26,0.2);color:var(--crimson);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;">削除\x3c/button>'
+      + '\x3c/div>'
+      + '\x3c/div>';
+  }).join('');
+}
+
+function openReviewForm(editData) {
+  document.getElementById('rv-edit-id').value = editData ? editData.id : '';
+  document.getElementById('rv-date').value = editData ? editData.date : new Date().toISOString().split('T')[0];
+  document.getElementById('rv-type').value = editData ? editData.interviewType : '1次面接';
+  document.getElementById('rv-questions').value = editData ? editData.questions || '' : '';
+  document.getElementById('rv-answers').value = editData ? editData.answers || '' : '';
+  document.getElementById('rv-reflection').value = editData ? editData.reflection || '' : '';
+  document.getElementById('rv-improvement').value = editData ? editData.improvement || '' : '';
+  document.getElementById('rv-rating').value = editData ? editData.rating || '3' : '3';
+  var modal = document.getElementById('review-modal');
+  modal.style.display = 'flex';
+}
+
+function closeReviewForm() {
+  document.getElementById('review-modal').style.display = 'none';
+}
+
+function editReview(id) {
+  var r = reviewsCache.find(function(x){return x.id===id;});
+  if (r) openReviewForm(r);
+}
+
+async function saveReview() {
+  var payload = {
+    reviewId: document.getElementById('rv-edit-id').value || undefined,
+    date: document.getElementById('rv-date').value,
+    interviewType: document.getElementById('rv-type').value,
+    questions: document.getElementById('rv-questions').value,
+    answers: document.getElementById('rv-answers').value,
+    reflection: document.getElementById('rv-reflection').value,
+    improvement: document.getElementById('rv-improvement').value,
+    rating: document.getElementById('rv-rating').value
+  };
+  try {
+    await callAuthApi('writeInterviewReview', payload);
+    closeReviewForm();
+    loadReviews();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+async function deleteReview(id) {
+  if (!confirm('この振り返りを削除しますか？')) return;
+  try {
+    await callAuthApi('deleteInterviewReview', { reviewId: id });
+    loadReviews();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+document.getElementById('review-modal').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('review-modal')) closeReviewForm();
+});
+
+// 初期化時に読み込み
+if (typeof currentMember !== 'undefined' && currentMember) { loadReviews(); }
+</script>
+
 <style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
 <nav class="bottom-tab-bar">
   <a href="account.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>マイページ</span></a>
@@ -1333,5 +1690,5 @@
   <a href="interview-page.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
   <a href="resources.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
 </nav>
-</body>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

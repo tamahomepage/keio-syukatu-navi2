@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>慶應就活ナビ</title>
 <meta name="description" content="就活を、ひとりで戦わない。情報・機会・経験を持ち寄り、互いの可能性を広げる慶應生のための就活支援コミュニティです。">
 
@@ -2017,5 +2017,5 @@
   }, { threshold: 0.5 });
   statNums.forEach(el => counterObserver.observe(el));
 </script>
-</body>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>会員ページ ｜ 慶應就活ナビ</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1476,6 +1476,40 @@
       <div class="calendar-grid" id="calendar-grid"></div>
     </div>
 
+    <!-- ダッシュボードウィジェット -->
+    <div class="m-section" id="stats-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+        </div>
+        <div>
+          <div class="m-section-title">今日のやること</div>
+          <div class="m-section-sub">あなたの就活ダッシュボード</div>
+        </div>
+      </div>
+      <div id="stats-content" style="padding:0.5rem;">Loading...</div>
+    </div>
+
+    <!-- #今日の就活 タイムライン -->
+    <div class="m-section" id="timeline-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-title">#今日の就活</div>
+          <div class="m-section-sub">メンバーのタイムライン</div>
+        </div>
+      </div>
+      <div style="padding:0.5rem;">
+        <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+          <input type="text" id="tl-input" maxlength="140" placeholder="#今日の就活 を投稿..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;">
+          <button onclick="postTimeline()" style="padding:0.6rem 1rem;background:var(--navy);color:white;border:none;font-size:0.78rem;font-weight:700;cursor:pointer;">投稿</button>
+        </div>
+        <div id="tl-feed">Loading...</div>
+      </div>
+    </div>
+
     <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
       <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">QUICK ACCESS</div>
       <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">機能メニュー</div>
@@ -1609,7 +1643,7 @@
   };
   const NOTICE_CSV     = ''; // ← お知らせスプシのCSV URLを貼る（列: 日付・タイトル・内容・タグ）
   const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbwPyNAlQK0-91H_EQxBW1Myhe-l_sBKmem817msbi-qEmTefqTmeo8UDj9LKWaLy_jHvQ/exec';
   const LENDING_FORM  = 'https://docs.google.com/forms/d/e/1FAIpQLScmV_ubANH5RNIHD_wEH3yakHbs5YqdegrPysSfpFo4veAg4Q/viewform'; // 列: タイトル, 著者, 状態(貸出可/貸出中), 現在の保有者
   let hasLoadedMembersContent = false;
 
@@ -2797,12 +2831,79 @@
     scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
 
+  // ===== ダッシュボード統計 =====
+
+  async function loadMyStats() {
+    try {
+      var data = await callAuthApi('getMyStats');
+      renderStats(data);
+    } catch(e) { console.warn('stats load failed', e); }
+  }
+
+  function renderStats(data) {
+    var el = document.getElementById('stats-content');
+    var s = data.stats;
+    var level = data.points < 50 ? '就活ビギナー' : data.points < 150 ? '就活チャレンジャー' : data.points < 300 ? '就活ファイター' : '就活マスター';
+
+    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:0.8rem;margin-bottom:1rem;">'
+      + statCard('ES', s.esCount) + statCard('ガクチカ', s.gkCount) + statCard('掲示板', s.boardCount)
+      + statCard('面接Q', s.ipCount) + statCard('自己PR', s.prCount) + statCard('投稿', s.timelineCount)
+      + '</div>'
+      + '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.8rem;">'
+      + '<div style="font-size:1.2rem;font-weight:700;color:var(--navy);">' + data.points + ' pt</div>'
+      + '<div style="font-size:0.78rem;color:var(--gold);font-weight:700;">' + level + '</div>'
+      + '</div>'
+      + (data.badges.length ? '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;">' + data.badges.map(function(b){ return '<span style="font-size:0.68rem;padding:0.2rem 0.6rem;background:rgba(201,168,76,0.12);color:#7a5f10;border:1px solid rgba(201,168,76,0.3);font-weight:600;">' + b + '</span>'; }).join('') + '</div>' : '');
+  }
+
+  function statCard(label, count) {
+    return '<div style="text-align:center;padding:0.8rem;background:white;border:1px solid rgba(10,26,62,0.06);">'
+      + '<div style="font-size:1.1rem;font-weight:700;color:var(--navy);">' + count + '</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-muted);">' + label + '</div></div>';
+  }
+
+  // ===== タイムライン =====
+
+  async function loadTimeline() {
+    try {
+      var data = await callAuthApi('readTimeline');
+      renderTimeline(data.entries || []);
+    } catch(e) { document.getElementById('tl-feed').textContent = '読み込みに失敗しました。'; }
+  }
+
+  function renderTimeline(entries) {
+    var el = document.getElementById('tl-feed');
+    if (!entries.length) { el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">まだ投稿がありません。最初の一言を投稿してみよう！</div>'; return; }
+    el.innerHTML = entries.map(function(e) {
+      var date = new Date(e.createdAt);
+      var timeStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+      return '<div style="padding:0.8rem;border-bottom:1px solid rgba(10,26,62,0.06);">'
+        + '<div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">'
+        + '<span style="font-weight:700;font-size:0.82rem;color:var(--navy);">' + (e.displayName || '匿名') + '</span>'
+        + '<span style="font-size:0.68rem;color:var(--text-muted);">' + timeStr + '</span></div>'
+        + '<div style="font-size:0.85rem;line-height:1.7;">' + (e.text || '') + '</div></div>';
+    }).join('');
+  }
+
+  async function postTimeline() {
+    var input = document.getElementById('tl-input');
+    var text = input.value.trim();
+    if (!text) return;
+    try {
+      await callAuthApi('writeTimeline', { text: text });
+      input.value = '';
+      loadTimeline();
+    } catch(e) { alert(e.message); }
+  }
+
   async function loadAll() {
     initProgressTracker();
     // お知らせと企業ノートを並列取得（企業ノートは選考表示のfindNoteで必要）
     await Promise.all([loadNotice(), loadCompanyNotes()]);
     await loadSelection();
     initCalendar();
+    loadMyStats();
+    loadTimeline();
   }
 
   // ===== ステージセレクター =====
@@ -3594,7 +3695,7 @@
         });
       });
     });
-    html += '</body></html>';
+    html += '<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body></html>';
     const w = window.open('', '_blank');
     w.document.write(html);
     w.document.close();
@@ -3638,14 +3739,14 @@
         html += `<div class="label">本文</div><div class="content">${entry.fullText.replace(/\x3c/g, '\x26lt;')}</div>`;
       }
     });
-    html += '</body></html>';
+    html += '<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body></html>';
     const w = window.open('', '_blank');
     w.document.write(html);
     w.document.close();
   }
 
   // ===== AI就活サポートツール =====
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbwPyNAlQK0-91H_EQxBW1Myhe-l_sBKmem817msbi-qEmTefqTmeo8UDj9LKWaLy_jHvQ/exec';
 
   // ── GAS認証API 共通呼び出し ──────────────────────────────────────────────
   async function callAuthApi(action, extraPayload) {
@@ -4956,5 +5057,5 @@
     <span>資料</span>
   </a>
 </nav>
-</body>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>
