@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>リソース ｜ 慶應就活ナビ</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -346,7 +346,7 @@
   const PRIORITY_KEY  = 'priority';
   const FILES_KEY     = 'files';
   const BOOKS_KEY     = 'books';
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzgSuMLLdDyM6IfwFAG7yX-o-meVYd9RnPyhdw2yzmu46-8_G3vEzQlhHXjHo3PQM8fmA/exec';
   const LENDING_FORM  = 'https://docs.google.com/forms/d/e/1FAIpQLScmV_ubANH5RNIHD_wEH3yakHbs5YqdegrPysSfpFo4veAg4Q/viewform';
 
   // ===== Auth & Nav =====
@@ -529,5 +529,5 @@
   <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
   <a href="resources.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
 </nav>
-</body>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

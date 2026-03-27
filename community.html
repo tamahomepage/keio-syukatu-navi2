@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>仲間を見つける ｜ 慶應就活ナビ</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -110,14 +110,8 @@
 </head>
 <body>
 
-<nav>
-  <a href="index.html" class="nav-logo">Keio Navi</a>
-  <div class="nav-links" id="nav-links">
-    <a href="members.html" class="nav-link">会員ページ</a>
-    <a href="match.html" class="nav-link">企業マッチング</a>
-    <a href="community.html" class="nav-link active">コミュニティ</a>
-    <a href="account.html" class="nav-link">マイページ</a>
-  </div>
+<nav style="justify-content:center;">
+  <a href="index.html" class="nav-logo">慶應就活ナビ</a>
 </nav>
 
 <main>
@@ -237,7 +231,7 @@
 
 <script src="auth.js"></script>
 <script>
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzpYgbqPOcBu70VFGnFcSe0FCZVTHuvXR-5pWeQxWm8RJ-Sx9cujlH2-pXpX6vuNr8Muw/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzgSuMLLdDyM6IfwFAG7yX-o-meVYd9RnPyhdw2yzmu46-8_G3vEzQlhHXjHo3PQM8fmA/exec';
   const flash = document.getElementById('flash');
   let flashTimer = null;
 
@@ -423,7 +417,247 @@
       searchByCompany();
     }
     loadGroups();
+    loadConsultations();
+    loadGDSessions();
   }
 </script>
-</body>
+
+<!-- ===== 就活相談掲示板 ===== -->
+<style>
+.consul-post { border:1px solid rgba(10,26,62,0.1); padding:1rem 1.2rem; margin-bottom:0.8rem; background:white; }
+.consul-post-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+.consul-cat { font-size:0.68rem; background:rgba(201,168,76,0.12); color:#7a5f10; padding:0.15rem 0.5rem; font-weight:700; }
+.consul-meta { font-size:0.7rem; color:var(--text-muted); }
+.consul-title { font-weight:700; font-size:0.88rem; color:var(--navy); margin-bottom:0.4rem; }
+.consul-body { font-size:0.8rem; color:var(--text); line-height:1.7; margin-bottom:0.6rem; }
+.consul-comments { border-top:1px solid rgba(10,26,62,0.06); padding-top:0.6rem; }
+.consul-comment { font-size:0.78rem; color:var(--text); padding:0.4rem 0; border-bottom:1px solid rgba(10,26,62,0.04); line-height:1.6; }
+.consul-comment-author { font-weight:700; color:var(--navy); font-size:0.72rem; }
+.consul-comment-form { display:flex; gap:0.4rem; margin-top:0.5rem; }
+.consul-comment-form input { flex:1; padding:0.4rem 0.6rem; border:1px solid rgba(10,26,62,0.12); font-size:0.78rem; font-family:'Noto Sans JP',sans-serif; }
+.consul-comment-form button { padding:0.4rem 0.8rem; background:var(--navy); color:white; border:none; font-size:0.72rem; cursor:pointer; font-weight:700; font-family:'Noto Sans JP',sans-serif; white-space:nowrap; }
+.gd-session { border:1px solid rgba(10,26,62,0.1); padding:1rem 1.2rem; margin-bottom:0.8rem; background:white; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.gd-info { flex:1; min-width:200px; }
+.gd-title { font-weight:700; font-size:0.88rem; color:var(--navy); }
+.gd-meta { font-size:0.72rem; color:var(--text-muted); margin-top:0.2rem; }
+.gd-actions { display:flex; gap:0.5rem; flex-shrink:0; }
+</style>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div>
+      <div class="section-label">CONSULTATION BOARD</div>
+      <div class="section-title">就活相談掲示板</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <select id="consul-category" style="padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;">
+          <option value="業界選び">業界選び</option>
+          <option value="ES・書類">ES・書類</option>
+          <option value="面接">面接</option>
+          <option value="内定・承諾">内定・承諾</option>
+          <option value="メンタル">メンタル</option>
+          <option value="その他">その他</option>
+        </select>
+        <input type="text" id="consul-title" placeholder="タイトル" style="flex:1;min-width:150px;padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;">
+      </div>
+      <textarea id="consul-body" placeholder="相談内容を書いてください..." style="width:100%;padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:80px;resize:vertical;"></textarea>
+      <button class="filter-btn" onclick="postConsultation()" style="align-self:flex-end;">投稿する</button>
+    </div>
+    <div id="consul-feed">
+      <div class="empty-msg">読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GD練習マッチング ===== -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    </div>
+    <div>
+      <div class="section-label">GD PRACTICE</div>
+      <div class="section-title">GD練習マッチング</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">グループディスカッションの練習セッションを作成・参加できます。</p>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;padding:1rem;background:var(--gray);border:1px solid rgba(10,26,62,0.06);">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.3rem;">セッションを作成</div>
+      <input type="text" id="gd-title" placeholder="セッションタイトル" style="padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <input type="date" id="gd-date" style="padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;flex:1;min-width:140px;">
+        <input type="time" id="gd-time" style="padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;flex:1;min-width:100px;">
+        <select id="gd-max" style="padding:0.5rem 0.8rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;">
+          <option value="4">最大4人</option>
+          <option value="5">最大5人</option>
+          <option value="6" selected>最大6人</option>
+          <option value="8">最大8人</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="filter-btn" onclick="createGDSessionAction()" style="flex:1;">セッション作成</button>
+        <button class="filter-btn" onclick="generateGDThemeAction()" style="flex:1;background:var(--gold);color:var(--navy);">AIテーマ生成</button>
+      </div>
+      <div id="gd-theme-result" style="display:none;padding:0.6rem;background:white;border:1px solid rgba(201,168,76,0.3);font-size:0.8rem;line-height:1.6;color:var(--text);"></div>
+    </div>
+    <div id="gd-session-list">
+      <div class="empty-msg">読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 就活相談掲示板 =====
+async function loadConsultations() {
+  var el = document.getElementById('consul-feed');
+  try {
+    var data = await callApi('readConsultations');
+    renderConsultations(data.consultations || []);
+  } catch (e) {
+    el.innerHTML = '\x3cdiv class="empty-msg" style="color:var(--crimson);">' + e.message + '\x3c/div>';
+  }
+}
+
+function renderConsultations(posts) {
+  var el = document.getElementById('consul-feed');
+  if (!posts.length) {
+    el.innerHTML = '\x3cdiv class="empty-msg">まだ相談がありません。最初の投稿をしてみましょう。\x3c/div>';
+    return;
+  }
+  el.innerHTML = posts.map(function(p) {
+    var commentsHtml = (p.comments || []).map(function(c) {
+      return '\x3cdiv class="consul-comment">\x3cspan class="consul-comment-author">' + (c.author || '匿名') + '\x3c/span> ' + (c.text || '') + '\x3c/div>';
+    }).join('');
+    return '\x3cdiv class="consul-post">'
+      + '\x3cdiv class="consul-post-header">\x3cspan class="consul-cat">' + (p.category || '') + '\x3c/span>\x3cspan class="consul-meta">' + (p.author || '匿名') + ' | ' + (p.date || '') + '\x3c/span>\x3c/div>'
+      + '\x3cdiv class="consul-title">' + (p.title || '') + '\x3c/div>'
+      + '\x3cdiv class="consul-body">' + (p.body || '') + '\x3c/div>'
+      + '\x3cdiv class="consul-comments">' + commentsHtml
+      + '\x3cdiv class="consul-comment-form">\x3cinput type="text" id="consul-cmt-' + p.id + '" placeholder="コメントを入力...">\x3cbutton onclick="addComment(\'' + p.id + '\')">送信\x3c/button>\x3c/div>'
+      + '\x3c/div>\x3c/div>';
+  }).join('');
+}
+
+async function postConsultation() {
+  var title = document.getElementById('consul-title').value.trim();
+  var body = document.getElementById('consul-body').value.trim();
+  if (!title || !body) { showFlash('タイトルと内容を入力してください。', 'error'); return; }
+  try {
+    await callApi('writeConsultation', {
+      category: document.getElementById('consul-category').value,
+      title: title,
+      body: body
+    });
+    document.getElementById('consul-title').value = '';
+    document.getElementById('consul-body').value = '';
+    showFlash('投稿しました。', 'success');
+    loadConsultations();
+  } catch (e) { showFlash(e.message, 'error'); }
+}
+
+async function addComment(postId) {
+  var input = document.getElementById('consul-cmt-' + postId);
+  var text = input.value.trim();
+  if (!text) return;
+  try {
+    await callApi('addConsultationComment', { postId: postId, text: text });
+    input.value = '';
+    loadConsultations();
+  } catch (e) { showFlash(e.message, 'error'); }
+}
+
+// ===== GD練習マッチング =====
+async function loadGDSessions() {
+  var el = document.getElementById('gd-session-list');
+  try {
+    var data = await callApi('readGDSessions');
+    renderGDSessions(data.sessions || []);
+  } catch (e) {
+    el.innerHTML = '\x3cdiv class="empty-msg" style="color:var(--crimson);">' + e.message + '\x3c/div>';
+  }
+}
+
+function renderGDSessions(sessions) {
+  var el = document.getElementById('gd-session-list');
+  if (!sessions.length) {
+    el.innerHTML = '\x3cdiv class="empty-msg">まだセッションがありません。作成してみましょう。\x3c/div>';
+    return;
+  }
+  el.innerHTML = sessions.map(function(s) {
+    var actions = s.isParticipant
+      ? '\x3cbutton class="btn-leave" onclick="leaveGDAction(\'' + s.id + '\')">退出\x3c/button>'
+      : '\x3cbutton class="btn-join" onclick="joinGDAction(\'' + s.id + '\')">参加する\x3c/button>';
+    return '\x3cdiv class="gd-session">'
+      + '\x3cdiv class="gd-info">'
+      + '\x3cdiv class="gd-title">' + (s.title || 'GDセッション') + '\x3c/div>'
+      + '\x3cdiv class="gd-meta">' + (s.date || '') + ' ' + (s.time || '') + ' | ' + (s.participantCount || 0) + '/' + (s.maxParticipants || 6) + '人参加\x3c/div>'
+      + '\x3c/div>'
+      + '\x3cdiv class="gd-actions">' + actions + '\x3c/div>'
+      + '\x3c/div>';
+  }).join('');
+}
+
+async function createGDSessionAction() {
+  var title = document.getElementById('gd-title').value.trim();
+  var date = document.getElementById('gd-date').value;
+  var time = document.getElementById('gd-time').value;
+  if (!title || !date || !time) { showFlash('タイトル・日付・時間を入力してください。', 'error'); return; }
+  try {
+    await callApi('createGDSession', {
+      title: title, date: date, time: time,
+      maxParticipants: parseInt(document.getElementById('gd-max').value)
+    });
+    document.getElementById('gd-title').value = '';
+    showFlash('セッションを作成しました。', 'success');
+    loadGDSessions();
+  } catch (e) { showFlash(e.message, 'error'); }
+}
+
+async function joinGDAction(sessionId) {
+  try {
+    await callApi('joinGDSession', { sessionId: sessionId });
+    showFlash('セッションに参加しました。', 'success');
+    loadGDSessions();
+  } catch (e) { showFlash(e.message, 'error'); }
+}
+
+async function leaveGDAction(sessionId) {
+  try {
+    await callApi('leaveGDSession', { sessionId: sessionId });
+    showFlash('セッションを退出しました。', 'success');
+    loadGDSessions();
+  } catch (e) { showFlash(e.message, 'error'); }
+}
+
+async function generateGDThemeAction() {
+  var el = document.getElementById('gd-theme-result');
+  el.style.display = 'block';
+  el.textContent = 'AIテーマを生成中...';
+  try {
+    var data = await callApi('generateGDTheme');
+    el.textContent = data.theme || 'テーマを生成できませんでした。';
+    document.getElementById('gd-title').value = data.theme || '';
+  } catch (e) {
+    el.textContent = e.message;
+    el.style.color = 'var(--crimson)';
+  }
+}
+</script>
+
+<style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
+<nav class="bottom-tab-bar">
+  <a href="account.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>マイページ</span></a>
+  <a href="research.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>企業</span></a>
+  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>ES</span></a>
+  <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
+  <a href="resources.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
+</nav>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>
