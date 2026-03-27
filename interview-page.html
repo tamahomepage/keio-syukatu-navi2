@@ -1393,6 +1393,27 @@
       var role = type === 'interviewer' ? '面接官' : 'あなた';
       bubbles[bubbles.length-1].innerHTML = '<div class="mi-role">' + role + '</div>' + text;
     }
+    if (type === 'interviewer' && text && text !== '考え中...') {
+      speakText(text);
+    }
+  }
+
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ja-JP';
+    utter.rate = 0.95;
+    utter.pitch = 0.9;
+    var voices = window.speechSynthesis.getVoices();
+    var jaVoice = voices.find(function(v) { return v.lang.startsWith('ja'); });
+    if (jaVoice) utter.voice = jaVoice;
+    window.speechSynthesis.speak(utter);
+  }
+
+  // 音声リスト読み込み（非同期のブラウザがあるため）
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
   }
 
   async function sendMiAnswer() {
