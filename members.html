@@ -3210,10 +3210,12 @@
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 90000);
       const sessionToken = KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
+      var manualCorpUrl = (document.getElementById('manual-corp-url') || {}).value || '';
+      var manualRecruitUrl = (document.getElementById('manual-recruit-url') || {}).value || '';
       const res = await fetch(GAS_PROXY_URL, {
         method: 'POST',
         redirect: 'follow',
-        body: JSON.stringify({ action: 'generate', companyName: searchWord, sessionToken }),
+        body: JSON.stringify({ action: 'generate', companyName: searchWord, sessionToken: sessionToken, manualCorpUrl: manualCorpUrl.trim(), manualRecruitUrl: manualRecruitUrl.trim() }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -3257,13 +3259,27 @@
       // 生成結果を一時保存（正式名称・検索ワード両方）
       window._lastGeneratedNote = { searchWord, officialName, note };
 
+      // 出典URL表示
+      var sourceHtml = '';
+      if (note.sourceUrls && note.sourceUrls.length) {
+        sourceHtml = '<div style="margin-top:1rem;padding:0.6rem 0.8rem;background:rgba(201,168,76,0.06);border-left:3px solid var(--gold);">'
+          + '<div style="font-size:0.65rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.3rem;">出典（公式サイト）</div>'
+          + note.sourceUrls.map(function(u) { return '<div style="font-size:0.72rem;"><a href="' + escHtml(u) + '" target="_blank" rel="noopener" style="color:var(--navy);word-break:break-all;">' + escHtml(u) + '</a></div>'; }).join('')
+          + '</div>';
+      }
+
+      // 注記
+      var disclaimerHtml = '<div style="margin-top:0.8rem;font-size:0.68rem;color:var(--text-muted);line-height:1.6;padding:0.5rem 0.8rem;background:rgba(10,26,62,0.02);border:1px solid rgba(10,26,62,0.06);">'
+        + (note.disclaimer || '※この分析は企業公式HPの情報に基づくAIの独自分析です。正確性は保証されません。必ず公式情報をご確認ください。')
+        + '</div>';
+
       body.innerHTML = fields.map(f => {
         if (!f.value) return '';
         const val = f.isUrl
           ? renderUrlList(f.value)
           : `<div class="modal-field-content">${escHtml(f.value)}</div>`;
         return `<div class="modal-field"><div class="modal-field-label">${escHtml(f.label)}</div>${val}</div>`;
-      }).filter(Boolean).join('') +
+      }).filter(Boolean).join('') + sourceHtml + disclaimerHtml +
       `<div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(10,26,62,0.1); text-align:center;">
         <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.8rem;">※ このノートはまだスプシに保存されていません</div>
         <button onclick="saveLastNote(this)"
