@@ -1971,89 +1971,15 @@
     <!-- 今月のポイント -->
     <div id="monthly-advice-card" style="margin-bottom:1.5rem;background:linear-gradient(135deg,#0a1a3e 0%,#142254 100%);border-radius:14px;padding:1.2rem 1.4rem;box-shadow:0 4px 16px rgba(10,26,62,0.25);"></div>
 
-    <!-- 就活進捗トラッカー -->
-    <div class="m-section" id="progress-section">
-      <div class="m-section-header">
-        <div class="m-section-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
-        <div>
-          <div class="m-section-label">MY PROGRESS</div>
-          <div class="m-section-title">就活進捗トラッカー</div>
-        </div>
-      </div>
-      <div class="dashboard-widget" id="progress-dashboard">
-        <div class="dash-stats">
-          <div class="dash-stat"><div class="dash-stat-num" id="dash-total">0</div><div class="dash-stat-label">総応募</div></div>
-          <div class="dash-stat"><div class="dash-stat-num" id="dash-active">0</div><div class="dash-stat-label">選考中</div></div>
-          <div class="dash-stat"><div class="dash-stat-num" id="dash-offer">0</div><div class="dash-stat-label">内定</div></div>
-        </div>
-        <div class="dash-badges" id="dash-badges"><span class="dash-badge-empty">企業を追加するとバッジが表示されます</span></div>
-      </div>
-      <div id="progress-analytics"></div>
-      <div class="progress-toolbar">
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span style="font-size:0.78rem; color:var(--text-muted);" id="progress-sync-status">受けている企業を管理する</span>
-          <div style="display:flex;gap:2px;margin-left:0.5rem;">
-            <button class="view-toggle-btn active" id="view-list-btn" onclick="setProgressView('list')">リスト</button>
-            <button class="view-toggle-btn" id="view-kanban-btn" onclick="setProgressView('kanban')">カンバン</button>
-          </div>
-        </div>
-        <button class="progress-add-btn" id="progress-add-btn">＋ 企業を追加</button>
-      </div>
-      <div class="progress-list" id="progress-list"><div class="m-empty">まだ登録されていません。「＋ 企業を追加」から登録してください。</div></div>
-      <div class="kanban-board" id="kanban-board"></div>
-    </div>
+    <!-- 選考管理・内定サポートへのリンク（pipeline.html / offer-tools.html に移動済み） -->
+    <!-- removed: progress-section, calendar-section, offer-tools-section -->
+    <!-- placeholder to avoid breaking references -->
+    <div style="display:none" id="progress-section"></div>
+    <div style="display:none" id="calendar-section"></div>
+    <div style="display:none" id="offer-tools-section"></div>
 
-    <!-- 締切カレンダー -->
-    <div class="m-section" id="calendar-section">
-      <div class="m-section-header">
-        <div class="m-section-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <div>
-          <div class="m-section-label">DEADLINE CALENDAR</div>
-          <div class="m-section-title">締切カレンダー</div>
-        </div>
-      </div>
-      <div class="calendar-header">
-        <button class="calendar-nav-btn" id="cal-prev">‹</button>
-        <span class="calendar-month-label" id="cal-month-label"></span>
-        <button class="calendar-nav-btn" id="cal-next">›</button>
-        <span style="font-size:0.72rem; color:var(--text-muted); margin-left:auto; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--crimson); display:inline-block;"></span>選考情報</span>
-          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--gold); display:inline-block;"></span>気になり</span>
-          <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; background:var(--navy); display:inline-block;"></span>自分の締切</span>
-        </span>
-      </div>
-      <div class="calendar-grid" id="calendar-grid"></div>
-    </div>
-
-    <!-- 内定サポートツール -->
-    <div class="m-section" id="offer-tools-section">
-      <div class="m-section-header">
-        <div class="m-section-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div>
-          <div class="m-section-label">OFFER TOOLS</div>
-          <div class="m-section-title">内定サポート</div>
-        </div>
-      </div>
-      <div id="offer-tools-content">
-        <div class="offer-tabs">
-          <button class="offer-tab-btn active" onclick="switchOfferTab('compare')">内定比較ツール</button>
-          <button class="offer-tab-btn" onclick="switchOfferTab('card')">内定報告カード</button>
-        </div>
-        <div id="offer-tab-compare" class="offer-tab-panel active">
-          <div id="offer-compare-body"></div>
-        </div>
-        <div id="offer-tab-card" class="offer-tab-panel">
-          <div id="offer-card-body"></div>
-        </div>
-      </div>
-    </div>
-
+    <!-- REMOVED BELOW (progress tracker dashboard, toolbar, list, kanban, calendar, offer tools) -->
+    <!--
     <!-- ダッシュボードウィジェット -->
     <div class="m-section" id="stats-section">
       <div class="m-section-header">
@@ -2088,24 +2014,9 @@
       </div>
     </div>
 
-    <!-- GD練習会フィードバック -->
-    <div class="m-section" id="gd-feedback-section">
-      <div class="m-section-header">
-        <div class="m-section-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div>
-          <div class="m-section-label">GD PRACTICE</div>
-          <div class="m-section-title">GD練習会フィードバック</div>
+    <!-- GD練習会フィードバック（interview-page.html に移動済み） -->
         </div>
       </div>
-      <div style="padding:0.5rem;">
-        <div class="gd-fb-stats-bar" id="gd-fb-stats"></div>
-        <button class="gd-fb-add-btn" onclick="openGdFbModal()">＋ FBを記録</button>
-        <div class="gd-fb-list" id="gd-fb-list"></div>
-      </div>
-    </div>
-
     <div style="margin:2.5rem 0 1.5rem; padding:0 0.5rem;">
       <div style="font-size:0.65rem; letter-spacing:0.18em; color:var(--gold); font-weight:700; text-transform:uppercase;">QUICK ACCESS</div>
       <div style="font-family:'Noto Serif JP',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-top:0.2rem;">機能メニュー</div>
@@ -2147,14 +2058,26 @@
         <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">準備度チェック</div>
         <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">1分で就活準備度を診断</div>
       </a>
+      <a href="pipeline.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
+        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">PIPELINE</div>
+        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">選考管理</div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">選考進捗トラッカー・カレンダー</div>
+      </a>
+      <a href="offer-tools.html" style="text-decoration:none; background:white; border:1px solid rgba(10,26,62,0.08); padding:1.5rem; transition:border-color 0.2s;">
+        <div style="font-size:0.65rem; letter-spacing:0.12em; color:var(--crimson); font-weight:700;">OFFER</div>
+        <div style="font-family:'Noto Serif JP',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-top:0.3rem;">内定サポート</div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6;">内定比較・報告カード作成</div>
+      </a>
     </div>
 
   </div>
 </div>
 
 
-<!-- GDフィードバック追加/編集モーダル -->
-<div class="gd-fb-modal-overlay" id="gd-fb-modal">
+<!-- 以下のモーダルは各専用ページに移動済み -->
+<!-- GD: interview-page.html, 進捗: pipeline.html, 研究ノート: pipeline.html -->
+<!--
+<div class="gd-fb-modal-overlay-REMOVED" id="gd-fb-modal-REMOVED">
   <div class="gd-fb-modal-box">
     <div class="gd-fb-modal-header">
       <span class="gd-fb-modal-title" id="gd-fb-modal-title">GDフィードバックを記録</span>
@@ -2266,6 +2189,7 @@
     </div>
   </div>
 </div>
+-->
 
 <!-- 選考情報AI収集モーダル -->
 <div class="progress-modal-overlay" id="recruit-fetch-modal">
@@ -2332,8 +2256,8 @@
   const STAGE_SECTIONS = {
     '自己分析中':  ['jibunshi-section','gakuchika-section','company-notes','interview-checklist-section','self-pr-section','selection-section'],
     'ES準備中':    ['jibunshi-section','gakuchika-section','es-bank-section','ai-tools-section','selection-section','self-pr-section','es-board-section'],
-    '面接対策中':  ['interview-prep-section','gakuchika-section','es-bank-section','ai-tools-section','interview-checklist-section','selection-section','progress-section'],
-    '内定待ち':    ['es-bank-section','progress-section','calendar-section','offer-tools-section','selection-section','interview-checklist-section'],
+    '面接対策中':  ['interview-prep-section','gakuchika-section','es-bank-section','ai-tools-section','interview-checklist-section','selection-section'],
+    '内定待ち':    ['es-bank-section','selection-section','interview-checklist-section'],
   };
   const NOTICE_CSV     = ''; // ← お知らせスプシのCSV URLを貼る（列: 日付・タイトル・内容・タグ）
   const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
@@ -3958,16 +3882,12 @@
 
   async function loadAll() {
     renderMonthlyAdvice();
-    initProgressTracker();
     renderHomeDashboard(null);
     // お知らせと企業ノートを並列取得（企業ノートは選考表示のfindNoteで必要）
     await Promise.all([loadNotice(), loadCompanyNotes()]);
     await loadSelection();
-    initCalendar();
-    initOfferTools();
     loadMyStats();
     loadTimeline();
-    initGdFeedback();
 
     // 締切リマインド通知（通知が有効な場合のみ）
     try {
@@ -7112,26 +7032,11 @@
   body { padding-bottom: 60px; }
 </style>
 <nav class="bottom-tab-bar">
-  <a href="account.html" class="bottom-tab">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>マイページ</span>
-  </a>
-  <a href="research.html" class="bottom-tab">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <span>企業</span>
-  </a>
-  <a href="writing.html" class="bottom-tab">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    <span>ES</span>
-  </a>
-  <a href="interview-page.html" class="bottom-tab">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span>面接</span>
-  </a>
-  <a href="resources.html" class="bottom-tab">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    <span>資料</span>
-  </a>
+  <a href="members.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>ホーム</span></a>
+  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>書く</span></a>
+  <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
+  <a href="community.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>仲間</span></a>
+  <a href="more.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg><span>もっと</span></a>
 </nav>
 <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

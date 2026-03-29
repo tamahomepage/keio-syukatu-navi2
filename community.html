@@ -1211,6 +1211,226 @@ document.getElementById('qa-post-modal').addEventListener('click', function(e) {
 });
 </script>
 
+<!-- ===== ES添削掲示板 ===== -->
+<style>
+.board-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+.board-post-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; }
+.board-post-btn:hover { background: var(--crimson); }
+.board-card { background: white; border: 1px solid rgba(10,26,62,0.1); border-top: 3px solid var(--navy); padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+.board-card-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+.board-card-company { font-family: 'Noto Serif JP',serif; font-size: 0.9rem; font-weight: 700; color: var(--navy); }
+.board-card-user { font-size: 0.65rem; color: var(--text-muted); }
+.board-card-q { font-size: 0.75rem; font-weight: 700; color: var(--crimson); background: rgba(192,0,26,0.06); padding: 0.3rem 0.6rem; display: inline-block; margin-bottom: 0.5rem; }
+.board-card-text { font-size: 0.82rem; line-height: 1.85; color: var(--text); margin-bottom: 0.8rem; white-space: pre-wrap; }
+.board-comments { border-top: 1px solid rgba(10,26,62,0.07); padding-top: 0.7rem; }
+.board-comment { font-size: 0.78rem; line-height: 1.7; padding: 0.35rem 0; border-bottom: 1px solid rgba(10,26,62,0.04); }
+.board-comment-user { font-weight: 700; color: var(--navy); margin-right: 0.3rem; }
+.board-comment-row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.board-comment-input { flex: 1; padding: 0.45rem 0.6rem; border: 1px solid rgba(10,26,62,0.15); font-family: 'Noto Sans JP',sans-serif; font-size: 0.78rem; outline: none; }
+.board-comment-input:focus { border-color: var(--navy); }
+.board-comment-submit { padding: 0.45rem 0.9rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.72rem; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.board-comment-submit:hover { background: var(--crimson); }
+.board-modal-overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.55); align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+.board-modal-overlay.open { display: flex; }
+.board-modal-box { background: white; width: min(560px, 100%); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.board-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.board-modal-title { font-family: 'Noto Serif JP',serif; font-size: 0.95rem; color: white; font-weight: 700; }
+.board-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+.board-field-label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem; }
+.board-field-input, .board-field-textarea { width: 100%; padding: 0.7rem; border: 1px solid rgba(10,26,62,0.2); font-family: 'Noto Sans JP',sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
+.board-field-input:focus, .board-field-textarea:focus { border-color: var(--navy); }
+.board-field-textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
+.board-submit-btn { width: 100%; padding: 0.85rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; letter-spacing: 0.06em; transition: background 0.2s; }
+.board-submit-btn:hover { background: var(--crimson); }
+</style>
+
+<div class="section" style="margin:0 0 1.5rem;">
+  <div class="section-header">
+    <div class="section-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div>
+      <div class="section-label">ES REVIEW</div>
+      <div class="section-title">ES添削掲示板</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">自分のESを投稿してメンバーからフィードバックをもらおう。コメントは匿名で投稿できます。</p>
+    <div class="board-toolbar">
+      <span style="font-size:0.78rem;color:var(--text-muted);" id="board-count">読み込み中...</span>
+      <button class="board-post-btn" id="board-post-btn">＋ ESを投稿する</button>
+    </div>
+    <div id="board-list"></div>
+  </div>
+</div>
+
+<!-- ES添削掲示板 投稿モーダル -->
+<div class="board-modal-overlay" id="board-modal">
+  <div class="board-modal-box">
+    <div class="board-modal-header">
+      <span class="board-modal-title">ESを投稿する</span>
+      <button id="board-modal-close" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.1rem;cursor:pointer;padding:0;">&#10005;</button>
+    </div>
+    <div class="board-modal-body">
+      <div>
+        <label class="board-field-label">企業名 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-company" class="board-field-input" placeholder="例：三菱商事">
+      </div>
+      <div>
+        <label class="board-field-label">設問 <span style="color:var(--crimson);">*</span></label>
+        <input type="text" id="bm-question" class="board-field-input" placeholder="例：学生時代に最も力を入れたことを400字以内で">
+      </div>
+      <div>
+        <label class="board-field-label">ESの内容 <span style="color:var(--crimson);">*</span></label>
+        <textarea id="bm-text" class="board-field-textarea" placeholder="ここにESの内容を貼り付けてください..."></textarea>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-muted);line-height:1.7;background:rgba(10,26,62,0.04);padding:0.7rem 0.9rem;">
+        投稿は全会員に公開されます。個人を特定できる情報は含めないようにしてください。
+      </div>
+      <div style="font-size:0.78rem;color:var(--crimson);min-height:1em;" id="bm-error"></div>
+      <button id="bm-submit" class="board-submit-btn">投稿する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ES添削掲示板 =====
+var BOARD_POSTS_KEY = 'keio_navi_board_posts_v1';
+
+function escJsString(value) {
+  return String(value == null ? '' : value)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/</g, '\\x3C');
+}
+
+function readLocalPosts() { try { return JSON.parse(localStorage.getItem(BOARD_POSTS_KEY) || '[]'); } catch(e) { return []; } }
+function writeLocalPosts(arr) { localStorage.setItem(BOARD_POSTS_KEY, JSON.stringify(arr)); }
+
+async function loadBoardPosts() {
+  var countEl = document.getElementById('board-count');
+  var listEl = document.getElementById('board-list');
+  var posts = readLocalPosts();
+  try {
+    var data = await callApi('readBoardPosts');
+    if (data && Array.isArray(data.posts)) {
+      posts = data.posts;
+      writeLocalPosts(posts);
+    }
+  } catch(e) { /* GAS未設定時はlocalを使う */ }
+  renderBoardPosts(posts);
+  if (countEl) countEl.textContent = posts.length ? posts.length + '件の投稿' : '投稿はまだありません';
+}
+
+function renderBoardPosts(posts) {
+  var listEl = document.getElementById('board-list');
+  var currentUser = KeioNaviAuth.getCurrentUser ? KeioNaviAuth.getCurrentUser() : null;
+  if (!posts.length) {
+    listEl.innerHTML = '<div class="empty-msg">まだ投稿がありません。最初のESを共有してみよう！</div>';
+    return;
+  }
+  listEl.innerHTML = posts.map(function(p) {
+    var postId = String(p.id || '');
+    var postIdAttr = escAttr(postId);
+    var postIdJs = escJsString(postId);
+    var comments = (p.comments || []).map(function(c) {
+      return '<div class="board-comment"><span class="board-comment-user">' + escHtml(c.username || '匿名') + '</span>' + escHtml(c.commentText || c.text || '') + '</div>';
+    }).join('');
+    return '<div class="board-card">'
+      + '<div class="board-card-head">'
+      + '<span class="board-card-company">' + escHtml(p.company || '') + '</span>'
+      + '<span class="board-card-user">' + escHtml(p.username || '匿名') + ' \xb7 ' + escHtml(p.createdAt ? new Date(p.createdAt).toLocaleDateString('ja-JP') : '') + '</span>'
+      + '</div>'
+      + '<div class="board-card-q">' + escHtml(p.question || '') + '</div>'
+      + '<div class="board-card-text">' + escHtml(p.esText || p.text || '') + '</div>'
+      + '<div class="board-comments">'
+      + '<div id="comments-' + postIdAttr + '">' + comments + '</div>'
+      + '<div class="board-comment-row">'
+      + '<input class="board-comment-input" id="ci-' + postIdAttr + '" placeholder="フィードバックを書く...">'
+      + '<button class="board-comment-submit" onclick="submitBoardComment(\'' + postIdJs + '\')">送信</button>'
+      + '</div></div></div>';
+  }).join('');
+}
+
+async function submitBoardComment(postId) {
+  var input = document.getElementById('ci-' + postId);
+  var text = input.value.trim();
+  if (!text) return;
+  var currentUser = KeioNaviAuth.getCurrentUser ? KeioNaviAuth.getCurrentUser() : null;
+  var username = currentUser ? currentUser.username : '匿名';
+  var posts = readLocalPosts();
+  var post = posts.find(function(p) { return p.id === postId; });
+  if (post) {
+    if (!post.comments) post.comments = [];
+    var comment = { id: Date.now().toString(), postId: postId, username: username, commentText: text, createdAt: new Date().toISOString() };
+    post.comments.push(comment);
+    writeLocalPosts(posts);
+  }
+  try {
+    await callApi('addBoardComment', { postId: postId, commentText: text });
+  } catch(e) {}
+  input.value = '';
+  renderBoardPosts(readLocalPosts());
+}
+
+function initBoardModal() {
+  document.getElementById('board-post-btn').addEventListener('click', function() {
+    document.getElementById('bm-error').textContent = '';
+    document.getElementById('bm-company').value = '';
+    document.getElementById('bm-question').value = '';
+    document.getElementById('bm-text').value = '';
+    document.getElementById('board-modal').classList.add('open');
+  });
+  document.getElementById('board-modal-close').addEventListener('click', function() {
+    document.getElementById('board-modal').classList.remove('open');
+  });
+  document.getElementById('board-modal').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('board-modal'))
+      document.getElementById('board-modal').classList.remove('open');
+  });
+  document.getElementById('bm-submit').addEventListener('click', async function() {
+    var company = document.getElementById('bm-company').value.trim();
+    var question = document.getElementById('bm-question').value.trim();
+    var esText = document.getElementById('bm-text').value.trim();
+    if (!company || !question || !esText) {
+      document.getElementById('bm-error').textContent = 'すべての項目を入力してください。'; return;
+    }
+    var currentUser = KeioNaviAuth.getCurrentUser ? KeioNaviAuth.getCurrentUser() : null;
+    var post = {
+      id: Date.now().toString(),
+      company: company, question: question, esText: esText,
+      username: currentUser ? currentUser.username : '匿名',
+      createdAt: new Date().toISOString(),
+      comments: [],
+    };
+    var posts = readLocalPosts();
+    posts.unshift(post);
+    writeLocalPosts(posts);
+    try {
+      await callApi('writeBoardPost', { company: post.company, question: post.question, esText: post.esText, username: post.username, createdAt: post.createdAt, id: post.id });
+    } catch(e) {}
+    document.getElementById('board-modal').classList.remove('open');
+    renderBoardPosts(readLocalPosts());
+    var countEl = document.getElementById('board-count');
+    if (countEl) countEl.textContent = readLocalPosts().length + '件の投稿';
+  });
+}
+
+// Initialize ES board
+(function() {
+  var checkReadyBoard = setInterval(function() {
+    if (typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken && KeioNaviAuth.getSessionToken()) {
+      clearInterval(checkReadyBoard);
+      initBoardModal();
+      loadBoardPosts();
+    }
+  }, 200);
+  setTimeout(function() { clearInterval(checkReadyBoard); }, 10000);
+})();
+</script>
+
 <!-- ===== 内定体験記 ===== -->
 <style>
 .exp-filter-tabs { display:flex; gap:0.4rem; margin-bottom:1rem; flex-wrap:wrap; }
@@ -1509,11 +1729,11 @@ document.getElementById('exp-post-modal').addEventListener('click', function(e) 
 
 <style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
 <nav class="bottom-tab-bar">
-  <a href="account.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>マイページ</span></a>
-  <a href="research.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>企業</span></a>
-  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>ES</span></a>
+  <a href="members.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>ホーム</span></a>
+  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>書く</span></a>
   <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
-  <a href="resources.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
+  <a href="community.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>仲間</span></a>
+  <a href="more.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg><span>もっと</span></a>
 </nav>
 <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>

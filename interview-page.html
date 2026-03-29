@@ -353,6 +353,53 @@
   .es-view-copy-btn:hover { border-color: var(--navy); color: var(--navy); }
 
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== GD FEEDBACK ===== */
+  .gd-fb-stats-bar { display: flex; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .gd-fb-stat { flex: 1; min-width: 90px; background: white; border: 1px solid rgba(10,26,62,0.08); padding: 0.8rem; text-align: center; }
+  .gd-fb-stat-num { font-family: 'Noto Serif JP', serif; font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+  .gd-fb-stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .gd-fb-list { display: flex; flex-direction: column; gap: 1rem; }
+  .gd-fb-card { background: white; border: 1px solid rgba(10,26,62,0.08); border-left: 3px solid var(--gold); padding: 1rem 1.2rem; transition: box-shadow 0.2s; }
+  .gd-fb-card:hover { box-shadow: 0 2px 12px rgba(10,26,62,0.08); }
+  .gd-fb-card-header { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  .gd-fb-date { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .gd-fb-theme { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+  .gd-fb-role-badge { display: inline-block; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 700; border-radius: 2px; letter-spacing: 0.04em; }
+  .gd-fb-role-司会 { background: var(--crimson); color: white; }
+  .gd-fb-role-書記 { background: var(--navy); color: white; }
+  .gd-fb-role-タイムキーパー { background: var(--gold); color: var(--text); }
+  .gd-fb-role-発表者 { background: #0057c2; color: white; }
+  .gd-fb-role-メンバー { background: rgba(107,107,126,0.12); color: var(--text-muted); }
+  .gd-fb-content { font-size: 0.82rem; color: var(--text); line-height: 1.7; margin-bottom: 0.3rem; }
+  .gd-fb-content-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-top: 0.5rem; margin-bottom: 0.15rem; }
+  .gd-fb-rating { color: var(--gold); font-size: 0.95rem; letter-spacing: 0.1em; margin-top: 0.4rem; }
+  .gd-fb-card-actions { display: flex; gap: 0.5rem; margin-top: 0.7rem; justify-content: flex-end; }
+  .gd-fb-card-actions button { background: none; border: 1px solid rgba(10,26,62,0.15); padding: 0.3rem 0.7rem; font-size: 0.72rem; font-family: 'Noto Sans JP', sans-serif; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+  .gd-fb-card-actions button:hover { border-color: var(--navy); color: var(--navy); }
+  .gd-fb-card-actions button.gd-fb-del:hover { border-color: var(--crimson); color: var(--crimson); }
+  .gd-fb-add-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.2rem; background: transparent; border: 1px solid rgba(10,26,62,0.2); color: var(--navy); font-family: 'Noto Sans JP', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; letter-spacing: 0.05em; transition: all 0.25s; margin-bottom: 1rem; }
+  .gd-fb-add-btn:hover { background: var(--navy); color: white; }
+  .gd-fb-modal-overlay { display: none; position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+  .gd-fb-modal-overlay.open { display: flex; }
+  .gd-fb-modal-box { background: white; width: min(460px, 92vw); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .gd-fb-modal-header { background: var(--navy); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .gd-fb-modal-title { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: white; font-weight: 700; }
+  .gd-fb-modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .gd-fb-modal-body label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem; }
+  .gd-fb-modal-body input[type="text"], .gd-fb-modal-body input[type="date"], .gd-fb-modal-body select, .gd-fb-modal-body textarea { width: 100%; padding: 0.7rem; border: 1px solid rgba(10,26,62,0.2); font-family: 'Noto Sans JP', sans-serif; font-size: 0.85rem; outline: none; box-sizing: border-box; }
+  .gd-fb-modal-body textarea { min-height: 70px; resize: vertical; line-height: 1.6; }
+  .gd-fb-stars-input { display: flex; gap: 0.3rem; cursor: pointer; }
+  .gd-fb-stars-input span { font-size: 1.4rem; color: #ccc; transition: color 0.15s; user-select: none; }
+  .gd-fb-stars-input span.filled { color: var(--gold); }
+  .gd-fb-stars-input span:hover { color: var(--gold); }
+  .gd-fb-modal-actions { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
+  .gd-fb-modal-actions button { flex: 1; padding: 0.8rem; font-family: 'Noto Sans JP', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; letter-spacing: 0.04em; }
+  .gd-fb-save-btn { background: var(--navy); color: white; }
+  .gd-fb-save-btn:hover { opacity: 0.9; }
+  .gd-fb-cancel-btn { background: rgba(10,26,62,0.06); color: var(--text-muted); }
+  .gd-fb-cancel-btn:hover { opacity: 0.8; }
+  .gd-fb-empty { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; }
 </style>
 </head>
 <body>
@@ -629,6 +676,48 @@
     <div class="es-modal-actions">
       <button class="es-modal-cancel" onclick="ipCloseCqModal()">キャンセル</button>
       <button class="es-modal-save" onclick="ipSaveCustomQuestion()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- GD練習会フィードバック -->
+<div class="m-section" id="gd-feedback-section" style="max-width:1200px;margin:0 auto 4rem;padding:0 5vw;">
+  <div class="m-section-header">
+    <div class="m-section-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div>
+      <div class="m-section-label">GD PRACTICE</div>
+      <div class="m-section-title">GD練習会フィードバック</div>
+    </div>
+  </div>
+  <div style="padding:0.5rem;">
+    <div class="gd-fb-stats-bar" id="gd-fb-stats"></div>
+    <button class="gd-fb-add-btn" onclick="openGdFbModal()">&#65291; FBを記録</button>
+    <div class="gd-fb-list" id="gd-fb-list"></div>
+  </div>
+</div>
+
+<!-- GDフィードバック追加/編集モーダル -->
+<div class="gd-fb-modal-overlay" id="gd-fb-modal">
+  <div class="gd-fb-modal-box">
+    <div class="gd-fb-modal-header">
+      <span class="gd-fb-modal-title" id="gd-fb-modal-title">GDフィードバックを記録</span>
+      <button onclick="closeGdFbModal()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.1rem;cursor:pointer;padding:0;">&#10005;</button>
+    </div>
+    <div class="gd-fb-modal-body">
+      <input type="hidden" id="gd-fb-edit-id" value="">
+      <div><label>日付</label><input type="date" id="gd-fb-date"></div>
+      <div><label>テーマ（お題）<span style="color:var(--crimson);"> *</span></label><input type="text" id="gd-fb-theme-input" placeholder="例：AIの普及は社会にとってプラスか"></div>
+      <div><label>役割</label><select id="gd-fb-role-input"><option value="メンバー">メンバー</option><option value="司会">司会</option><option value="書記">書記</option><option value="タイムキーパー">タイムキーパー</option><option value="発表者">発表者</option></select></div>
+      <div><label>他者からのフィードバック</label><textarea id="gd-fb-others" placeholder="他の参加者やオブザーバーからもらったフィードバック..."></textarea></div>
+      <div><label>自分の振り返り</label><textarea id="gd-fb-self" placeholder="自分で感じた良かった点・改善点..."></textarea></div>
+      <div><label>自己評価</label><div class="gd-fb-stars-input" id="gd-fb-stars"><span onclick="setGdFbRating(1)">&#9734;</span><span onclick="setGdFbRating(2)">&#9734;</span><span onclick="setGdFbRating(3)">&#9734;</span><span onclick="setGdFbRating(4)">&#9734;</span><span onclick="setGdFbRating(5)">&#9734;</span></div></div>
+      <div style="font-size:0.78rem;color:var(--crimson);min-height:1.2em;" id="gd-fb-error"></div>
+      <div class="gd-fb-modal-actions">
+        <button class="gd-fb-cancel-btn" onclick="closeGdFbModal()">キャンセル</button>
+        <button class="gd-fb-save-btn" onclick="saveGdFbEntry()">保存</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2821,16 +2910,112 @@ function toggleOBMic() {
 }
 
 // 初期化時に読み込み
-if (typeof currentMember !== 'undefined' && currentMember) { loadOBVisits(); loadSharedOBInfo(); }
+if (typeof currentMember !== 'undefined' && currentMember) { loadOBVisits(); loadSharedOBInfo(); initGdFeedback(); }
+
+// ===== GD FEEDBACK =====
+var _gdFbRating = 0;
+
+function readGdFeedback() {
+  try { var d = localStorage.getItem('keio_navi_gd_feedback_v1'); return d ? JSON.parse(d) : []; } catch(e) { return []; }
+}
+function writeGdFeedback(list) { localStorage.setItem('keio_navi_gd_feedback_v1', JSON.stringify(list)); }
+
+function calcGdStats(list) {
+  var count = list.length; var avg = 0; var roleCount = {};
+  if (count > 0) { var sum = 0; var rated = 0; list.forEach(function(e) { if (e.rating > 0) { sum += e.rating; rated++; } roleCount[e.role] = (roleCount[e.role] || 0) + 1; }); avg = rated > 0 ? (sum / rated) : 0; }
+  var topRole = '-'; var topCount = 0;
+  Object.keys(roleCount).forEach(function(r) { if (roleCount[r] > topCount) { topCount = roleCount[r]; topRole = r; } });
+  return { count: count, avg: avg, topRole: topRole };
+}
+
+function renderGdStars(n) { var s = ''; for (var i = 1; i <= 5; i++) s += (i <= n ? '\u2605' : '\u2606'); return s; }
+
+function renderGdFeedback() {
+  var list = readGdFeedback(); var stats = calcGdStats(list);
+  var statsEl = document.getElementById('gd-fb-stats'); var listEl = document.getElementById('gd-fb-list');
+  if (!statsEl || !listEl) return;
+  statsEl.innerHTML = '<div class="gd-fb-stat"><div class="gd-fb-stat-num">' + stats.count + '</div><div class="gd-fb-stat-label">参加回数</div></div><div class="gd-fb-stat"><div class="gd-fb-stat-num">' + (stats.avg > 0 ? stats.avg.toFixed(1) : '-') + '</div><div class="gd-fb-stat-label">平均評価</div></div><div class="gd-fb-stat"><div class="gd-fb-stat-num" style="font-size:1rem;">' + stats.topRole + '</div><div class="gd-fb-stat-label">よく担った役割</div></div>';
+  if (list.length === 0) { listEl.innerHTML = '<div class="gd-fb-empty">まだ記録がありません。<br>GD練習会に参加したら「+ FBを記録」から振り返りを残しましょう。</div>'; return; }
+  list.sort(function(a, b) { return b.date.localeCompare(a.date); });
+  var html = '';
+  list.forEach(function(e) {
+    var d = e.date.replace(/-/g, '/');
+    html += '<div class="gd-fb-card"><div class="gd-fb-card-header"><span class="gd-fb-date">' + d + '</span><span class="gd-fb-role-badge gd-fb-role-' + e.role + '">' + e.role + '</span></div>';
+    html += '<div class="gd-fb-theme">' + (e.theme || '').replace(/</g, '&lt;') + '</div>';
+    if (e.otherFeedback || e.others) { html += '<div class="gd-fb-content-label">他者からのFB</div><div class="gd-fb-content">' + (e.otherFeedback || e.others || '').replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</div>'; }
+    if (e.selfReflection || e.self) { html += '<div class="gd-fb-content-label">自分の振り返り</div><div class="gd-fb-content">' + (e.selfReflection || e.self || '').replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</div>'; }
+    if (e.rating > 0) { html += '<div class="gd-fb-rating">' + renderGdStars(e.rating) + '</div>'; }
+    html += '<div class="gd-fb-card-actions"><button onclick="openGdFbModal(\'' + e.id + '\')">編集</button><button class="gd-fb-del" onclick="deleteGdFbEntry(\'' + e.id + '\')">削除</button></div></div>';
+  });
+  listEl.innerHTML = html;
+}
+
+function openGdFbModal(id) {
+  var modal = document.getElementById('gd-fb-modal'); var titleEl = document.getElementById('gd-fb-modal-title');
+  document.getElementById('gd-fb-error').textContent = '';
+  if (id) {
+    var list = readGdFeedback(); var entry = list.find(function(e) { return e.id === id; }); if (!entry) return;
+    titleEl.textContent = 'フィードバックを編集';
+    document.getElementById('gd-fb-edit-id').value = id;
+    document.getElementById('gd-fb-date').value = entry.date || '';
+    document.getElementById('gd-fb-theme-input').value = entry.theme || '';
+    document.getElementById('gd-fb-role-input').value = entry.role || 'メンバー';
+    document.getElementById('gd-fb-others').value = entry.otherFeedback || entry.others || '';
+    document.getElementById('gd-fb-self').value = entry.selfReflection || entry.self || '';
+    setGdFbRating(entry.rating || 0);
+  } else {
+    titleEl.textContent = 'GDフィードバックを記録';
+    document.getElementById('gd-fb-edit-id').value = '';
+    var today = new Date();
+    document.getElementById('gd-fb-date').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+    document.getElementById('gd-fb-theme-input').value = '';
+    document.getElementById('gd-fb-role-input').value = 'メンバー';
+    document.getElementById('gd-fb-others').value = '';
+    document.getElementById('gd-fb-self').value = '';
+    setGdFbRating(0);
+  }
+  modal.classList.add('open');
+}
+function closeGdFbModal() { document.getElementById('gd-fb-modal').classList.remove('open'); }
+
+function setGdFbRating(n) {
+  _gdFbRating = n; var stars = document.getElementById('gd-fb-stars'); if (!stars) return;
+  stars.querySelectorAll('span').forEach(function(s, i) { if (i < n) { s.innerHTML = '\u2605'; s.classList.add('filled'); } else { s.innerHTML = '\u2606'; s.classList.remove('filled'); } });
+}
+
+async function saveGdFbEntry() {
+  var theme = document.getElementById('gd-fb-theme-input').value.trim();
+  if (!theme) { document.getElementById('gd-fb-error').textContent = 'テーマ（お題）を入力してください。'; return; }
+  var editId = document.getElementById('gd-fb-edit-id').value;
+  var entry = { id: editId || '', date: document.getElementById('gd-fb-date').value, theme: theme, role: document.getElementById('gd-fb-role-input').value, otherFeedback: document.getElementById('gd-fb-others').value.trim(), selfReflection: document.getElementById('gd-fb-self').value.trim(), rating: _gdFbRating };
+  closeGdFbModal();
+  try { var result = await callAuthApi('writeGdFeedback', { entry: entry }); if (result.id) entry.id = result.id; } catch(e) { console.warn('GD FB server save failed', e); }
+  var list = readGdFeedback();
+  if (editId) { list = list.map(function(e) { return e.id === editId ? entry : e; }); } else { list.push(entry); }
+  writeGdFeedback(list); renderGdFeedback();
+}
+
+async function deleteGdFbEntry(id) {
+  if (!confirm('このフィードバック記録を削除しますか？')) return;
+  try { await callAuthApi('deleteGdFeedback', { id: id }); } catch(e) { console.warn('GD FB server delete failed', e); }
+  writeGdFeedback(readGdFeedback().filter(function(e) { return e.id !== id; })); renderGdFeedback();
+}
+
+async function initGdFeedback() {
+  renderGdFeedback();
+  try { var data = await callAuthApi('readGdFeedback'); if (data.entries && data.entries.length) { writeGdFeedback(data.entries); renderGdFeedback(); } } catch(e) { console.warn('GD FB server load failed, using local', e); }
+  var modal = document.getElementById('gd-fb-modal');
+  if (modal) { modal.addEventListener('click', function(e) { if (e.target === modal) closeGdFbModal(); }); }
+}
 </script>
 
 <style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
 <nav class="bottom-tab-bar">
-  <a href="account.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>マイページ</span></a>
-  <a href="research.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>企業</span></a>
-  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>ES</span></a>
+  <a href="members.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>ホーム</span></a>
+  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>書く</span></a>
   <a href="interview-page.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
-  <a href="resources.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>資料</span></a>
+  <a href="community.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>仲間</span></a>
+  <a href="more.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg><span>もっと</span></a>
 </nav>
 <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
 </html>
