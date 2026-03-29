@@ -786,6 +786,27 @@
     location.reload();
   }
 
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function escAttr(s) { return escHtml(s).replace(/'/g, '&#39;'); }
+  function safeHttpUrl(value) {
+    var raw = String(value || '').trim();
+    if (!raw) return '';
+    try {
+      var url = new URL(raw, window.location.href);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+      return url.href;
+    } catch (e) {
+      return '';
+    }
+  }
+  function renderUrlList(value) {
+    return String(value || '').split(/[|;]/).map(function(item) {
+      return safeHttpUrl(item);
+    }).filter(Boolean).map(function(url) {
+      return '<a href="' + escAttr(url) + '" target="_blank" rel="noopener noreferrer" class="modal-url" style="display:block;margin-bottom:0.3rem;">' + escHtml(url) + '</a>';
+    }).join('');
+  }
+
   function toggleMobileMenuM() {
     document.getElementById('hamburger-m').classList.toggle('open');
     document.getElementById('mobile-menu-m').classList.toggle('open');
@@ -1312,11 +1333,11 @@
       title.textContent = preferred.length ? '気になる企業のノート' : '今日のおすすめ企業ノート';
     }
     grid.innerHTML = picks.map(function(r) {
-      var preview = [r[2], r[3], r[4]].filter(Boolean).join(' ／ ');
-      var escapedName = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var preview = escHtml([r[2], r[3], r[4]].filter(Boolean).join(' ／ '));
+      var escapedName = escAttr(r[0] || '');
       return '<div class="company-note-card" data-open-modal="' + escapedName + '">' +
-        '<div class="company-note-card-name">' + (r[0]||'\u2013') + '</div>' +
-        (r[1] ? '<div class="company-note-card-industry">' + r[1] + '</div>' : '') +
+        '<div class="company-note-card-name">' + escHtml(r[0] || '\u2013') + '</div>' +
+        (r[1] ? '<div class="company-note-card-industry">' + escHtml(r[1]) + '</div>' : '') +
         (preview ? '<div class="company-note-card-preview">' + preview + '</div>' : '') +
         '<div class="company-note-card-arrow">ノートを見る →</div>' +
       '</div>';
@@ -1374,8 +1395,9 @@
       return (name && name.includes(q)) || (industry && industry.includes(q)) || (alias && alias.includes(q));
     });
     if (!results.length) {
+      var safeQ = escHtml(q);
       grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;">' +
-        '<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">「' + q + '」の企業ノートはまだ登録されていません。</div>' +
+        '<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">「' + safeQ + '」の企業ノートはまだ登録されていません。</div>' +
         (GAS_PROXY_URL
           ? '<button id="search-generate-btn" style="padding:0.7rem 1.8rem; background:var(--navy); color:white; border:none; font-family:\'Noto Sans JP\',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; letter-spacing:0.06em; transition:background 0.2s;" onmouseover="this.style.background=\'var(--crimson)\'" onmouseout="this.style.background=\'var(--navy)\'">公式HPからAI分析ノートを生成</button>'
           : '') +
@@ -1386,11 +1408,11 @@
       return;
     }
     grid.innerHTML = results.map(function(r) {
-      var preview = [r[2], r[3], r[4]].filter(Boolean).join(' ／ ');
-      var escapedName = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var preview = escHtml([r[2], r[3], r[4]].filter(Boolean).join(' ／ '));
+      var escapedName = escAttr(r[0] || '');
       return '<div class="company-note-card" data-open-modal="' + escapedName + '">' +
-        '<div class="company-note-card-name">' + (r[0]||'\u2013') + '</div>' +
-        (r[1] ? '<div class="company-note-card-industry">' + r[1] + '</div>' : '') +
+        '<div class="company-note-card-name">' + escHtml(r[0] || '\u2013') + '</div>' +
+        (r[1] ? '<div class="company-note-card-industry">' + escHtml(r[1]) + '</div>' : '') +
         (preview ? '<div class="company-note-card-preview">' + preview + '</div>' : '') +
         '<div class="company-note-card-arrow">ノートを見る →</div>' +
       '</div>';
@@ -1405,6 +1427,7 @@
     document.getElementById('modal-company-name').textContent = companyName || '\u2013';
     document.getElementById('modal-industry').textContent = note ? (note[1] || '') : '';
     var body = document.getElementById('modal-body');
+    var memoValue = escHtml(getMemo(companyName));
     if (!note) {
       body.innerHTML = '<div style="text-align:center; padding:2.5rem 1rem;">' +
         '<div class="modal-no-data" style="margin-bottom:1.2rem;">この企業の分析ノートはまだ登録されていません。</div>' +
@@ -1414,7 +1437,7 @@
       '</div>' +
       '<div class="modal-field">' +
         '<div class="modal-field-label">MY MEMO（自分用メモ）</div>' +
-        '<textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">' + getMemo(companyName) + '</textarea>' +
+        '<textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">' + memoValue + '</textarea>' +
         '<div class="modal-memo-saved" id="memo-saved-msg"></div>' +
       '</div>';
       if (GAS_PROXY_URL) {
@@ -1431,20 +1454,18 @@
       ];
       var memoHtml = '<div class="modal-field">' +
         '<div class="modal-field-label">MY MEMO（自分用メモ）</div>' +
-        '<textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">' + getMemo(companyName) + '</textarea>' +
+        '<textarea class="modal-memo" id="modal-memo-area" placeholder="自分用のメモを書く（このデバイスに保存されます）...">' + memoValue + '</textarea>' +
         '<div class="modal-memo-saved" id="memo-saved-msg"></div>' +
       '</div>';
       var fieldsHtml = fields.map(function(f) {
         if (!f.value) return '';
         var val;
         if (f.isUrl) {
-          val = f.value.split(/[|;]/).map(function(u) { return u.trim(); }).filter(Boolean)
-              .map(function(u) { return '<a href="' + u + '" target="_blank" class="modal-url" style="display:block;margin-bottom:0.3rem;">' + u + '</a>'; })
-              .join('');
+          val = renderUrlList(f.value);
         } else {
-          val = '<div class="modal-field-content">' + f.value + '</div>';
+          val = '<div class="modal-field-content">' + escHtml(f.value) + '</div>';
         }
-        return '<div class="modal-field"><div class="modal-field-label">' + f.label + '</div>' + val + '</div>';
+        return '<div class="modal-field"><div class="modal-field-label">' + escHtml(f.label) + '</div>' + val + '</div>';
       }).filter(Boolean).join('');
       body.innerHTML = (fieldsHtml || '<div class="modal-no-data">内容がまだ入力されていません。</div>') + memoHtml;
       document.getElementById('modal-memo-area').addEventListener('input', function(e) { saveMemo(companyName, e.target.value); });
@@ -1468,10 +1489,11 @@
     try {
       var controller = new AbortController();
       var timeout = setTimeout(function() { controller.abort(); }, 90000);
+      var sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
       var res = await fetch(GAS_PROXY_URL, {
         method: 'POST',
         redirect: 'follow',
-        body: JSON.stringify({ action: 'generate', companyName: searchWord }),
+        body: JSON.stringify({ action: 'generate', companyName: searchWord, sessionToken: sessionToken }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -1481,9 +1503,10 @@
       catch(e) { throw new Error('GASからの応答が不正です: ' + text.slice(0, 100)); }
 
       if (data.status !== 'ok' && data.message === 'NOT_FOUND') {
+        var safeSearchWord = escHtml(searchWord);
         body.innerHTML = '<div style="text-align:center; padding:3rem;">' +
           '<div style="font-size:1.5rem; margin-bottom:1rem;">\uD83D\uDD0D</div>' +
-          '<div style="font-size:0.92rem; font-weight:700; color:var(--navy); margin-bottom:0.6rem;">「' + searchWord + '」は見つかりませんでした</div>' +
+          '<div style="font-size:0.92rem; font-weight:700; color:var(--navy); margin-bottom:0.6rem;">「' + safeSearchWord + '」は見つかりませんでした</div>' +
           '<div style="font-size:0.8rem; color:var(--text-muted); line-height:1.8;">企業名を正式名称や別の表記で試してみてください。<br>それでも見つからない場合はスプシに直接入力してください。</div>' +
         '</div>';
         document.getElementById('modal-industry').textContent = '';
@@ -1514,12 +1537,11 @@
         if (!f.value) return '';
         var val;
         if (f.isUrl) {
-          val = f.value.split(/[|;]/).map(function(u) { return u.trim(); }).filter(Boolean)
-              .map(function(u) { return '<a href="' + u + '" target="_blank" class="modal-url" style="display:block;margin-bottom:0.3rem;">' + u + '</a>'; }).join('');
+          val = renderUrlList(f.value);
         } else {
-          val = '<div class="modal-field-content">' + f.value + '</div>';
+          val = '<div class="modal-field-content">' + escHtml(f.value) + '</div>';
         }
-        return '<div class="modal-field"><div class="modal-field-label">' + f.label + '</div>' + val + '</div>';
+        return '<div class="modal-field"><div class="modal-field-label">' + escHtml(f.label) + '</div>' + val + '</div>';
       }).filter(Boolean).join('') +
       '<div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(10,26,62,0.1); text-align:center;">' +
         '<div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.8rem;">※ このノートはまだスプシに保存されていません</div>' +
@@ -1540,10 +1562,11 @@
   async function saveNoteToSheet(searchWord, officialName, noteData, btn) {
     try {
       btn.textContent = '保存中...'; btn.disabled = true;
+      var sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
       var res = await fetch(GAS_PROXY_URL, {
         method: 'POST',
         redirect: 'follow',
-        body: JSON.stringify({ action: 'save', searchWord: searchWord, note: Object.assign({}, noteData, { officialName: officialName }) }),
+        body: JSON.stringify({ action: 'save', searchWord: searchWord, note: Object.assign({}, noteData, { officialName: officialName }), sessionToken: sessionToken }),
         headers: { 'Content-Type': 'application/json' },
       });
       var resultText = await res.text();
@@ -1607,12 +1630,12 @@
 
     var box = document.getElementById('quiz-box');
     var hintsHtml = hints.map(function(h) {
-      return '<div class="quiz-hint"><div class="quiz-hint-label">' + h.label + '</div><div class="quiz-hint-text">' + h.value + '</div></div>';
+      return '<div class="quiz-hint"><div class="quiz-hint-label">' + escHtml(h.label) + '</div><div class="quiz-hint-text">' + escHtml(h.value) + '</div></div>';
     }).join('');
     var choicesHtml = choices.map(function(r) {
-      var en = (r[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      var ec = (correct[0]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      return '<button class="quiz-choice" data-chosen="' + en + '" data-correct="' + ec + '">' + r[0] + '</button>';
+      var en = escAttr(r[0] || '');
+      var ec = escAttr(correct[0] || '');
+      return '<button class="quiz-choice" data-chosen="' + en + '" data-correct="' + ec + '">' + escHtml(r[0] || '') + '</button>';
     }).join('');
 
     box.innerHTML = '<div class="quiz-score-bar">' +
@@ -1695,9 +1718,10 @@
     document.getElementById('rf-result').style.display = 'none';
 
     try {
+      var sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
       var res = await fetch(GAS_PROXY_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'fetchRecruitInfo', companyName: company, url: url })
+        body: JSON.stringify({ action: 'fetchRecruitInfo', companyName: company, url: url, sessionToken: sessionToken })
       });
       var data = await res.json();
 
@@ -1715,13 +1739,13 @@
       var info = data.recruitInfo;
       var preview = document.getElementById('rf-preview');
       preview.innerHTML = '<div style="display:grid;gap:0.5rem;">' +
-        '<div><strong>企業名:</strong> ' + (info.company || '-') + '</div>' +
-        '<div><strong>締切:</strong> ' + (info.deadline || '不明') + '</div>' +
-        '<div><strong>種別:</strong> ' + (info.type || '不明') + '</div>' +
-        '<div><strong>選考フロー:</strong> ' + (info.flow || '不明') + '</div>' +
-        '<div><strong>応募条件:</strong> ' + (info.requirements || '不明') + '</div>' +
-        '<div><strong>業界:</strong> ' + (info.industry || '不明') + '</div>' +
-        (info.notes ? '<div><strong>備考:</strong> ' + info.notes + '</div>' : '') +
+        '<div><strong>企業名:</strong> ' + escHtml(info.company || '-') + '</div>' +
+        '<div><strong>締切:</strong> ' + escHtml(info.deadline || '不明') + '</div>' +
+        '<div><strong>種別:</strong> ' + escHtml(info.type || '不明') + '</div>' +
+        '<div><strong>選考フロー:</strong> ' + escHtml(info.flow || '不明') + '</div>' +
+        '<div><strong>応募条件:</strong> ' + escHtml(info.requirements || '不明') + '</div>' +
+        '<div><strong>業界:</strong> ' + escHtml(info.industry || '不明') + '</div>' +
+        (info.notes ? '<div><strong>備考:</strong> ' + escHtml(info.notes) + '</div>' : '') +
       '</div>';
       document.getElementById('rf-source').textContent = '出典: ' + (data.sourceUrl || '企業公式HP');
       document.getElementById('rf-result').style.display = 'block';
@@ -1741,9 +1765,10 @@
     btn.textContent = '保存中...';
 
     try {
+      var sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
       var res = await fetch(GAS_PROXY_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'saveRecruitInfo', recruitInfo: lastRecruitInfo })
+        body: JSON.stringify({ action: 'saveRecruitInfo', recruitInfo: lastRecruitInfo, sessionToken: sessionToken })
       });
       var data = await res.json();
 

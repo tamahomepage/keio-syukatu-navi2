@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a1a3e"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ダッシュボード | 慶應就活ナビ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1a3e;
+    --navy-light: #142254;
+    --crimson: #c0001a;
+    --gold: #c9a84c;
+    --text-main: #1a1a2e;
+    --text-muted: #6b7280;
+    --bg: #f4f1ec;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 70px;
+  }
+  .admin-header {
+    background: linear-gradient(135deg, #0a1a3e 0%, #142254 100%);
+    padding: 2rem 1.2rem 1.5rem;
+    color: white;
+  }
+  .admin-header-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .admin-header-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+  }
+  .admin-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+  .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .admin-stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .admin-stat-num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+  }
+  .admin-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+    font-weight: 600;
+  }
+  .admin-stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .admin-loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  #admin-content { display: none; }
+
+  /* アクティビティ分析セクション */
+  .analytics-section {
+    margin-top: 2rem;
+  }
+  .analytics-section-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--gold);
+  }
+  .analytics-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+  }
+  .analytics-card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.8rem;
+  }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0ece6;
+  }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-label {
+    font-size: 0.78rem;
+    color: var(--text-main);
+    flex: 1;
+  }
+  .funnel-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    min-width: 40px;
+    text-align: right;
+  }
+  .funnel-bar-bg {
+    flex: 1;
+    max-width: 120px;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .funnel-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--crimson));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  .feature-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0ece6;
+    font-size: 0.8rem;
+  }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-name { color: var(--text-main); }
+  .feature-count {
+    font-weight: 700;
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+  }
+  #analytics-loading {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="admin-header-label">ADMIN DASHBOARD</div>
+    <div class="admin-header-title">管理者ダッシュボード</div>
+    <div style="width:40px;height:2px;background:var(--gold);margin-top:0.5rem;"></div>
+  </div>
+</div>
+
+<div class="admin-container">
+  <div id="admin-loading" class="admin-loading">読み込み中...</div>
+  <div id="admin-content">
+    <div class="admin-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">👥</div>
+        <div class="admin-stat-num" id="stat-users">-</div>
+        <div class="admin-stat-label">登録ユーザー</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">📝</div>
+        <div class="admin-stat-num" id="stat-es">-</div>
+        <div class="admin-stat-label">ES保存数</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">💪</div>
+        <div class="admin-stat-num" id="stat-gk">-</div>
+        <div class="admin-stat-label">ガクチカ保存数</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">💬</div>
+        <div class="admin-stat-num" id="stat-board">-</div>
+        <div class="admin-stat-label">掲示板投稿数</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">📊</div>
+        <div class="admin-stat-num" id="stat-timeline">-</div>
+        <div class="admin-stat-label">タイムライン</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">⭐</div>
+        <div class="admin-stat-num" id="stat-nps">-</div>
+        <div class="admin-stat-label">NPS平均 (<span id="stat-nps-count">0</span>件)</div>
+      </div>
+    </div>
+
+    <!-- アクティビティ分析セクション -->
+    <div class="analytics-section" id="analytics-section" style="display:none;">
+      <div class="analytics-section-title">Usage Analytics</div>
+
+      <div class="analytics-card">
+        <div class="analytics-card-title">PV数（直近7日間）</div>
+        <div style="text-align:center;">
+          <span id="analytics-pv" style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--navy);">-</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);margin-left:0.3rem;">views</span>
+        </div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="analytics-card-title">利用機能ランキング（直近7日）</div>
+        <div id="analytics-features">
+          <div style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:0.5rem;">データなし</div>
+        </div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="analytics-card-title">ユーザーファネル</div>
+        <div id="analytics-funnel">
+          <div class="funnel-step">
+            <span class="funnel-label">Registration</span>
+            <span class="funnel-count" id="funnel-registered">-</span>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="funnel-bar-registered" style="width:0%"></div></div>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">First Gakuchika</span>
+            <span class="funnel-count" id="funnel-gakuchika">-</span>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="funnel-bar-gakuchika" style="width:0%"></div></div>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">First ES</span>
+            <span class="funnel-count" id="funnel-es">-</span>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="funnel-bar-es" style="width:0%"></div></div>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">First Interview Prep</span>
+            <span class="funnel-count" id="funnel-interview">-</span>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="funnel-bar-interview" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="analytics-loading" style="display:none;">分析データ読み込み中...</div>
+
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+  var GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbz_XVdwGDeZlvr4-l7VfJmNZZU9PKdzB75zx_w95n4UDkGPYhAZMuJxx2M-5kzjvYyhng/exec';
+
+  (async function init() {
+    var user = KeioNaviAuth.requireAuth({ returnTo: 'admin.html' });
+    if (!user) return;
+    var sessionToken = KeioNaviAuth.getSessionToken();
+    if (!sessionToken) return;
+
+    try {
+      var res = await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getAdminStats', sessionToken: sessionToken })
+      });
+      var data = await res.json();
+      if (data.status === 'ok' && data.stats) {
+        var s = data.stats;
+        document.getElementById('stat-users').textContent = s.userCount;
+        document.getElementById('stat-es').textContent = s.esCount;
+        document.getElementById('stat-gk').textContent = s.gkCount;
+        document.getElementById('stat-board').textContent = s.boardCount;
+        document.getElementById('stat-timeline').textContent = s.tlCount;
+        document.getElementById('stat-nps').textContent = s.npsAvg;
+        document.getElementById('stat-nps-count').textContent = s.npsCount;
+        document.getElementById('admin-loading').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+      } else {
+        document.getElementById('admin-loading').textContent = 'データの取得に失敗しました。';
+      }
+    } catch(err) {
+      document.getElementById('admin-loading').textContent = 'エラーが発生しました。';
+    }
+  })();
+
+  // ── アクティビティ分析データの取得と描画 ──
+  (async function loadAnalytics() {
+    var sessionToken = KeioNaviAuth.getSessionToken();
+    if (!sessionToken) return;
+
+    var analyticsLoading = document.getElementById('analytics-loading');
+    analyticsLoading.style.display = 'block';
+
+    try {
+      var res = await fetch(GAS_PROXY_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getActivitySummary', sessionToken: sessionToken })
+      });
+      var data = await res.json();
+
+      if (data.status === 'ok' && data.summary) {
+        var s = data.summary;
+
+        // PV数
+        document.getElementById('analytics-pv').textContent = s.pageViews7d || 0;
+
+        // 機能ランキング
+        var featEl = document.getElementById('analytics-features');
+        if (s.topFeatures && s.topFeatures.length > 0) {
+          var featHtml = '';
+          var featureLabels = {
+            'gakuchika_create': 'ガクチカ作成',
+            'gakuchika_edit': 'ガクチカ編集',
+            'es_save': 'ES保存',
+            'es_review': 'ES添削',
+            'es_rewrite': 'ESリライト',
+            'interview_practice': '面接練習',
+            'company_research': '企業研究',
+            'company_save': '企業保存'
+          };
+          s.topFeatures.forEach(function(f) {
+            var label = featureLabels[f.feature] || f.feature;
+            featHtml += '<div class="feature-row"><span class="feature-name">' + label + '</span><span class="feature-count">' + f.count + '</span></div>';
+          });
+          featEl.innerHTML = featHtml;
+        }
+
+        // ファネル
+        var funnel = s.funnel || {};
+        var maxVal = funnel.registered || 1;
+        document.getElementById('funnel-registered').textContent = funnel.registered || 0;
+        document.getElementById('funnel-gakuchika').textContent = funnel.firstGakuchika || 0;
+        document.getElementById('funnel-es').textContent = funnel.firstEs || 0;
+        document.getElementById('funnel-interview').textContent = funnel.firstInterview || 0;
+
+        document.getElementById('funnel-bar-registered').style.width = '100%';
+        document.getElementById('funnel-bar-gakuchika').style.width = Math.round(((funnel.firstGakuchika || 0) / maxVal) * 100) + '%';
+        document.getElementById('funnel-bar-es').style.width = Math.round(((funnel.firstEs || 0) / maxVal) * 100) + '%';
+        document.getElementById('funnel-bar-interview').style.width = Math.round(((funnel.firstInterview || 0) / maxVal) * 100) + '%';
+
+        analyticsLoading.style.display = 'none';
+        document.getElementById('analytics-section').style.display = 'block';
+      } else {
+        analyticsLoading.textContent = '分析データの取得に失敗しました。';
+      }
+    } catch (err) {
+      analyticsLoading.textContent = '分析データの読み込みエラー。';
+    }
+  })();
+</script>
+<style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
+<nav class="bottom-tab-bar">
+  <a href="account.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>マイページ</span></a>
+  <a href="research.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>企業</span></a>
+  <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>ES</span></a>
+  <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
+  <a href="admin.html" class="bottom-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg><span>管理</span></a>
+</nav>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script></body>
+</html>

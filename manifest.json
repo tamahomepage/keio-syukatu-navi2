@@ -2,7 +2,7 @@
   "name": "慶應就活ナビ",
   "short_name": "就活ナビ",
   "description": "慶應生のための就活支援コミュニティ",
-  "start_url": "/keio-syukatu-navi2/members.html",
+  "start_url": "members.html",
   "display": "standalone",
   "background_color": "#0a1a3e",
   "theme_color": "#0a1a3e",
