@@ -1928,13 +1928,6 @@
     } catch(e) {
       document.getElementById('mi-feedback').textContent = 'エラー: ' + e.message;
     }
-  }
-        }
-      });
-      document.getElementById('mi-feedback').textContent = data.result || '評価の生成に失敗しました。';
-    } catch(e) {
-      document.getElementById('mi-feedback').textContent = 'エラー: ' + e.message;
-    }
     document.getElementById('mi-start-btn').style.display = 'block';
   }
 
