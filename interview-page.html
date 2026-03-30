@@ -623,6 +623,24 @@
       </div>
     </div>
 
+    <!-- GD練習会フィードバック -->
+    <div class="m-section" id="gd-feedback-section" style="margin-top:3rem;">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">GD PRACTICE</div>
+          <div class="m-section-title">GD練習会フィードバック</div>
+        </div>
+      </div>
+      <div style="padding:0.5rem;">
+        <div class="gd-fb-stats-bar" id="gd-fb-stats"></div>
+        <button class="gd-fb-add-btn" onclick="openGdFbModal()">&#65291; FBを記録</button>
+        <div class="gd-fb-list" id="gd-fb-list"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -680,23 +698,6 @@
   </div>
 </div>
 
-<!-- GD練習会フィードバック -->
-<div class="m-section" id="gd-feedback-section" style="max-width:1200px;margin:0 auto 4rem;padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">GD PRACTICE</div>
-      <div class="m-section-title">GD練習会フィードバック</div>
-    </div>
-  </div>
-  <div style="padding:0.5rem;">
-    <div class="gd-fb-stats-bar" id="gd-fb-stats"></div>
-    <button class="gd-fb-add-btn" onclick="openGdFbModal()">&#65291; FBを記録</button>
-    <div class="gd-fb-list" id="gd-fb-list"></div>
-  </div>
-</div>
 
 <!-- GDフィードバック追加/編集モーダル -->
 <div class="gd-fb-modal-overlay" id="gd-fb-modal">
