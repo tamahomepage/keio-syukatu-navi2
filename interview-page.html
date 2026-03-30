@@ -623,6 +623,263 @@
       </div>
     </div>
 
+    <!-- AI模擬面接 -->
+    <div class="m-section" id="mock-interview-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">AI MOCK INTERVIEW</div>
+          <div class="m-section-title">AI模擬面接</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">AIが面接官として質問します。マイクボタンを押して音声で回答、またはテキスト入力もできます。回答後にAIがフィードバックします。</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
+          <input type="text" id="mi-company" placeholder="例: 三菱商事" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        </div>
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">コース・職種</label>
+          <input type="text" id="mi-course" placeholder="例: 総合職" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">面接タイプ</label>
+          <select id="mi-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+            <option value="general">一般面接（自己PR・ガクチカ中心）</option>
+            <option value="motivation">志望動機面接</option>
+            <option value="behavioral">行動面接（困難・挫折経験）</option>
+            <option value="final">最終面接（将来ビジョン）</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">何次面接</label>
+          <select id="mi-round" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+            <option value="">指定なし</option>
+            <option value="1次面接">1次面接</option>
+            <option value="2次面接">2次面接</option>
+            <option value="3次面接">3次面接</option>
+            <option value="最終面接">最終面接</option>
+            <option value="リクルーター面談">リクルーター面談</option>
+            <option value="インターン選考">インターン選考</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.8rem;">
+        <label style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+          <input type="checkbox" id="mi-speak-toggle" checked onchange="miSpeakEnabled=this.checked" style="width:16px;height:16px;">
+          面接官の音声読み上げ
+        </label>
+      </div>
+      <button id="mi-start-btn" onclick="startMockInterview()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬面接を始める</button>
+
+      <div id="mi-session" style="display:none;margin-top:1.5rem;">
+        <div id="mi-chat" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;"></div>
+
+        <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+          <textarea id="mi-input" placeholder="回答を入力..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:60px;resize:vertical;"></textarea>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <button id="mi-mic-btn" onclick="toggleMic()" style="width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:1.2rem;cursor:pointer;" title="マイクで回答">&#127908;</button>
+            <button onclick="sendMiAnswer()" style="width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;color:var(--navy);font-size:1rem;cursor:pointer;" title="送信">&#8594;</button>
+          </div>
+        </div>
+        <div id="mi-listening" style="display:none;text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--crimson);font-weight:700;">&#128308; 聞き取り中...</div>
+
+        <button onclick="endMockInterview()" style="margin-top:1rem;padding:0.5rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">面接を終了する</button>
+      </div>
+
+      <div id="mi-result" style="display:none;margin-top:1.5rem;padding:1.2rem;background:var(--gray);border-left:3px solid var(--gold);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">総合フィードバック</div>
+        <div id="mi-feedback" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;"></div>
+      </div>
+    </div>
+
+    <!-- 面接振り返りノート -->
+    <div class="m-section" id="review-section">
+      <div class="m-section-header">
+        <div class="m-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div>
+          <div class="m-section-label">INTERVIEW REVIEW</div>
+          <div class="m-section-title">面接振り返りノート</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;margin-top:1rem;">面接直後に振り返りをメモしておくと、次の面接に活かせます。</p>
+      <button onclick="openReviewForm()" style="width:100%;padding:0.65rem;background:none;border:1.5px dashed rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.82rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;">+ 振り返りを追加</button>
+      <div id="review-list"><div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">読み込み中...</div></div>
+    </div>
+
+    <!-- OB訪問管理 -->
+    <div class="m-section" id="ob-visit-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">OB/OG VISIT</div>
+          <div class="m-section-title">OB訪問管理</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">OB/OG訪問の予定管理、事前準備、訪問後の振り返りを一元管理できます。</p>
+      <button onclick="openOBVisitForm()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;margin-bottom:1rem;">+ 新しいOB訪問を追加</button>
+      <div id="ob-schedule-timeline" style="display:none;margin-bottom:1rem;padding:0.8rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.6rem;">スケジュール</div>
+        <div id="ob-schedule-items" style="display:flex;flex-direction:column;gap:0.4rem;"></div>
+      </div>
+      <div id="ob-visit-list"><div class="m-loading">読み込み中...</div></div>
+    </div>
+
+    <!-- みんなのOB訪問メモ -->
+    <div class="m-section" id="ob-shared-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">SHARED OB INSIGHTS</div>
+          <div class="m-section-title">みんなのOB訪問メモ</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">メンバーが匿名で共有したOB訪問の学びやアドバイスです。</p>
+      <div id="ob-shared-feed"><div class="m-loading">読み込み中...</div></div>
+    </div>
+
+    <!-- AI質問提案 -->
+    <div class="m-section" id="ob-ai-questions-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">AI QUESTION SUGGESTIONS</div>
+          <div class="m-section-title">AI質問提案</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">AIがOB訪問で聞くべき質問を提案します。業界・職種を指定するとより具体的な質問が生成されます。</p>
+      <div style="margin-bottom:0.8rem;">
+        <label style="font-size:0.78rem;color:var(--text-muted);">業界・職種（任意）</label>
+        <input type="text" id="ob-ai-industry" placeholder="例: 総合商社 / IT / コンサル" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+      </div>
+      <button id="ob-ai-gen-btn" onclick="generateOBQuestions()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;">AIにOB訪問の質問を提案してもらう</button>
+      <div id="ob-ai-result" style="display:none;margin-top:1rem;padding:1rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">提案された質問</div>
+        <ul class="ob-q-list" id="ob-ai-questions-list"></ul>
+      </div>
+    </div>
+
+    <!-- 質問カテゴリ別テンプレート -->
+    <div class="m-section" id="ob-q-templates-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">QUESTION TEMPLATES</div>
+          <div class="m-section-title">質問カテゴリ別テンプレート</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">カテゴリ別にOB訪問で使える質問テンプレートを用意しました。タップして展開し、コピーボタンで質問をコピーできます。</p>
+      <div id="ob-q-templates">
+        <div class="ob-q-cat-accordion">
+          <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>仕事内容</span><span class="ob-q-cat-arrow">&#9654;</span></div>
+          <div class="ob-q-cat-body"><ul class="ob-q-list">
+            <li><span>1日の業務の流れを教えてください</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>入社前と後でギャップはありましたか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>一番やりがいを感じる瞬間は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>どんなスキルが求められますか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>部署異動はどのくらいの頻度で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+          </ul></div>
+        </div>
+        <div class="ob-q-cat-accordion">
+          <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>キャリアパス</span><span class="ob-q-cat-arrow">&#9654;</span></div>
+          <div class="ob-q-cat-body"><ul class="ob-q-list">
+            <li><span>入社何年目でどんな仕事をしていましたか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>昇進・評価の基準は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>将来のキャリアプランは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>転職する人はどんな理由で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+          </ul></div>
+        </div>
+        <div class="ob-q-cat-accordion">
+          <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>社風・働き方</span><span class="ob-q-cat-arrow">&#9654;</span></div>
+          <div class="ob-q-cat-body"><ul class="ob-q-list">
+            <li><span>残業はどのくらいですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>リモートワークは可能ですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>社内の雰囲気を一言で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>休日の過ごし方は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>人間関係で困ったことは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+          </ul></div>
+        </div>
+        <div class="ob-q-cat-accordion">
+          <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>選考アドバイス</span><span class="ob-q-cat-arrow">&#9654;</span></div>
+          <div class="ob-q-cat-body"><ul class="ob-q-list">
+            <li><span>面接で重視されるポイントは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>ESで書くべきことは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>インターンは参加すべきですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>他にやっておくべき準備は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+          </ul></div>
+        </div>
+        <div class="ob-q-cat-accordion">
+          <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>業界の本音</span><span class="ob-q-cat-arrow">&#9654;</span></div>
+          <div class="ob-q-cat-body"><ul class="ob-q-list">
+            <li><span>この業界の将来性をどう見ていますか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>業界のネガティブな面は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+            <li><span>競合との違いは何ですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模擬OB訪問（AIロールプレイ） -->
+    <div class="m-section" id="ob-roleplay-section">
+      <div class="m-section-header">
+        <div class="m-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div class="m-section-label">AI OB VISIT ROLEPLAY</div>
+          <div class="m-section-title">模擬OB訪問（AIロールプレイ）</div>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">AIが入社3年目の社員として応答します。OB訪問の練習や、質問の仕方を磨くのに活用してください。音声入出力にも対応しています。</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
+          <input type="text" id="ob-rp-company" placeholder="例: 三井物産" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        </div>
+        <div>
+          <label style="font-size:0.78rem;color:var(--text-muted);">業界・職種</label>
+          <input type="text" id="ob-rp-industry" placeholder="例: 総合商社 営業" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.8rem;">
+        <label style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+          <input type="checkbox" id="ob-rp-speak-toggle" checked style="width:16px;height:16px;">
+          OBの音声読み上げ
+        </label>
+      </div>
+      <button id="ob-rp-start-btn" onclick="startOBRoleplay()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬OB訪問を始める</button>
+      <div id="ob-rp-session" style="display:none;margin-top:1.5rem;">
+        <div id="ob-rp-chat" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;display:flex;flex-direction:column;"></div>
+        <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+          <textarea id="ob-rp-input" placeholder="質問を入力..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:60px;resize:vertical;"></textarea>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <button id="ob-rp-mic-btn" onclick="toggleOBMic()" style="width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:1.2rem;cursor:pointer;" title="マイクで質問">&#127908;</button>
+            <button onclick="sendOBMessage()" style="width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;color:var(--navy);font-size:1rem;cursor:pointer;" title="送信">&#8594;</button>
+          </div>
+        </div>
+        <div id="ob-rp-listening" style="display:none;text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--crimson);font-weight:700;">&#128308; 聞き取り中...</div>
+        <button onclick="endOBRoleplay()" style="margin-top:1rem;padding:0.5rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">OB訪問を終了する</button>
+      </div>
+      <div id="ob-rp-result" style="display:none;margin-top:1.5rem;padding:1.2rem;background:var(--gray);border-left:3px solid var(--gold);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">OB訪問の振り返り</div>
+        <div id="ob-rp-feedback" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;"></div>
+      </div>
+    </div>
+
     <!-- GD練習会フィードバック -->
     <div class="m-section" id="gd-feedback-section" style="margin-top:3rem;">
       <div class="m-section-header">
@@ -1725,102 +1982,12 @@
   if (currentMember) showMembers(currentMember);
   else updateAuthGate();
 </script>
-<!-- AI模擬面接 -->
-<div class="m-section" id="mock-interview-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">AI MOCK INTERVIEW</div>
-      <div class="m-section-title">AI模擬面接</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem;">AIが面接官として質問します。マイクボタンを押して音声で回答、またはテキスト入力もできます。回答後にAIがフィードバックします。</p>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
-      <input type="text" id="mi-company" placeholder="例: 三菱商事" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-    </div>
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">コース・職種</label>
-      <input type="text" id="mi-course" placeholder="例: 総合職" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">面接タイプ</label>
-      <select id="mi-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-        <option value="general">一般面接（自己PR・ガクチカ中心）</option>
-        <option value="motivation">志望動機面接</option>
-        <option value="behavioral">行動面接（困難・挫折経験）</option>
-        <option value="final">最終面接（将来ビジョン）</option>
-      </select>
-    </div>
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">何次面接</label>
-      <select id="mi-round" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-        <option value="">指定なし</option>
-        <option value="1次面接">1次面接</option>
-        <option value="2次面接">2次面接</option>
-        <option value="3次面接">3次面接</option>
-        <option value="最終面接">最終面接</option>
-        <option value="リクルーター面談">リクルーター面談</option>
-        <option value="インターン選考">インターン選考</option>
-      </select>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.8rem;">
-    <label style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
-      <input type="checkbox" id="mi-speak-toggle" checked onchange="miSpeakEnabled=this.checked" style="width:16px;height:16px;">
-      面接官の音声読み上げ
-    </label>
-  </div>
-  <button id="mi-start-btn" onclick="startMockInterview()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬面接を始める</button>
-
-  <div id="mi-session" style="display:none;margin-top:1.5rem;">
-    <div id="mi-chat" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;"></div>
-
-    <div style="display:flex;gap:0.5rem;align-items:flex-end;">
-      <textarea id="mi-input" placeholder="回答を入力..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:60px;resize:vertical;"></textarea>
-      <div style="display:flex;flex-direction:column;gap:0.3rem;">
-        <button id="mi-mic-btn" onclick="toggleMic()" style="width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:1.2rem;cursor:pointer;" title="マイクで回答">&#127908;</button>
-        <button onclick="sendMiAnswer()" style="width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;color:var(--navy);font-size:1rem;cursor:pointer;" title="送信">&#8594;</button>
-      </div>
-    </div>
-    <div id="mi-listening" style="display:none;text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--crimson);font-weight:700;">&#128308; 聞き取り中...</div>
-
-    <button onclick="endMockInterview()" style="margin-top:1rem;padding:0.5rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">面接を終了する</button>
-  </div>
-
-  <div id="mi-result" style="display:none;margin-top:1.5rem;padding:1.2rem;background:var(--gray);border-left:3px solid var(--gold);">
-    <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">総合フィードバック</div>
-    <div id="mi-feedback" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;"></div>
-  </div>
-</div>
-
 <style>
 .mi-bubble { padding:0.8rem 1rem; margin-bottom:0.8rem; font-size:0.84rem; line-height:1.7; max-width:85%; }
 .mi-bubble.interviewer { background:var(--navy); color:white; border-radius:0 12px 12px 12px; margin-right:auto; }
 .mi-bubble.user { background:rgba(201,168,76,0.12); color:var(--text); border-radius:12px 0 12px 12px; margin-left:auto; }
 .mi-bubble .mi-role { font-size:0.68rem; font-weight:700; margin-bottom:0.3rem; opacity:0.7; }
 </style>
-
-<!-- ===== 面接振り返りノート ===== -->
-<div class="m-section" id="review-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-    <div>
-      <div class="m-section-label">INTERVIEW REVIEW</div>
-      <div class="m-section-title">面接振り返りノート</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;margin-top:1rem;">面接直後に振り返りをメモしておくと、次の面接に活かせます。</p>
-  <button onclick="openReviewForm()" style="width:100%;padding:0.65rem;background:none;border:1.5px dashed rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.82rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;">+ 振り返りを追加</button>
-  <div id="review-list"><div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">読み込み中...</div></div>
-</div>
 
 <!-- 振り返りフォームモーダル -->
 <div class="ip-modal-overlay" id="review-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center;padding:1rem;">
@@ -2019,41 +2186,6 @@ if (typeof currentMember !== 'undefined' && currentMember) { loadReviews(); }
 .ob-structured-review label{display:block;font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.3rem;}
 </style>
 
-<!-- Section A: OB訪問管理 -->
-<div class="m-section" id="ob-visit-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">OB/OG VISIT</div>
-      <div class="m-section-title">OB訪問管理</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">OB/OG訪問の予定管理、事前準備、訪問後の振り返りを一元管理できます。</p>
-  <button onclick="openOBVisitForm()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;margin-bottom:1rem;">+ 新しいOB訪問を追加</button>
-  <div id="ob-schedule-timeline" style="display:none;margin-bottom:1rem;padding:0.8rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
-    <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.6rem;">スケジュール</div>
-    <div id="ob-schedule-items" style="display:flex;flex-direction:column;gap:0.4rem;"></div>
-  </div>
-  <div id="ob-visit-list"><div class="m-loading">読み込み中...</div></div>
-</div>
-
-<!-- Section: みんなのOB訪問メモ -->
-<div class="m-section" id="ob-shared-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">SHARED OB INSIGHTS</div>
-      <div class="m-section-title">みんなのOB訪問メモ</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">メンバーが匿名で共有したOB訪問の学びやアドバイスです。</p>
-  <div id="ob-shared-feed"><div class="m-loading">読み込み中...</div></div>
-</div>
-
 <!-- OB Visit Modal -->
 <div class="ob-modal-overlay" id="ob-visit-modal">
   <div class="ob-modal">
@@ -2130,91 +2262,6 @@ if (typeof currentMember !== 'undefined' && currentMember) { loadReviews(); }
   </div>
 </div>
 
-<!-- Section B: AI質問提案 -->
-<div class="m-section" id="ob-ai-questions-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">AI QUESTION SUGGESTIONS</div>
-      <div class="m-section-title">AI質問提案</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">AIがOB訪問で聞くべき質問を提案します。業界・職種を指定するとより具体的な質問が生成されます。</p>
-  <div style="margin-bottom:0.8rem;">
-    <label style="font-size:0.78rem;color:var(--text-muted);">業界・職種（任意）</label>
-    <input type="text" id="ob-ai-industry" placeholder="例: 総合商社 / IT / コンサル" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-  </div>
-  <button id="ob-ai-gen-btn" onclick="generateOBQuestions()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;">AIにOB訪問の質問を提案してもらう</button>
-  <div id="ob-ai-result" style="display:none;margin-top:1rem;padding:1rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
-    <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">提案された質問</div>
-    <ul class="ob-q-list" id="ob-ai-questions-list"></ul>
-  </div>
-</div>
-
-<!-- 質問カテゴリ別テンプレート -->
-<div class="m-section" id="ob-q-templates-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">QUESTION TEMPLATES</div>
-      <div class="m-section-title">質問カテゴリ別テンプレート</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">カテゴリ別にOB訪問で使える質問テンプレートを用意しました。タップして展開し、コピーボタンで質問をコピーできます。</p>
-  <div id="ob-q-templates">
-    <div class="ob-q-cat-accordion">
-      <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>仕事内容</span><span class="ob-q-cat-arrow">&#9654;</span></div>
-      <div class="ob-q-cat-body"><ul class="ob-q-list">
-        <li><span>1日の業務の流れを教えてください</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>入社前と後でギャップはありましたか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>一番やりがいを感じる瞬間は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>どんなスキルが求められますか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>部署異動はどのくらいの頻度で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-      </ul></div>
-    </div>
-    <div class="ob-q-cat-accordion">
-      <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>キャリアパス</span><span class="ob-q-cat-arrow">&#9654;</span></div>
-      <div class="ob-q-cat-body"><ul class="ob-q-list">
-        <li><span>入社何年目でどんな仕事をしていましたか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>昇進・評価の基準は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>将来のキャリアプランは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>転職する人はどんな理由で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-      </ul></div>
-    </div>
-    <div class="ob-q-cat-accordion">
-      <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>社風・働き方</span><span class="ob-q-cat-arrow">&#9654;</span></div>
-      <div class="ob-q-cat-body"><ul class="ob-q-list">
-        <li><span>残業はどのくらいですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>リモートワークは可能ですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>社内の雰囲気を一言で</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>休日の過ごし方は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>人間関係で困ったことは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-      </ul></div>
-    </div>
-    <div class="ob-q-cat-accordion">
-      <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>選考アドバイス</span><span class="ob-q-cat-arrow">&#9654;</span></div>
-      <div class="ob-q-cat-body"><ul class="ob-q-list">
-        <li><span>面接で重視されるポイントは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>ESで書くべきことは</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>インターンは参加すべきですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>他にやっておくべき準備は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-      </ul></div>
-    </div>
-    <div class="ob-q-cat-accordion">
-      <div class="ob-q-cat-header" onclick="toggleQCat(this)"><span>業界の本音</span><span class="ob-q-cat-arrow">&#9654;</span></div>
-      <div class="ob-q-cat-body"><ul class="ob-q-list">
-        <li><span>この業界の将来性をどう見ていますか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>業界のネガティブな面は</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-        <li><span>競合との違いは何ですか</span><button class="ob-q-copy" onclick="copyQText(this)">コピー</button></li>
-      </ul></div>
-    </div>
-  </div>
-</div>
-
 <!-- 訪問中メモ オーバーレイ -->
 <div class="ob-visit-mode-overlay" id="ob-visit-mode-overlay">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
@@ -2229,53 +2276,6 @@ if (typeof currentMember !== 'undefined' && currentMember) { loadReviews(); }
   <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
     <button onclick="saveVisitMemo()" style="flex:1;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">メモを保存してOB訪問に反映</button>
     <button onclick="stopVisitMode()" style="padding:0.7rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.82rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">閉じる</button>
-  </div>
-</div>
-
-<!-- Section C: 模擬OB訪問（AIロールプレイ） -->
-<div class="m-section" id="ob-roleplay-section" style="padding:0 5vw;">
-  <div class="m-section-header">
-    <div class="m-section-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </div>
-    <div>
-      <div class="m-section-label">AI OB VISIT ROLEPLAY</div>
-      <div class="m-section-title">模擬OB訪問（AIロールプレイ）</div>
-    </div>
-  </div>
-  <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">AIが入社3年目の社員として応答します。OB訪問の練習や、質問の仕方を磨くのに活用してください。音声入出力にも対応しています。</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
-      <input type="text" id="ob-rp-company" placeholder="例: 三井物産" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-    </div>
-    <div>
-      <label style="font-size:0.78rem;color:var(--text-muted);">業界・職種</label>
-      <input type="text" id="ob-rp-industry" placeholder="例: 総合商社 営業" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
-    </div>
-  </div>
-  <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.8rem;">
-    <label style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
-      <input type="checkbox" id="ob-rp-speak-toggle" checked style="width:16px;height:16px;">
-      OBの音声読み上げ
-    </label>
-  </div>
-  <button id="ob-rp-start-btn" onclick="startOBRoleplay()" style="width:100%;padding:0.85rem;background:var(--navy);color:white;border:none;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.06em;">模擬OB訪問を始める</button>
-  <div id="ob-rp-session" style="display:none;margin-top:1.5rem;">
-    <div id="ob-rp-chat" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;display:flex;flex-direction:column;"></div>
-    <div style="display:flex;gap:0.5rem;align-items:flex-end;">
-      <textarea id="ob-rp-input" placeholder="質問を入力..." style="flex:1;padding:0.6rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;min-height:60px;resize:vertical;"></textarea>
-      <div style="display:flex;flex-direction:column;gap:0.3rem;">
-        <button id="ob-rp-mic-btn" onclick="toggleOBMic()" style="width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:1.2rem;cursor:pointer;" title="マイクで質問">&#127908;</button>
-        <button onclick="sendOBMessage()" style="width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;color:var(--navy);font-size:1rem;cursor:pointer;" title="送信">&#8594;</button>
-      </div>
-    </div>
-    <div id="ob-rp-listening" style="display:none;text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--crimson);font-weight:700;">&#128308; 聞き取り中...</div>
-    <button onclick="endOBRoleplay()" style="margin-top:1rem;padding:0.5rem 1rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">OB訪問を終了する</button>
-  </div>
-  <div id="ob-rp-result" style="display:none;margin-top:1.5rem;padding:1.2rem;background:var(--gray);border-left:3px solid var(--gold);">
-    <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">OB訪問の振り返り</div>
-    <div id="ob-rp-feedback" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;"></div>
   </div>
 </div>
 
