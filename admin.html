@@ -166,6 +166,112 @@
     color: var(--text-muted);
     font-size: 0.8rem;
   }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    border-radius: 999px;
+    background: rgba(10, 26, 62, 0.08);
+    color: var(--navy);
+  }
+  .status-pill.warn {
+    background: rgba(201, 168, 76, 0.16);
+    color: #7a5f10;
+  }
+  .status-pill.danger {
+    background: rgba(192, 0, 26, 0.1);
+    color: var(--crimson);
+  }
+  .report-list,
+  .audit-list {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .report-card,
+  .audit-row {
+    background: var(--gray);
+    border-left: 3px solid rgba(10, 26, 62, 0.14);
+    padding: 0.95rem 1rem;
+  }
+  .report-card.open { border-left-color: var(--gold); }
+  .report-head,
+  .audit-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .report-title,
+  .audit-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .report-meta,
+  .audit-meta,
+  .report-body {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+  .report-body {
+    margin-top: 0.55rem;
+    color: var(--text-main);
+  }
+  .report-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.7rem;
+  }
+  .mini-btn {
+    border: 1px solid rgba(10, 26, 62, 0.14);
+    background: white;
+    color: var(--navy);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.45rem 0.8rem;
+    cursor: pointer;
+  }
+  .mini-btn.warn {
+    border-color: rgba(201, 168, 76, 0.45);
+    color: #7a5f10;
+  }
+  .mini-btn.danger {
+    border-color: rgba(192, 0, 26, 0.28);
+    color: var(--crimson);
+  }
+  @media (max-width: 640px) {
+    .admin-grid {
+      grid-template-columns: 1fr;
+    }
+    .admin-container {
+      padding-left: 0.85rem;
+      padding-right: 0.85rem;
+    }
+    .funnel-step,
+    .report-head,
+    .audit-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .funnel-bar-bg {
+      max-width: none;
+      width: 100%;
+    }
+    .report-actions {
+      width: 100%;
+    }
+    .mini-btn {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>
@@ -211,6 +317,26 @@
         <div class="admin-stat-icon">⭐</div>
         <div class="admin-stat-num" id="stat-nps">-</div>
         <div class="admin-stat-label">NPS平均 (<span id="stat-nps-count">0</span>件)</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">✉️</div>
+        <div class="admin-stat-num" id="stat-unverified">-</div>
+        <div class="admin-stat-label">未認証ユーザー</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">🔐</div>
+        <div class="admin-stat-num" id="stat-sessions">-</div>
+        <div class="admin-stat-label">有効セッション</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">🚨</div>
+        <div class="admin-stat-num" id="stat-reports">-</div>
+        <div class="admin-stat-label">未対応の通報</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">🙈</div>
+        <div class="admin-stat-num" id="stat-hidden">-</div>
+        <div class="admin-stat-label">非表示コンテンツ</div>
       </div>
     </div>
 
@@ -261,107 +387,250 @@
     </div>
     <div id="analytics-loading" style="display:none;">分析データ読み込み中...</div>
 
+    <div class="analytics-section">
+      <div class="analytics-section-title">Operations</div>
+
+      <div class="analytics-card">
+        <div class="analytics-card-title">モデレーションキュー</div>
+        <div id="moderation-summary" style="font-size:0.76rem; color:var(--text-muted); line-height:1.8; margin-bottom:0.9rem;">読み込み中...</div>
+        <div id="moderation-queue" class="report-list">
+          <div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">読み込み中...</div>
+        </div>
+      </div>
+
+      <div class="analytics-card">
+        <div class="analytics-card-title">認証監査ログ</div>
+        <div id="audit-log" class="audit-list">
+          <div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">読み込み中...</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script src="auth.js"></script>
 <script>
-  var GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbymaWYmys7-r9SnUk8o6tIx5SnNAdcKD2en4pi_tTnNtZF7QI_zf6_H6gvjAxQ__plYAA/exec';
+  var GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby-oigHKj3K5DxgSYS40guqoR4kzPLuc1dkaeZhQ3je-246slz-xKfok4N0kq02OvbWjQ/exec';
+  var sessionToken = '';
 
-  (async function init() {
-    var user = KeioNaviAuth.requireAuth({ returnTo: 'admin.html' });
-    if (!user) return;
-    var sessionToken = KeioNaviAuth.getSessionToken();
-    if (!sessionToken) return;
+  function escHtml(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
 
+  function formatDateTime(value) {
+    if (!value) return '';
+    var date = new Date(value);
+    if (isNaN(date)) return '';
+    return date.toLocaleString('ja-JP', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function setText(id, value) {
+    document.getElementById(id).textContent = value;
+  }
+
+  async function callAdminApi(action, extra) {
+    return KeioNaviAuth.postToGas(Object.assign({
+      action: action,
+      sessionToken: sessionToken
+    }, extra || {}));
+  }
+
+  async function loadAdminStats() {
     try {
-      var res = await fetch(GAS_PROXY_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'getAdminStats', sessionToken: sessionToken })
-      });
-      var data = await res.json();
-      if (data.status === 'ok' && data.stats) {
-        var s = data.stats;
-        document.getElementById('stat-users').textContent = s.userCount;
-        document.getElementById('stat-es').textContent = s.esCount;
-        document.getElementById('stat-gk').textContent = s.gkCount;
-        document.getElementById('stat-board').textContent = s.boardCount;
-        document.getElementById('stat-timeline').textContent = s.tlCount;
-        document.getElementById('stat-nps').textContent = s.npsAvg;
-        document.getElementById('stat-nps-count').textContent = s.npsCount;
-        document.getElementById('admin-loading').style.display = 'none';
-        document.getElementById('admin-content').style.display = 'block';
-      } else {
-        document.getElementById('admin-loading').textContent = 'データの取得に失敗しました。';
-      }
-    } catch(err) {
-      document.getElementById('admin-loading').textContent = 'エラーが発生しました。';
+      var data = await callAdminApi('getAdminStats');
+      var s = data.stats || {};
+      setText('stat-users', s.userCount || 0);
+      setText('stat-es', s.esCount || 0);
+      setText('stat-gk', s.gkCount || 0);
+      setText('stat-board', s.boardCount || 0);
+      setText('stat-timeline', s.tlCount || 0);
+      setText('stat-nps', s.npsAvg || 0);
+      setText('stat-nps-count', s.npsCount || 0);
+      setText('stat-unverified', s.unverifiedUserCount || 0);
+      setText('stat-sessions', s.activeSessionCount || 0);
+      setText('stat-reports', s.pendingReportCount || 0);
+      setText('stat-hidden', s.hiddenContentCount || 0);
+      document.getElementById('admin-loading').style.display = 'none';
+      document.getElementById('admin-content').style.display = 'block';
+    } catch (error) {
+      document.getElementById('admin-loading').textContent = error && error.message ? error.message : 'データの取得に失敗しました。';
     }
-  })();
+  }
 
-  // ── アクティビティ分析データの取得と描画 ──
-  (async function loadAnalytics() {
-    var sessionToken = KeioNaviAuth.getSessionToken();
-    if (!sessionToken) return;
-
+  async function loadAnalytics() {
     var analyticsLoading = document.getElementById('analytics-loading');
     analyticsLoading.style.display = 'block';
 
     try {
-      var res = await fetch(GAS_PROXY_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'getActivitySummary', sessionToken: sessionToken })
-      });
-      var data = await res.json();
+      var data = await callAdminApi('getActivitySummary');
+      var s = data.summary || {};
+      document.getElementById('analytics-pv').textContent = s.pageViews7d || 0;
 
-      if (data.status === 'ok' && data.summary) {
-        var s = data.summary;
-
-        // PV数
-        document.getElementById('analytics-pv').textContent = s.pageViews7d || 0;
-
-        // 機能ランキング
-        var featEl = document.getElementById('analytics-features');
-        if (s.topFeatures && s.topFeatures.length > 0) {
-          var featHtml = '';
-          var featureLabels = {
-            'gakuchika_create': 'ガクチカ作成',
-            'gakuchika_edit': 'ガクチカ編集',
-            'es_save': 'ES保存',
-            'es_review': 'ES添削',
-            'es_rewrite': 'ESリライト',
-            'interview_practice': '面接練習',
-            'company_research': '企業研究',
-            'company_save': '企業保存'
-          };
-          s.topFeatures.forEach(function(f) {
-            var label = featureLabels[f.feature] || f.feature;
-            featHtml += '<div class="feature-row"><span class="feature-name">' + label + '</span><span class="feature-count">' + f.count + '</span></div>';
-          });
-          featEl.innerHTML = featHtml;
-        }
-
-        // ファネル
-        var funnel = s.funnel || {};
-        var maxVal = funnel.registered || 1;
-        document.getElementById('funnel-registered').textContent = funnel.registered || 0;
-        document.getElementById('funnel-gakuchika').textContent = funnel.firstGakuchika || 0;
-        document.getElementById('funnel-es').textContent = funnel.firstEs || 0;
-        document.getElementById('funnel-interview').textContent = funnel.firstInterview || 0;
-
-        document.getElementById('funnel-bar-registered').style.width = '100%';
-        document.getElementById('funnel-bar-gakuchika').style.width = Math.round(((funnel.firstGakuchika || 0) / maxVal) * 100) + '%';
-        document.getElementById('funnel-bar-es').style.width = Math.round(((funnel.firstEs || 0) / maxVal) * 100) + '%';
-        document.getElementById('funnel-bar-interview').style.width = Math.round(((funnel.firstInterview || 0) / maxVal) * 100) + '%';
-
-        analyticsLoading.style.display = 'none';
-        document.getElementById('analytics-section').style.display = 'block';
-      } else {
-        analyticsLoading.textContent = '分析データの取得に失敗しました。';
+      var featEl = document.getElementById('analytics-features');
+      if (s.topFeatures && s.topFeatures.length > 0) {
+        var featHtml = '';
+        var featureLabels = {
+          'gakuchika_create': 'ガクチカ作成',
+          'gakuchika_edit': 'ガクチカ編集',
+          'es_save': 'ES保存',
+          'es_review': 'ES添削',
+          'es_rewrite': 'ESリライト',
+          'interview_practice': '面接練習',
+          'company_research': '企業研究',
+          'company_save': '企業保存'
+        };
+        s.topFeatures.forEach(function(f) {
+          var label = featureLabels[f.feature] || f.feature;
+          featHtml += '<div class="feature-row"><span class="feature-name">' + escHtml(label) + '</span><span class="feature-count">' + escHtml(f.count) + '</span></div>';
+        });
+        featEl.innerHTML = featHtml;
       }
-    } catch (err) {
-      analyticsLoading.textContent = '分析データの読み込みエラー。';
+
+      var funnel = s.funnel || {};
+      var maxVal = funnel.registered || 1;
+      setText('funnel-registered', funnel.registered || 0);
+      setText('funnel-gakuchika', funnel.firstGakuchika || 0);
+      setText('funnel-es', funnel.firstEs || 0);
+      setText('funnel-interview', funnel.firstInterview || 0);
+      document.getElementById('funnel-bar-registered').style.width = '100%';
+      document.getElementById('funnel-bar-gakuchika').style.width = Math.round(((funnel.firstGakuchika || 0) / maxVal) * 100) + '%';
+      document.getElementById('funnel-bar-es').style.width = Math.round(((funnel.firstEs || 0) / maxVal) * 100) + '%';
+      document.getElementById('funnel-bar-interview').style.width = Math.round(((funnel.firstInterview || 0) / maxVal) * 100) + '%';
+
+      analyticsLoading.style.display = 'none';
+      document.getElementById('analytics-section').style.display = 'block';
+    } catch (error) {
+      analyticsLoading.textContent = error && error.message ? error.message : '分析データの読み込みエラー。';
     }
+  }
+
+  function renderModerationQueue(data) {
+    var summaryEl = document.getElementById('moderation-summary');
+    var queueEl = document.getElementById('moderation-queue');
+    var reports = (data && data.reports) || [];
+    var summary = (data && data.summary) || {};
+    summaryEl.innerHTML = '未対応の通報: <strong style="color:var(--navy);">' + escHtml(summary.openCount || 0) + '</strong>件 / 非表示中のコンテンツ: <strong style="color:var(--navy);">' + escHtml(summary.hiddenCount || 0) + '</strong>件';
+
+    if (!reports.length) {
+      queueEl.innerHTML = '<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">通報はまだありません。</div>';
+      return;
+    }
+
+    var typeLabels = {
+      board_post: 'ES添削掲示板',
+      consultation: '相談掲示板',
+      qa_question: '質問掲示板',
+      experience: '体験記',
+      practice_request: '練習募集'
+    };
+
+    queueEl.innerHTML = reports.map(function(report) {
+      var open = report.status === 'open';
+      var statusClass = open ? 'warn' : (report.resolution === 'hidden' ? 'danger' : '');
+      var statusLabel = open ? '未対応' : (report.resolution === 'hidden' ? '非表示対応' : report.resolution === 'restored' ? '再表示対応' : '却下');
+      var contentState = report.contentState === 'hidden' ? 'hidden' : 'visible';
+      var contentStateLabel = contentState === 'hidden' ? '現在は非表示' : '現在は表示中';
+      var actions = '';
+      if (open) {
+        actions = '<div class="report-actions">';
+        if (contentState !== 'hidden') {
+          actions += '<button class="mini-btn danger" onclick="resolveModerationReport(\'' + escHtml(report.id) + '\',\'hidden\')">非表示にする</button>';
+        }
+        if (contentState === 'hidden') {
+          actions += '<button class="mini-btn warn" onclick="resolveModerationReport(\'' + escHtml(report.id) + '\',\'restored\')">再表示にする</button>';
+        }
+        actions += '<button class="mini-btn" onclick="resolveModerationReport(\'' + escHtml(report.id) + '\',\'dismissed\')">問題なしで閉じる</button>';
+        actions += '</div>';
+      }
+      var resolutionMeta = open ? '' : '<div class="report-meta" style="margin-top:0.45rem;">対応: ' + escHtml(statusLabel) + ' / ' + escHtml(formatDateTime(report.resolvedAt) || '-') + '</div>';
+      return '<div class="report-card' + (open ? ' open' : '') + '">'
+        + '<div class="report-head">'
+        + '<div>'
+        + '<div class="report-title">' + escHtml(typeLabels[report.contentType] || report.contentType || '投稿') + ' / ' + escHtml(report.reason || '理由未設定') + '</div>'
+        + '<div class="report-meta">通報者: ' + escHtml(report.reporterName || '不明') + ' / 対象: ' + escHtml(report.targetUserName || report.targetUserId || '不明') + ' / 受付: ' + escHtml(formatDateTime(report.createdAt) || '-') + '</div>'
+        + '</div>'
+        + '<div style="display:flex; gap:0.45rem; flex-wrap:wrap;">'
+        + '<span class="status-pill ' + statusClass + '">' + escHtml(statusLabel) + '</span>'
+        + '<span class="status-pill ' + (contentState === 'hidden' ? 'danger' : '') + '">' + escHtml(contentStateLabel) + '</span>'
+        + '</div>'
+        + '</div>'
+        + '<div class="report-body">' + escHtml(report.details || '補足情報はありません。') + '</div>'
+        + resolutionMeta
+        + actions
+        + '</div>';
+    }).join('');
+  }
+
+  async function loadModerationQueue() {
+    var queueEl = document.getElementById('moderation-queue');
+    queueEl.innerHTML = '<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">読み込み中...</div>';
+    try {
+      var data = await callAdminApi('getModerationQueue');
+      renderModerationQueue(data);
+    } catch (error) {
+      queueEl.innerHTML = '<div style="font-size:0.78rem; color:var(--crimson); text-align:center; padding:0.8rem 0;">' + escHtml(error && error.message ? error.message : 'モデレーションデータを取得できませんでした。') + '</div>';
+    }
+  }
+
+  async function loadAuthAuditLog() {
+    var auditEl = document.getElementById('audit-log');
+    auditEl.innerHTML = '<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">読み込み中...</div>';
+    try {
+      var data = await callAdminApi('getAuthAuditLog');
+      var entries = data.entries || [];
+      if (!entries.length) {
+        auditEl.innerHTML = '<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:0.8rem 0;">監査ログはまだありません。</div>';
+        return;
+      }
+      auditEl.innerHTML = entries.map(function(entry) {
+        return '<div class="audit-row">'
+          + '<div class="audit-head">'
+          + '<div class="audit-title">' + escHtml(entry.action || '-') + '</div>'
+          + '<span class="status-pill ' + (entry.status === 'error' ? 'danger' : '') + '">' + escHtml(entry.status || '-') + '</span>'
+          + '</div>'
+          + '<div class="audit-meta">時刻: ' + escHtml(formatDateTime(entry.timestamp) || '-') + ' / userId: ' + escHtml(entry.userId || '-') + ' / session: ' + escHtml(entry.sessionRef || '-') + '</div>'
+          + '<div class="audit-meta" style="margin-top:0.35rem;">detail: ' + escHtml(entry.detail || '-') + '</div>'
+          + '</div>';
+      }).join('');
+    } catch (error) {
+      auditEl.innerHTML = '<div style="font-size:0.78rem; color:var(--crimson); text-align:center; padding:0.8rem 0;">' + escHtml(error && error.message ? error.message : '監査ログを取得できませんでした。') + '</div>';
+    }
+  }
+
+  async function resolveModerationReport(reportId, resolution) {
+    var note = window.prompt('対応メモがあれば入力してください。（任意）') || '';
+    try {
+      await callAdminApi('resolveModerationReport', {
+        reportId: reportId,
+        resolution: resolution,
+        note: note
+      });
+      await Promise.all([loadAdminStats(), loadModerationQueue(), loadAuthAuditLog()]);
+    } catch (error) {
+      window.alert(error && error.message ? error.message : '対応を保存できませんでした。');
+    }
+  }
+
+  window.resolveModerationReport = resolveModerationReport;
+
+  (async function init() {
+    var user = KeioNaviAuth.requireAuth({ returnTo: 'admin.html' });
+    if (!user) return;
+    sessionToken = KeioNaviAuth.getSessionToken();
+    if (!sessionToken) return;
+
+    await loadAdminStats();
+    loadAnalytics();
+    loadModerationQueue();
+    loadAuthAuditLog();
   })();
 </script>
 <style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>

@@ -776,7 +776,7 @@
   const SELECTION_KEY = 'selection';
   const COMPANY_KEY   = 'company';
   const EVENT_KEY     = 'event';
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbymaWYmys7-r9SnUk8o6tIx5SnNAdcKD2en4pi_tTnNtZF7QI_zf6_H6gvjAxQ__plYAA/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby-oigHKj3K5DxgSYS40guqoR4kzPLuc1dkaeZhQ3je-246slz-xKfok4N0kq02OvbWjQ/exec';
   const SELECTION_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeg0-r0YzP_1sdSjvI98lNWrlwYfCsChk67fGlq3uwrQvuuFA/viewform?usp=publish-editor';
   const LENDING_FORM  = 'https://docs.google.com/forms/d/e/1FAIpQLScmV_ubANH5RNIHD_wEH3yakHbs5YqdegrPysSfpFo4veAg4Q/viewform';
 
@@ -806,6 +806,49 @@
       return '<a href="' + escAttr(url) + '" target="_blank" rel="noopener noreferrer" class="modal-url" style="display:block;margin-bottom:0.3rem;">' + escHtml(url) + '</a>';
     }).join('');
   }
+  function buildDifficultyHtml(diffKey, myVote) {
+    var keyAttr = escAttr(diffKey);
+    var html = '<span class="sel-difficulty" data-key="' + keyAttr + '">';
+    for (var n = 1; n <= 5; n++) {
+      html += '<span class="diff-star' + (myVote >= n ? ' filled' : '') + '" data-key="' + keyAttr + '" data-n="' + n + '">\u2605</span>';
+    }
+    html += myVote ? '<span class="diff-voted-label">\u96E3\u6613\u5EA6' + myVote + '</span>' : '';
+    html += '</span>';
+    return html;
+  }
+  function attachSelectionInteractions(container) {
+    if (!container) return;
+    container.querySelectorAll('.sel-note-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openModal(btn.dataset.company || '');
+      });
+    });
+    container.querySelectorAll('.sel-status-select').forEach(function(select) {
+      select.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      select.addEventListener('change', function() {
+        updateSelStatus(select.dataset.key || '', select.value);
+      });
+    });
+    container.querySelectorAll('.diff-star').forEach(function(star) {
+      star.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var key = star.dataset.key || '';
+        var n = Number(star.dataset.n || 0);
+        if (!key || !n) return;
+        voteDifficulty(key, n, star);
+      });
+    });
+    container.querySelectorAll('[data-deadline-url]').forEach(function(chip) {
+      chip.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var url = safeHttpUrl(chip.dataset.deadlineUrl || '');
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      });
+    });
+  }
 
   function toggleMobileMenuM() {
     document.getElementById('hamburger-m').classList.toggle('open');
@@ -826,9 +869,10 @@
   // ===== GAS Fetch =====
   async function fetchViaGAS(sheetKey) {
     if (!GAS_PROXY_URL) throw new Error('GAS_PROXY_URLが設定されていません');
+    const sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
     const res = await fetch(GAS_PROXY_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'read', sheetKey }),
+      body: JSON.stringify(sessionToken ? { action: 'read', sheetKey, sessionToken } : { action: 'read', sheetKey }),
       redirect: 'follow',
     });
     const data = await res.json();
@@ -944,7 +988,7 @@
     try {
       selectionRows = SELECTION_KEY ? (await fetchViaGAS(SELECTION_KEY)) : sample;
     } catch(err) {
-      el.innerHTML = '<div class="m-empty" style="color:var(--crimson);">\u26A0 読み込みエラー: ' + err.message + '</div>';
+      el.innerHTML = '<div class="m-empty" style="color:var(--crimson);">\u26A0 読み込みエラー: ' + escHtml(err.message) + '</div>';
       console.error('SELECTION_KEY:', err); return;
     }
     if (!selectionRows.length) {
@@ -1044,12 +1088,13 @@
       var diff = Math.ceil((d - today) / (1000*60*60*24));
       var daysLabel = diff === 0 ? '今日' : '残' + diff + '日';
       var isToday = diff === 0;
-      var hasLink = r[3] && r[3].indexOf('http') === 0;
-      return '<span class="deadline-chip"' + (hasLink ? ' onclick="window.open(\'' + r[3] + '\',\'_blank\')"' : '') + '>' +
-        r[0] +
-        ' <span class="deadline-chip-days' + (isToday ? ' today' : '') + '">' + daysLabel + '</span>' +
+      var linkUrl = safeHttpUrl(r[3]);
+      return '<span class="deadline-chip"' + (linkUrl ? ' data-deadline-url="' + escAttr(linkUrl) + '"' : '') + '>' +
+        escHtml(r[0] || '') +
+        ' <span class="deadline-chip-days' + (isToday ? ' today' : '') + '">' + escHtml(daysLabel) + '</span>' +
       '</span>';
     }).join('');
+    attachSelectionInteractions(listEl);
   }
 
   function renderSelection() {
@@ -1099,14 +1144,15 @@
     var html = '<div class="selection-row header"><span>企業名</span><span>締切</span><span>タグ</span><span>資料</span></div>';
 
     pageRows.forEach(function(r) {
+      var companyLabel = escHtml(r[0] || '\u2013');
       var tagClass = (r[2] && r[2].includes('本選考')) ? 'tag-honsen' : 'tag-intern';
-      var hasLink = r[3] && r[3].indexOf('http') === 0;
+      var linkUrl = safeHttpUrl(r[3]);
       var normD1 = normalizeDate(r[1]);
       var d = normD1 ? new Date(normD1.replace(/\//g,'-')) : null;
       var diff = d ? Math.ceil((d - today) / (1000*60*60*24)) : 999;
       var urgent = diff >= 0 && diff <= 7;
       var deadlineLabel = normD1 ? (urgent ? '\u26A0 ' + normD1 + '（残' + diff + '日）' : normD1) : '未定';
-      var featureTag = (r[5] && r[5] !== 'なし') ? ' <span style="font-size:0.68rem;color:var(--crimson);margin-left:0.3rem;">' + r[5] + '</span>' : '';
+      var featureTag = (r[5] && r[5] !== 'なし') ? ' <span style="font-size:0.68rem;color:var(--crimson);margin-left:0.3rem;">' + escHtml(r[5]) + '</span>' : '';
       var companyNameClean = (r[0]||'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').trim();
       var selNote = findNote(companyNameClean);
       var isLiked = liked.some(function(c) { return selectionMatch(companyNameClean, r[6] || '', c.name); });
@@ -1114,37 +1160,28 @@
       var currentStatus = getSelStatus(statusKey);
       var statusCls = (STATUS_OPTIONS.find(function(o) { return o.value === currentStatus; }) || {}).cls || '';
       var statusOptions = STATUS_OPTIONS.map(function(o) {
-        return '<option value="' + o.value + '"' + (currentStatus === o.value ? ' selected' : '') + '>' + o.label + '</option>';
+        return '<option value="' + escAttr(o.value) + '"' + (currentStatus === o.value ? ' selected' : '') + '>' + escHtml(o.label) + '</option>';
       }).join('');
       var diffKey = companyNameClean;
       var myVote = getDifficultyVote(diffKey);
-      var escapedDiffKey = diffKey.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-      var diffHtml = '<span class="sel-difficulty" data-key="' + diffKey.replace(/"/g,'&quot;') + '">';
-      for (var n = 1; n <= 5; n++) {
-        diffHtml += '<span class="diff-star' + (myVote >= n ? ' filled' : '') + '" data-n="' + n + '" onclick="voteDifficulty(\'' + escapedDiffKey + '\',' + n + ',this)">\u2605</span>';
-      }
-      diffHtml += (myVote ? '<span class="diff-voted-label">\u96E3\u6613\u5EA6' + myVote + '</span>' : '') + '</span>';
+      var diffHtml = buildDifficultyHtml(diffKey, myVote);
 
       html += '<div class="selection-row">' +
         '<div>' +
-          '<div class="sel-company">' + (r[0]||'\u2013') + (isLiked ? '<span style="font-size:0.66rem; margin-left:0.45rem; color:var(--crimson); font-weight:700;">\u2665 気になる企業</span>' : '') + diffHtml + '</div>' +
-          '<div class="sel-type">' + (r[4] ? '<span style="font-size:0.68rem;color:var(--gold);">' + r[4] + '</span>' : '') + featureTag + '</div>' +
-          '<select class="sel-status-select ' + statusCls + '" data-key="' + statusKey.replace(/"/g,'&quot;') + '" onchange="updateSelStatus(\'' + statusKey.replace(/'/g,"\\'") + '\', this.value)" onclick="event.stopPropagation()">' + statusOptions + '</select>' +
+          '<div class="sel-company">' + companyLabel + (isLiked ? '<span style="font-size:0.66rem; margin-left:0.45rem; color:var(--crimson); font-weight:700;">\u2665 気になる企業</span>' : '') + diffHtml + '</div>' +
+          '<div class="sel-type">' + (r[4] ? '<span style="font-size:0.68rem;color:var(--gold);">' + escHtml(r[4]) + '</span>' : '') + featureTag + '</div>' +
+          '<select class="sel-status-select ' + statusCls + '" data-key="' + escAttr(statusKey) + '">' + statusOptions + '</select>' +
         '</div>' +
-        '<div class="sel-deadline' + (urgent ? ' urgent' : '') + '">' + deadlineLabel + '</div>' +
-        '<div><span class="sel-tag ' + tagClass + '">' + (r[2]||'\u2013') + '</span></div>' +
+        '<div class="sel-deadline' + (urgent ? ' urgent' : '') + '">' + escHtml(deadlineLabel) + '</div>' +
+        '<div><span class="sel-tag ' + tagClass + '">' + escHtml(r[2] || '\u2013') + '</span></div>' +
         '<div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-start;">' +
-          (hasLink ? '<a href="' + r[3] + '" target="_blank" class="sel-link">開く →</a>' : '\u2013') +
-          (selNote ? '<button class="sel-note-btn" data-company="' + companyNameClean.replace(/"/g,'&quot;') + '" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:rgba(10,26,62,0.07);border:1px solid rgba(10,26,62,0.15);color:var(--navy);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;font-weight:600;letter-spacing:0.04em;white-space:nowrap;">企業ノート</button>' : '') +
+          (linkUrl ? '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener noreferrer" class="sel-link">開く →</a>' : '\u2013') +
+          (selNote ? '<button class="sel-note-btn" data-company="' + escAttr(companyNameClean) + '" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:rgba(10,26,62,0.07);border:1px solid rgba(10,26,62,0.15);color:var(--navy);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;font-weight:600;letter-spacing:0.04em;white-space:nowrap;">企業ノート</button>' : '') +
         '</div>' +
       '</div>';
     });
 
     el.innerHTML = html;
-
-    el.querySelectorAll('.sel-note-btn').forEach(function(btn) {
-      btn.addEventListener('click', function(e) { e.stopPropagation(); openModal(btn.dataset.company); });
-    });
 
     if (totalPages > 1) {
       var start = selectionPage * SELECTION_PAGE_SIZE + 1;
@@ -1162,6 +1199,7 @@
         '</div>' +
       '</div>';
     }
+    attachSelectionInteractions(el);
   }
 
   function goSelectionPage(page) {
@@ -1200,14 +1238,14 @@
     var el = document.getElementById('event-list');
     var note = document.getElementById('event-note');
     var sample = [
-      ['2025/06/05', '14:00〜16:00', '〇〇商事 会社説明会', 'オンライン', '〇〇商事', 'https://example.com', '田中', '2025/06/03'],
+      ['2025/06/05', '14:00〜16:00', '〇〇商事 会社説明会', 'オンライン', '〇〇商事', '', '田中', '2025/06/03'],
       ['2025/06/12', '10:00〜12:00', '△△銀行 インターン説明会', 'オフライン（三田）', '△△銀行', '', '', '2025/06/10'],
-      ['2025/06/20', '18:00〜20:00', '□□テック エンジニア交流会', 'オンライン', '□□テック', 'https://example.com', '鈴木', ''],
+      ['2025/06/20', '18:00〜20:00', '□□テック エンジニア交流会', 'オンライン', '□□テック', '', '鈴木', ''],
     ];
     try {
       eventRows = EVENT_KEY ? (await fetchViaGAS(EVENT_KEY)) : sample;
     } catch(err) {
-      el.innerHTML = '<div class="m-empty" style="color:var(--crimson);">\u26A0 読み込みエラー: ' + err.message + '</div>';
+      el.innerHTML = '<div class="m-empty" style="color:var(--crimson);">\u26A0 読み込みエラー: ' + escHtml(err.message) + '</div>';
       console.error('EVENT_KEY:', err); return;
     }
     if (!eventRows.length) { el.innerHTML = '<div class="m-empty">現在予定されているイベントはありません。<br>LINEコミュニティで最新情報を確認してください。</div>'; return; }
@@ -1251,39 +1289,39 @@
         else { var pp = new Date(ds); if (!isNaN(pp)) { normDeadline = pp.getFullYear() + '/' + String(pp.getMonth()+1).padStart(2,'0') + '/' + String(pp.getDate()).padStart(2,'0'); } }
       }
       var isPast = normDeadline ? new Date(normDeadline.replace(/\//g,'-')) < today : false;
-      var hasLink = r[5] && r[5].indexOf('http') === 0;
+      var linkUrl = safeHttpUrl(r[5]);
       var hasBenefit = r[6] && r[6].trim() !== '' && r[6].trim() !== 'なし';
 
-      var noteExists = findNote(r[4]);
-      var escapedCompany = (r[4]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var noteCompany = r[4] || '';
+      var noteExists = findNote(noteCompany);
 
       var deadlineHtml = '';
       if (normDeadline) {
         var dl = new Date(normDeadline.replace(/\//g,'-'));
         var ddiff = Math.ceil((dl - today) / (1000*60*60*24));
         if (ddiff < 0) deadlineHtml = '<span class="event-meta-item" style="color:var(--text-muted);">締切済み</span>';
-        else if (ddiff <= 3) deadlineHtml = '<span class="event-meta-item" style="color:var(--crimson);font-weight:700;">\u26A0 締切 ' + normDeadline + '（残' + ddiff + '日）</span>';
-        else deadlineHtml = '<span class="event-meta-item">\uD83D\uDCC5 締切 ' + normDeadline + '</span>';
+        else if (ddiff <= 3) deadlineHtml = '<span class="event-meta-item" style="color:var(--crimson);font-weight:700;">\u26A0 締切 ' + escHtml(normDeadline) + '（残' + ddiff + '日）</span>';
+        else deadlineHtml = '<span class="event-meta-item">\uD83D\uDCC5 締切 ' + escHtml(normDeadline) + '</span>';
       }
 
-      html += '<div class="event-row' + (noteExists ? ' has-note' : '') + '" style="' + (isPast ? 'opacity:0.45;' : '') + '"' + (noteExists ? ' data-open-modal="' + escapedCompany + '"' : '') + '>' +
+      html += '<div class="event-row' + (noteExists ? ' has-note' : '') + '" style="' + (isPast ? 'opacity:0.45;' : '') + '"' + (noteExists ? ' data-open-modal="' + escAttr(noteCompany) + '"' : '') + '>' +
         '<div class="event-date-block">' +
-          '<div class="event-date-main">' + dateStr + '</div>' +
-          '<div class="event-date-time">' + (r[1] || '') + '</div>' +
+          '<div class="event-date-main">' + escHtml(dateStr) + '</div>' +
+          '<div class="event-date-time">' + escHtml(timeStr) + '</div>' +
         '</div>' +
         '<div>' +
-          '<div class="event-name">' + (r[2] || '\u2013') + '</div>' +
+          '<div class="event-name">' + escHtml(r[2] || '\u2013') + '</div>' +
           '<div class="event-meta">' +
-            (r[4] ? '<span class="event-meta-item">\u30FB' + r[4] + '</span>' : '') +
-            (r[3] ? '<span class="event-meta-item">\u30FB' + r[3] + '</span>' : '') +
+            (r[4] ? '<span class="event-meta-item">\u30FB' + escHtml(r[4]) + '</span>' : '') +
+            (r[3] ? '<span class="event-meta-item">\u30FB' + escHtml(r[3]) + '</span>' : '') +
             deadlineHtml +
           '</div>' +
         '</div>' +
         '<div class="event-actions">' +
           (noteExists ? '<span class="note-badge">\uD83D\uDCCB 企業ノートあり</span>' : '') +
-          (hasBenefit ? '<span class="event-benefit">\uD83C\uDF81 ' + r[6].trim() + 'さん紹介特典あり</span>' : '') +
-          (hasLink
-            ? '<a href="' + r[5] + '" target="_blank" class="event-apply-btn">申し込む →</a>'
+          (hasBenefit ? '<span class="event-benefit">\uD83C\uDF81 ' + escHtml(r[6].trim()) + 'さん紹介特典あり</span>' : '') +
+          (linkUrl
+            ? '<a href="' + escAttr(linkUrl) + '" target="_blank" rel="noopener noreferrer" class="event-apply-btn">申し込む →</a>'
             : '<span class="event-apply-btn no-link">リンクなし</span>') +
         '</div>' +
       '</div>';
@@ -1549,7 +1587,7 @@
       '</div>';
 
     } catch(err) {
-      body.innerHTML = '<div class="modal-no-data" style="color:var(--crimson);">\u26A0 生成エラー: ' + err.message + '</div>';
+      body.innerHTML = '<div class="modal-no-data" style="color:var(--crimson);">\u26A0 生成エラー: ' + escHtml(err.message) + '</div>';
     }
   }
 

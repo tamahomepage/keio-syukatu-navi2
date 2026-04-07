@@ -270,17 +270,6 @@
   .pw-link-btn:hover { border-color: #c9a84c; color: #e8c96c; }
 
 </style>
-<script type="text/javascript">
-    (function(projectId){
-        if (!projectId) return;
-        window.clarity = window.clarity || function(){ (window.clarity.q = window.clarity.q || []).push(arguments); };
-        var script = document.createElement("script");
-        script.async = 1;
-        script.src = "https://www.clarity.ms/tag/" + projectId;
-        var firstScript = document.getElementsByTagName("script")[0];
-        firstScript.parentNode.insertBefore(script, firstScript);
-    })("");
-</script>
 </head>
 <body>
 
@@ -376,7 +365,7 @@
 
 <script src="auth.js"></script>
 <script>
-const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbymaWYmys7-r9SnUk8o6tIx5SnNAdcKD2en4pi_tTnNtZF7QI_zf6_H6gvjAxQ__plYAA/exec';
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby-oigHKj3K5DxgSYS40guqoR4kzPLuc1dkaeZhQ3je-246slz-xKfok4N0kq02OvbWjQ/exec';
 
 let companies = [], selectionRows = [], idx = 0, sessionSeen = new Set();
 let liked = [];
@@ -397,9 +386,10 @@ function hdrColor(ind) {
 }
 
 async function fetchViaGAS(sheetKey) {
+  const sessionToken = typeof KeioNaviAuth !== 'undefined' && KeioNaviAuth.getSessionToken ? KeioNaviAuth.getSessionToken() : '';
   const res = await fetch(GAS_PROXY_URL, {
     method: 'POST',
-    body: JSON.stringify({ action: 'read', sheetKey }),
+    body: JSON.stringify(sessionToken ? { action: 'read', sheetKey, sessionToken } : { action: 'read', sheetKey }),
     redirect: 'follow',
   });
   const data = await res.json();

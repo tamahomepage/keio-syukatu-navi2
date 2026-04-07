@@ -41,7 +41,7 @@
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: 0 5vw;
     height: 68px;
     background: rgba(10, 26, 62, 0.96);
@@ -50,10 +50,21 @@
   }
   .nav-logo {
     font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: var(--gold-light);
-    letter-spacing: 0.04em;
     text-decoration: none;
+  }
+  .nav-back {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold-light); }
+  .nav-member-badge {
+    font-size: 0.68rem; background: rgba(201,168,76,0.15); color: var(--gold);
+    padding: 0.2rem 0.7rem; border: 1px solid rgba(201,168,76,0.3); letter-spacing: 0.1em;
   }
 
   /* ===== MAIN CONTAINER ===== */
@@ -314,7 +325,9 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo">慶應就活ナビ</a>
+  <a href="members.html" class="nav-logo">慶應就活ナビ</a>
+  <a href="members.html" class="nav-back">会員ページへ戻る</a>
+  <span class="nav-member-badge">MEMBER</span>
 </nav>
 
 <!-- MAIN -->
@@ -428,7 +441,7 @@
 
 <script src="auth.js"></script>
 <script>
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbymaWYmys7-r9SnUk8o6tIx5SnNAdcKD2en4pi_tTnNtZF7QI_zf6_H6gvjAxQ__plYAA/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby-oigHKj3K5DxgSYS40guqoR4kzPLuc1dkaeZhQ3je-246slz-xKfok4N0kq02OvbWjQ/exec';
 
   let currentToken = null;
   let generatedLink = '';
