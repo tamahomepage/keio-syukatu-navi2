@@ -1,0 +1,12 @@
+.DS_Store
+*.bak
+*.zip
+*.gs
+GAS_AUTH_SETUP.md
+GAS_SELECTION_SETUP.md
+UX戦略資料*.html
+private/
+public/
+minnano/
+デベロッパー/
+デベロッパーのコピー/
