@@ -365,7 +365,7 @@
 
 <script src="auth.js"></script>
 <script>
-const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycby-oigHKj3K5DxgSYS40guqoR4kzPLuc1dkaeZhQ3je-246slz-xKfok4N0kq02OvbWjQ/exec';
+const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxopfM6pUz7TZFVAbWfSmvc7SFhMySteyhXlMsoA4QreN1hqJZ7cJ3GqQ-7NGPedtdJIg/exec';
 
 let companies = [], selectionRows = [], idx = 0, sessionSeen = new Set();
 let liked = [];
@@ -383,6 +383,25 @@ const IND_COLORS = {
 function hdrColor(ind) {
   for (const [k,v] of Object.entries(IND_COLORS)) { if (ind && ind.includes(k)) return v; }
   return '#122050';
+}
+function escHtml(value) {
+  const div = document.createElement('div');
+  div.textContent = value == null ? '' : String(value);
+  return div.innerHTML;
+}
+function escAttr(value) {
+  return escHtml(value).replace(/'/g, '&#39;');
+}
+function safeHttpUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    const url = new URL(raw, window.location.href);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+    return url.href;
+  } catch (error) {
+    return '';
+  }
 }
 
 async function fetchViaGAS(sheetKey) {
@@ -618,8 +637,8 @@ function restart() {
 }
 function openNote() {
   const c=companies[idx]; if(!c) return;
-  const urls=(c.url||'').split(/[|;]/).map(u=>u.trim()).filter(u=>u.startsWith('http'));
-  window.open(urls[0]||'members.html','_blank');
+  const urls=(c.url||'').split(/[|;]/).map(u=>safeHttpUrl(u)).filter(Boolean);
+  window.open(urls[0]||'members.html','_blank','noopener,noreferrer');
 }
 
 
@@ -683,10 +702,10 @@ function openNoteModal(name) {
   let html = fields.map(f => {
     if (!f.value) return '';
     const val = f.isUrl
-      ? f.value.split(/[|;]/).map(u => u.trim()).filter(Boolean)
-          .map(u => `<a href="${u}" target="_blank" class="note-url">${u}</a>`).join('')
-      : `<div class="note-field-content">${f.value}</div>`;
-    return `<div><div class="note-field-label">${f.label}</div>${val}</div>`;
+      ? f.value.split(/[|;]/).map(u => safeHttpUrl(u)).filter(Boolean)
+          .map(u => `<a href="${escAttr(u)}" target="_blank" rel="noopener noreferrer" class="note-url">${escHtml(u)}</a>`).join('')
+      : `<div class="note-field-content">${escHtml(f.value)}</div>`;
+    return `<div><div class="note-field-label">${escHtml(f.label)}</div>${val}</div>`;
   }).filter(Boolean).join('');
 
   // 選考情報スプシから企業名でマッチング
@@ -702,17 +721,19 @@ function openNoteModal(name) {
       const d = r[1] ? new Date(r[1].replace(/\//g,'-')) : null;
       const diff = d ? Math.ceil((d - today) / (1000*60*60*24)) : null;
       const urgent = diff !== null && diff >= 0 && diff <= 7;
+      const deadlineText = escHtml(r[1] || '');
       const deadlineStr = r[1]
-        ? (urgent ? `<span style="color:var(--crimson);font-weight:700;">⚠ ${r[1]}（残${diff}日）</span>` : r[1])
+        ? (urgent ? `<span style="color:var(--crimson);font-weight:700;">⚠ ${deadlineText}（残${diff}日）</span>` : deadlineText)
         : '未定';
-      const tag = r[2] || '';
-      const link = r[3]?.startsWith('http') ? r[3] : '';
+      const tag = escHtml(r[2] || '');
+      const link = safeHttpUrl(r[3]);
+      const companyName = escHtml(r[0] || '');
       return `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;padding:0.6rem 0;border-bottom:1px solid rgba(10,26,62,0.06);">
         <div>
-          <div style="font-size:0.82rem;font-weight:700;color:var(--navy);">${r[0]}</div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--navy);">${companyName}</div>
           <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">${tag} ／ 締切: ${deadlineStr}</div>
         </div>
-        ${link ? `<a href="${link}" target="_blank" style="font-size:0.68rem;color:white;background:var(--navy);padding:0.3rem 0.7rem;text-decoration:none;border-radius:3px;white-space:nowrap;flex-shrink:0;">ES →</a>` : ''}
+        ${link ? `<a href="${escAttr(link)}" target="_blank" rel="noopener noreferrer" style="font-size:0.68rem;color:white;background:var(--navy);padding:0.3rem 0.7rem;text-decoration:none;border-radius:3px;white-space:nowrap;flex-shrink:0;">ES →</a>` : ''}
       </div>`;
     }).join('');
     html += `<div><div class="note-field-label">選考情報</div><div style="background:white;padding:0.6rem 1rem;border-left:2px solid rgba(201,168,76,0.3);">${selHtml}</div></div>`;
@@ -723,7 +744,7 @@ function openNoteModal(name) {
   html += `<div>
     <div class="note-field-label">マイメモ</div>
     <div class="my-memo-wrap">
-      <textarea class="my-memo-ta" id="match-memo-ta" placeholder="この企業についてのメモ（自分だけに見えます）">${memoVal}</textarea>
+      <textarea class="my-memo-ta" id="match-memo-ta" placeholder="この企業についてのメモ（自分だけに見えます）">${escHtml(memoVal)}</textarea>
       <span class="my-memo-saved" id="match-memo-saved">保存しました ✓</span>
       <button class="my-memo-save" id="match-memo-save-btn">保存</button>
     </div>
@@ -894,7 +915,7 @@ bootMatchPage();
 
 <style>.bottom-tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;background:#0a1a3e;border-top:1px solid rgba(201,168,76,0.2);height:56px}.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:rgba(255,255,255,0.5);font-size:0.6rem;gap:2px;transition:color 0.2s}.bottom-tab svg{width:20px;height:20px}.bottom-tab:hover,.bottom-tab.active{color:#e8c96c}.bottom-tab.active{font-weight:700}body{padding-bottom:60px}</style>
 <nav class="bottom-tab-bar">
-  <a href="members.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>ホーム</span></a>
+  <a href="members.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>マイページ</span></a>
   <a href="writing.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>書く</span></a>
   <a href="interview-page.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>面接</span></a>
   <a href="community.html" class="bottom-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>仲間</span></a>
