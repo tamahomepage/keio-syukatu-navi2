@@ -469,8 +469,12 @@
 
   function getSession() {
     try {
-      var s = localStorage.getItem('keio_navi_session');
-      return s ? JSON.parse(s) : null;
+      if (window.KeioNaviAuth && typeof window.KeioNaviAuth.getSessionToken === 'function') {
+        var token = window.KeioNaviAuth.getSessionToken();
+        return token ? { sessionToken: token } : null;
+      }
+      var t = localStorage.getItem('keio_navi_session_token_v1');
+      return t ? { sessionToken: t } : null;
     } catch(e) { return null; }
   }
 

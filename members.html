@@ -1455,8 +1455,6 @@
   .ai-tool-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid rgba(10,26,62,0.1); }
   .ai-tab-btn { padding: 0.6rem 1.2rem; background: none; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
   .ai-tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
-  .ai-tab-btn.coming-soon { cursor: default; opacity: 0.5; position: relative; }
-  .ai-tab-btn.coming-soon .soon-badge { font-size: 0.62rem; background: var(--gold); color: var(--navy); border-radius: 3px; padding: 0.1rem 0.35rem; margin-left: 0.4rem; font-weight: 700; vertical-align: middle; }
   .ai-tab-panel { display: none; }
   .ai-tab-panel.active { display: block; }
   .ai-form-group { margin-bottom: 1rem; }
@@ -3859,7 +3857,7 @@
     switch(m.id) {
       case 'm01':
         if (s && s.gkCount > 0) return true;
-        try { var gk = localStorage.getItem('keio_navi_gakuchika'); if (gk) { var d = JSON.parse(gk); if (Array.isArray(d) && d.length > 0) return true; } } catch(e) {}
+        try { var gk = localStorage.getItem('keio_navi_gakuchika_v1'); if (gk) { var d = JSON.parse(gk); if (Array.isArray(d) && d.length > 0) return true; } } catch(e) {}
         return false;
       case 'm02':
         try { var sa = JSON.parse(localStorage.getItem('keio_navi_self_analysis_v1') || '{}'); return Object.keys(sa).length > 0 && Object.values(sa).some(function(v){ return v && v.toString().trim() !== ''; }); } catch(e) { return false; }
@@ -7222,7 +7220,7 @@
 
   // ===== NPS計測 =====
   function checkNPS() {
-    if (localStorage.getItem('keionavi_nps_done')) return;
+    if (localStorage.getItem('keio_navi_nps_done_v1')) return;
     const user = KeioNaviAuth.getCurrentUser();
     if (!user || !user.createdAt) return;
     const regDate = new Date(user.createdAt);
@@ -7281,7 +7279,7 @@
         method: 'POST',
         body: JSON.stringify({ action: 'submitNPS', sessionToken: sessionToken, score: parseInt(selected), comment: comment })
       });
-      localStorage.setItem('keionavi_nps_done', '1');
+      localStorage.setItem('keio_navi_nps_done_v1', '1');
       closeNPS();
       if (typeof showFlash === 'function') showFlash('ご回答ありがとうございました！', 'success');
     } catch(e) {

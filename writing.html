@@ -244,8 +244,6 @@
   .mb-gk-picker-actions button { padding: 0.4rem 1rem; background: none; border: 1px solid rgba(10,26,62,0.2); font-family: 'Noto Sans JP',sans-serif; font-size: 0.8rem; cursor: pointer; }
   .ai-tab-btn { padding: 0.6rem 1.2rem; background: none; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
   .ai-tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 700; }
-  .ai-tab-btn.coming-soon { cursor: default; opacity: 0.5; position: relative; }
-  .ai-tab-btn.coming-soon .soon-badge { font-size: 0.62rem; background: var(--gold); color: var(--navy); border-radius: 3px; padding: 0.1rem 0.35rem; margin-left: 0.4rem; font-weight: 700; vertical-align: middle; }
   .ai-tab-panel { display: none; }
   .ai-tab-panel.active { display: block; }
   .ai-form-group { margin-bottom: 1rem; }
@@ -2685,7 +2683,6 @@
       { key:'expression',  name:'\u8868\u73FE\u529B' },
       { key:'persuasion',  name:'\u8AAC\u5F97\u529B' }
     ];
-    function scoreColor(v) { return v <= 2 ? 'crimson' : v === 3 ? '#d4a017' : '#0a6e45'; }
     var vals = DIMS.map(function(d) { return scores[d.key]; });
     var avg = vals.reduce(function(a,b){return a+b;},0) / vals.length;
     var avgRound = Math.round(avg * 10) / 10;
