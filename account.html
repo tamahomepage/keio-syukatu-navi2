@@ -1107,10 +1107,10 @@
   const authApi = window.KeioNaviAuth;
   const modeParam = params.get('mode') || '';
   const resetToken = modeParam === 'reset' ? (params.get('token') || '') : '';
-  const verificationToken = modeParam === 'verify' ? (params.get('token') || '') : '';
+  const verifyToken = modeParam === 'verify' ? (params.get('token') || '') : '';
   const requestedMode = resetToken
     ? 'reset-confirm'
-    : (verificationToken ? 'login' : (modeParam === 'login' ? 'login' : (modeParam === 'reset' ? 'reset' : 'signup')));
+    : (modeParam === 'login' ? 'login' : (modeParam === 'reset' ? 'reset' : 'signup'));
   const returnTo = authApi.sanitizeReturnTo(params.get('returnTo') || '');
 
   const flash = document.getElementById('flash');
@@ -1344,25 +1344,6 @@
   function ensureAccountSecurityBlocks() {
     if (!memberView) return;
 
-    if (!document.getElementById('email-verification-block')) {
-      const profileBlock = profileForm && profileForm.closest('.settings-block');
-      if (profileBlock) {
-        profileBlock.insertAdjacentHTML('beforebegin', `
-          <div class="settings-block" id="email-verification-block">
-            <h3 class="settings-title">メール認証</h3>
-            <p class="settings-sub">登録メールアドレスの確認状態です。未確認でも閲覧はできますが、投稿・返信・募集・参加などのコミュニティ機能は認証後に有効になります。</p>
-            <div style="display:grid; gap:0.7rem; margin-top:0.9rem;">
-              <div id="email-verification-status" style="font-size:0.86rem; font-weight:700; color:var(--text);"></div>
-              <div id="email-verification-meta" style="font-size:0.76rem; color:var(--text-muted); line-height:1.8;"></div>
-              <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
-                <button type="button" class="subtle-btn" id="email-verification-resend-btn">確認メールを再送する</button>
-              </div>
-            </div>
-          </div>
-        `);
-      }
-    }
-
     if (!document.getElementById('session-management-block')) {
       const logoutWrap = memberView.querySelector('.logout-wrap');
       if (logoutWrap) {
@@ -1401,26 +1382,6 @@
           </div>
         `);
       }
-    }
-
-    const resendBtn = document.getElementById('email-verification-resend-btn');
-    if (resendBtn && !resendBtn.dataset.bound) {
-      resendBtn.dataset.bound = '1';
-      resendBtn.addEventListener('click', async () => {
-        resendBtn.disabled = true;
-        resendBtn.textContent = '送信中...';
-        const result = await authApi.resendVerificationEmail();
-        resendBtn.disabled = false;
-        resendBtn.textContent = '確認メールを再送する';
-
-        if (!result.ok) {
-          showFlash(result.error, 'error');
-          return;
-        }
-
-        renderEmailVerificationStatus();
-        showFlash(result.message || '確認メールを再送しました。', 'success');
-      });
     }
 
     const revokeOthersBtn = document.getElementById('revoke-other-sessions-btn');
@@ -1498,36 +1459,6 @@
         showFlash('バックアップ状況を更新しました。', 'info');
       });
     }
-  }
-
-  function renderEmailVerificationStatus() {
-    ensureAccountSecurityBlocks();
-    const block = document.getElementById('email-verification-block');
-    if (!block) return;
-
-    const user = authApi.getCurrentUser();
-    if (!user) {
-      block.style.display = 'none';
-      return;
-    }
-
-    block.style.display = '';
-    const statusEl = document.getElementById('email-verification-status');
-    const metaEl = document.getElementById('email-verification-meta');
-    const resendBtn = document.getElementById('email-verification-resend-btn');
-
-    if (user.emailVerified) {
-      statusEl.textContent = '確認済み';
-      statusEl.style.color = 'var(--success)';
-      metaEl.textContent = user.email + ' は確認済みです。' + (user.emailVerifiedAt ? ' 確認日: ' + formatDateTime(user.emailVerifiedAt) : '');
-      resendBtn.hidden = true;
-      return;
-    }
-
-    statusEl.textContent = '未確認';
-    statusEl.style.color = 'var(--accent, var(--crimson, #c0001a))';
-    metaEl.textContent = user.email + ' 宛に確認メールを送れます。認証が済むと、掲示板投稿・返信・募集・参加などのコミュニティ機能が有効になります。';
-    resendBtn.hidden = false;
   }
 
   async function loadSessionManagement() {
@@ -1619,7 +1550,7 @@
       <div style="display:grid; gap:0.7rem;">
         <div style="padding:0.85rem 1rem; background:rgba(10,26,62,0.03); border-left:3px solid var(--navy);">
           <div style="font-size:0.72rem; font-weight:700; color:var(--navy); margin-bottom:0.3rem;">サーバー同期</div>
-          <div style="font-size:0.74rem; color:var(--text-muted); line-height:1.8;">アカウント情報 / 気になる企業 / メール認証 / セッション管理</div>
+          <div style="font-size:0.74rem; color:var(--text-muted); line-height:1.8;">アカウント情報 / 気になる企業 / セッション管理</div>
         </div>
         <div style="padding:0.85rem 1rem; background:rgba(201,168,76,0.08); border-left:3px solid var(--gold);">
           <div style="font-size:0.72rem; font-weight:700; color:#7a5f10; margin-bottom:0.3rem;">この端末だけに保存</div>
@@ -1641,28 +1572,6 @@
         <div style="font-size:0.75rem; color:var(--text-muted);">${Number(item.count) || 0}件</div>
       </div>
     `).join('');
-  }
-
-  let verificationHandled = false;
-  async function handleVerificationToken() {
-    if (!verificationToken || verificationHandled) return;
-    verificationHandled = true;
-
-    const result = await authApi.verifyEmail(verificationToken);
-    if (!result.ok) {
-      showFlash(result.error, 'error');
-      return;
-    }
-
-    renderNav();
-    renderMemberView();
-    showFlash(result.message || 'メールアドレスを確認しました。', 'success');
-
-    const nextParams = new URLSearchParams(location.search);
-    nextParams.delete('mode');
-    nextParams.delete('token');
-    const nextQuery = nextParams.toString();
-    history.replaceState({}, '', location.pathname + (nextQuery ? '?' + nextQuery : ''));
   }
 
   const INDUSTRY_GROUPS = [
@@ -1761,10 +1670,8 @@
       memberDetailNote.textContent = '';
       updateIntroForUser(null);
       refreshSignupLineQrStatus();
-      const verificationBlock = document.getElementById('email-verification-block');
       const sessionBlock = document.getElementById('session-management-block');
       const backupBlock = document.getElementById('backup-sync-block');
-      if (verificationBlock) verificationBlock.style.display = 'none';
       if (sessionBlock) sessionBlock.style.display = 'none';
       if (backupBlock) backupBlock.style.display = 'none';
       return;
@@ -1786,6 +1693,8 @@
       'LINE名: ' + (user.lineName || '未登録'),
       user.hasLineQr ? 'LINE QR: 登録済み' : 'LINE QR: 未登録',
     ].join(' | ');
+
+    renderEmailVerificationStatus(user);
 
     const likedCount = KeioNaviAuth.getLikedCompanies().length;
     document.getElementById('liked-count').textContent = likedCount + '社';
@@ -1809,7 +1718,6 @@
     field(profileForm, 'lineName').value = user.lineName || '';
     field(profileForm, 'lineQr').value = '';
     refreshProfileLineQrStatus();
-    renderEmailVerificationStatus();
     loadSessionManagement();
     renderBackupCenter();
 
@@ -1861,19 +1769,17 @@
   async function handleAuthSuccess(label) {
     renderNav();
     renderMemberView();
-    const currentUser = authApi.getCurrentUser();
-    const verificationNote = currentUser && !currentUser.emailVerified ? ' 確認メールも送信しています。' : '';
 
     const target = getReturnTarget();
     if (target) {
-      showFlash(label + '。元のページへ移動します。' + verificationNote, 'success');
+      showFlash(label + '。元のページへ移動します。', 'success');
       setTimeout(() => {
         location.href = target;
       }, 700);
       return;
     }
 
-    showFlash(label + '。マイページを表示しています。' + verificationNote, 'success');
+    showFlash(label + '。マイページを表示しています。', 'success');
   }
 
   document.querySelectorAll('.tab-btn').forEach(button => {
@@ -2088,6 +1994,91 @@
     setTimeout(() => switchMode('login'), 2000);
   });
 
+  // ── メール認証ステータス表示 ───────────────────────────
+  function renderEmailVerificationStatus(user) {
+    if (!memberView) return;
+    let block = document.getElementById('email-verify-block');
+    if (!block) {
+      const memberTop = memberView.querySelector('.member-top');
+      if (!memberTop) return;
+      memberTop.insertAdjacentHTML('afterend', `
+        <div id="email-verify-block" style="margin:1rem 0 1.2rem; padding:0.9rem 1.1rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.8rem; font-size:0.82rem; line-height:1.6;">
+          <span id="email-verify-icon" style="font-size:1rem;"></span>
+          <div id="email-verify-text" style="flex:1; min-width:180px;"></div>
+          <button type="button" class="subtle-btn" id="email-verify-resend-btn" style="font-size:0.72rem; display:none;">確認メールを再送</button>
+          <span id="email-verify-status" style="font-size:0.72rem; color:var(--text-muted);"></span>
+        </div>
+      `);
+      block = document.getElementById('email-verify-block');
+      const resendBtn = document.getElementById('email-verify-resend-btn');
+      if (resendBtn) {
+        resendBtn.addEventListener('click', async () => {
+          const statusEl = document.getElementById('email-verify-status');
+          resendBtn.disabled = true;
+          if (statusEl) { statusEl.textContent = '送信中...'; statusEl.style.color = 'var(--text-muted)'; }
+          const result = await authApi.resendVerificationEmail();
+          resendBtn.disabled = false;
+          if (!result.ok) {
+            if (statusEl) { statusEl.textContent = result.error; statusEl.style.color = 'var(--crimson)'; }
+            showFlash(result.error, 'error');
+            return;
+          }
+          if (statusEl) { statusEl.textContent = result.message || '送信しました。'; statusEl.style.color = 'var(--success, #00703c)'; }
+          showFlash(result.message || '確認メールを再送しました。', 'success');
+        });
+      }
+    }
+
+    const iconEl = document.getElementById('email-verify-icon');
+    const textEl = document.getElementById('email-verify-text');
+    const resendBtn = document.getElementById('email-verify-resend-btn');
+    const statusEl = document.getElementById('email-verify-status');
+    if (statusEl) statusEl.textContent = '';
+
+    if (user && user.emailVerified) {
+      block.style.background = 'rgba(0,112,60,0.06)';
+      block.style.borderLeft = '3px solid #00703c';
+      if (iconEl) { iconEl.textContent = '✓'; iconEl.style.color = '#00703c'; iconEl.style.fontWeight = '700'; }
+      if (textEl) textEl.innerHTML = '<span style="color:#00703c; font-weight:700;">メール認証済み</span><span style="color:var(--text-muted); font-size:0.72rem; margin-left:0.6rem;">' + escHtml(user.email || '') + '</span>';
+      if (resendBtn) resendBtn.style.display = 'none';
+    } else {
+      block.style.background = 'rgba(255,165,0,0.08)';
+      block.style.borderLeft = '3px solid #e67e00';
+      if (iconEl) { iconEl.textContent = '⚠'; iconEl.style.color = '#e67e00'; iconEl.style.fontWeight = '700'; }
+      if (textEl) textEl.innerHTML = '<span style="color:#b35c00; font-weight:700;">メール未認証</span>'
+        + '<div style="color:var(--text-muted); font-size:0.72rem; margin-top:0.2rem;">' + escHtml((user && user.email) || '') + ' に確認メールを送信しています。届かない場合は再送してください。</div>';
+      if (resendBtn) resendBtn.style.display = 'inline-block';
+    }
+  }
+
+  // ── ?mode=verify&token=XXX の処理 ───────────────────────
+  async function handleEmailVerifyMode() {
+    if (!verifyToken) return;
+    showFlash('メールアドレスを確認しています...', 'info');
+    const result = await authApi.verifyEmail(verifyToken);
+    if (!result.ok) {
+      showFlash(result.error || 'メール認証に失敗しました。', 'error');
+      return;
+    }
+    if (result.alreadyVerified) {
+      showFlash(result.message || 'メールアドレスは既に認証済みです。', 'info');
+    } else {
+      showFlash(result.message || 'メールアドレスを確認しました。', 'success');
+    }
+    // ログイン中ならマイページ再描画
+    if (authApi.getCurrentUser()) {
+      renderMemberView();
+    }
+    // 2秒後に members.html へ遷移
+    setTimeout(() => {
+      if (authApi.getCurrentUser()) {
+        location.href = 'members.html';
+      } else {
+        switchMode('login');
+      }
+    }, 2000);
+  }
+
   // 紹介プログラム
   async function loadReferralInfo() {
     const result = await KeioNaviAuth.getReferralInfo();
@@ -2137,9 +2128,13 @@
   refreshProfileLineQrStatus();
   renderNav();
   renderMemberView();
-  handleVerificationToken();
 
-  if (!KeioNaviAuth.getCurrentUser() && returnTo && !verificationToken) {
+  // メール認証トークンがURLにあれば即時処理
+  if (verifyToken) {
+    handleEmailVerifyMode();
+  }
+
+  if (!KeioNaviAuth.getCurrentUser() && returnTo) {
     showFlash('ログインまたは登録が完了すると、元のページへ戻ります。', 'info');
   }
 

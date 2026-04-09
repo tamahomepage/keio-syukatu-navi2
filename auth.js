@@ -220,6 +220,8 @@
       referralCode: trimText(user.referralCode),
       createdAt: user.createdAt || '',
       updatedAt: user.updatedAt || '',
+      emailVerified: user.emailVerified === true || user.emailVerified === 'true',
+      emailVerifiedAt: trimText(user.emailVerifiedAt) || '',
       sessionToken: trimText(user.sessionToken) || getSessionToken(),
       name: displayName,
       desiredIndustries: desiredIndustry,
@@ -549,6 +551,46 @@
     try {
       const result = await postToGas({ action: 'authResetPassword', resetToken: token, newPassword: password });
       return { ok: true, message: result.message };
+    } catch (serverError) {
+      return { ok: false, error: serverError.message };
+    }
+  }
+
+  async function resendVerificationEmail() {
+    const sessionToken = getSessionToken();
+    if (!sessionToken) return { ok: false, error: 'ログインが必要です。' };
+    try {
+      const result = await postToGas({ action: 'authSendVerificationEmail', sessionToken });
+      return {
+        ok: true,
+        message: result.message || '確認メールを送信しました。',
+        alreadyVerified: Boolean(result.alreadyVerified),
+      };
+    } catch (serverError) {
+      return { ok: false, error: serverError.message };
+    }
+  }
+
+  async function verifyEmail(token) {
+    const verifyToken = trimText(token);
+    if (!verifyToken) return { ok: false, error: '認証トークンが必要です。' };
+    try {
+      const result = await postToGas({ action: 'authVerifyEmail', token: verifyToken });
+      // ログイン中ならキャッシュ済みユーザーを更新
+      try {
+        const cached = readSessionCacheJSON(USER_CACHE_KEY, null);
+        if (cached) {
+          cached.emailVerified = true;
+          cached.emailVerifiedAt = result.emailVerifiedAt || new Date().toISOString();
+          writeSessionCacheJSON(USER_CACHE_KEY, normalizeUser(cached));
+        }
+      } catch (e) {}
+      return {
+        ok: true,
+        message: result.message || 'メールアドレスを確認しました。',
+        alreadyVerified: Boolean(result.alreadyVerified),
+        emailVerifiedAt: result.emailVerifiedAt || '',
+      };
     } catch (serverError) {
       return { ok: false, error: serverError.message };
     }
@@ -962,6 +1004,8 @@
     deleteAccount,
     requestPasswordReset,
     resetPassword,
+    resendVerificationEmail,
+    verifyEmail,
     getReferralInfo,
     listSessions,
     revokeSession,
