@@ -497,7 +497,7 @@
       </div>
       <div class="m-section-body">
         <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.7;">
-          三井物産ESを参考にした自分史フォーマット。<br>
+          就活で使える自分史フォーマット。<br>
           各時代のエピソードをメモすると、AIが字数配分・文体を守って自分史を生成します。<br>
           <span style="font-size:0.72rem;">目標2000字（最大2500字）/ 小学:中学:高校:大学 = 10:20:30:40</span>
         </div>
@@ -852,7 +852,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
         <div>
           <label style="font-size:0.78rem;color:var(--text-muted);">企業名</label>
-          <input type="text" id="ob-rp-company" placeholder="例: 三井物産" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
+          <input type="text" id="ob-rp-company" placeholder="例: 〇〇商事" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-size:0.82rem;font-family:'Noto Sans JP',sans-serif;margin-top:0.3rem;">
         </div>
         <div>
           <label style="font-size:0.78rem;color:var(--text-muted);">業界・職種</label>
@@ -912,7 +912,7 @@
     <input type="hidden" id="ip-cm-id">
     <div class="ai-form-group">
       <label class="ai-label">企業名 <span style="color:var(--crimson)">*</span></label>
-      <input type="text" class="ai-input" id="ip-cm-name" placeholder="例：三井物産">
+      <input type="text" class="ai-input" id="ip-cm-name" placeholder="例：〇〇商事">
     </div>
     <div class="ai-form-group">
       <label class="ai-label">業界</label>
@@ -1670,7 +1670,7 @@
   }
 
   // ── 自分史チャット ──
-  var JS_CHAT_SYSTEM = 'あなたは三井物産などの総合商社の採用を熟知したESコーチです。学生が書いた自分史について、指摘・修正・ブラッシュアップを対話形式でサポートします。修正案を出す際はすぐに使える文章として提示してください。自分史の目標字数は2000字（最大2500字）で、時代比率は小学校以前10%/中学20%/高校30%/大学40%です。日本語で回答してください。';
+  var JS_CHAT_SYSTEM = 'あなたは総合商社をはじめとする大手企業の採用を熟知したESコーチです。学生が書いた自分史について、指摘・修正・ブラッシュアップを対話形式でサポートします。修正案を出す際はすぐに使える文章として提示してください。自分史の目標字数は2000字（最大2500字）で、時代比率は小学校以前10%/中学20%/高校30%/大学40%です。日本語で回答してください。';
 
   function jsHandleChatKey(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendJsChat(); }
