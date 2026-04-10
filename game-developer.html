@@ -420,6 +420,35 @@ label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;}
 .help-section-lbl{font-size:9px;font-family:var(--mono);letter-spacing:.1em;
   color:var(--text3);margin-bottom:6px;}
 .help-section-body{font-size:12px;color:var(--text2);line-height:1.8;}
+/* ── TUTORIAL OVERLAY ── */
+#tutorial-overlay{
+  position:fixed;inset:0;background:rgba(4,10,15,.82);backdrop-filter:blur(6px);
+  z-index:250;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+#tutorial-overlay.show{opacity:1;pointer-events:all;}
+#tutorial-box{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:14px;
+  padding:28px 24px;max-width:480px;width:92%;
+  box-shadow:0 0 60px rgba(0,200,255,.1);position:relative;
+}
+.tut-step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:18px;}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background .2s;}
+.tut-dot.active{background:var(--accent);}
+.tut-dot.done{background:var(--accent2);}
+.tut-icon{font-size:28px;text-align:center;margin-bottom:10px;}
+.tut-title{font-size:15px;font-weight:900;color:var(--accent);text-align:center;margin-bottom:12px;letter-spacing:.04em;}
+.tut-body{font-size:12.5px;color:var(--text);line-height:2;margin-bottom:20px;}
+.tut-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.tut-nav{display:flex;gap:8px;}
+.tut-skip-wrap{display:flex;align-items:center;gap:6px;}
+.tut-skip-wrap label{font-size:10px;color:var(--text3);cursor:pointer;}
+.tut-btn{font-family:var(--mono);font-size:11px;padding:7px 16px;border-radius:6px;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--bg3);color:var(--text);}
+.tut-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tut-btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700;}
+.tut-btn.primary:hover{background:var(--accent2);border-color:var(--accent);}
+.topbar-help-btn{background:none;border:1px solid var(--border);color:var(--text2);font-size:13px;width:28px;height:28px;border-radius:50%;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topbar-help-btn:hover{border-color:var(--accent);color:var(--accent);}
 /* ── TITLE SCREEN ── */
 #title-overlay{
   position:fixed;inset:0;z-index:300;
@@ -530,7 +559,8 @@ h3.section-title{font-size:12px;color:var(--text);margin-bottom:10px;font-weight
       <span id="tl-text">残 15期</span>
     </div>
     <div id="market-ticker" style="margin-left:4px;"></div>
-    <div style="margin-left:auto;">
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+      <button class="topbar-help-btn" onclick="G.showTutorial()" title="チュートリアル">?</button>
       <button class="ap-btn" onclick="G.endTurn()">▶ ターン終了</button>
     </div>
   </div>
@@ -756,6 +786,26 @@ h3.section-title{font-size:12px;color:var(--text);margin-bottom:10px;font-weight
     <div class="help-section">
       <div class="help-section-lbl">低いと何が起きるか</div>
       <div class="help-section-body" id="help-risk"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL OVERLAY -->
+<div id="tutorial-overlay" onclick="if(event.target===this)G.closeTutorial()">
+  <div id="tutorial-box" onclick="event.stopPropagation()">
+    <div class="tut-step-dots" id="tut-dots"></div>
+    <div class="tut-icon" id="tut-icon"></div>
+    <div class="tut-title" id="tut-title"></div>
+    <div class="tut-body" id="tut-body"></div>
+    <div class="tut-footer">
+      <div class="tut-skip-wrap">
+        <input type="checkbox" id="tut-skip-check">
+        <label for="tut-skip-check">次回から表示しない</label>
+      </div>
+      <div class="tut-nav">
+        <button class="tut-btn" id="tut-prev" onclick="G.tutorialStep(-1)">← 戻る</button>
+        <button class="tut-btn primary" id="tut-next" onclick="G.tutorialStep(1)">次へ →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4925,13 +4975,85 @@ function startGame(mode, firstAreaId){
     if(!S.unlockedAreas.includes(firstAreaId)) S.unlockedAreas.push(firstAreaId);
     _startProject(firstAreaId);
   }
+  // 初回チュートリアル自動表示
+  const tutDone = (()=>{ try{ return localStorage.getItem(TUTORIAL_STORAGE_KEY)==='1'; }catch(e){ return false; } })();
+  if(!tutDone){
+    setTimeout(()=>showTutorial(), 300);
+  }
+
   setTimeout(()=>{
     const modeLabel = mode==='area' ? 'エリア開発モード（10年）' : '単一開発モード（4年）';
     notify(firstAreaId ? `${modeLabel}でゲーム開始！案件に着任しました` : `${modeLabel}でゲーム開始！最初の案件を選んでください`, 'good');
-    if(!firstAreaId && S.projects.length===0){
+    if(!firstAreaId && S.projects.length===0 && tutDone){
       showNewProjectModal();
     }
-  }, 400);
+  }, tutDone ? 400 : 600);
+}
+
+// ── TUTORIAL ──────────────────────────────────────
+const TUTORIAL_STORAGE_KEY = 'develope_tutorial_done';
+const TUTORIAL_STEPS = [
+  {
+    icon: '🏙️',
+    title: 'DEVELOPEへようこそ',
+    body: 'あなたは不動産デベロッパーとして都市を開発します。場所を選び、地権者と交渉し、行政と協議し、テナントを誘致して街をつくりましょう。<br><br>このチュートリアルでは基本操作を5ステップで紹介します。'
+  },
+  {
+    icon: '⚡',
+    title: 'AP（アクションポイント）',
+    body: '毎ターン <b style="color:var(--accent)">6 AP</b> が付与されます。地権者交渉・行政相談・テナント誘致などに <b>1 AP</b> ずつ消費して案件を前に進めます。<br><br>APを使い切ったら、右上の <b>「▶ ターン終了」</b> で次のターンへ。市況が変動し、ランダムイベントも発生します。'
+  },
+  {
+    icon: '📋',
+    title: '9フェーズで案件を進める',
+    body: '案件は9フェーズで進行します：<br><b style="color:var(--gold)">❶ 用地発見 → ❷ 現況分析 → ❸ コンセプト → ❹ 権利調整 → ❺ 行政協議 → ❻ 収支設計 → ❼ 設計施工 → ❽ リーシング → ❾ 開業</b><br><br>各フェーズで条件（地権者合意率・行政信頼度など）を満たすと「次フェーズへ」ボタンが有効になります。'
+  },
+  {
+    icon: '📊',
+    title: 'リソースを育てる',
+    body: '資金（CASH）だけでなく、<b style="color:var(--green)">政府信頼度</b>・<b style="color:var(--amber)">地権者ネットワーク</b>・<b style="color:var(--purple)">評判</b>・<b style="color:var(--gold)">ブランド力</b> も重要です。<br><br>これらはアクションや案件成功で上昇し、開発の成否に直結します。各指標はクリックするとヘルプが表示されます。'
+  },
+  {
+    icon: '🚀',
+    title: 'まずは1案件を完走しよう',
+    body: '初めてなら <b style="color:var(--accent)">単一開発モード</b>（4年 / 16ターン）がおすすめです。<br><br>おすすめ案件マーク（<span class="badge badge-gold" style="font-size:10px;">初回推奨</span>）のある場所から始めると序盤がスムーズ。<br><br>困ったら右上の <b>「?」ボタン</b> でこのチュートリアルを再表示できます。'
+  }
+];
+let _tutStep = 0;
+
+function showTutorial(){
+  _tutStep = 0;
+  _renderTutorial();
+  document.getElementById('tutorial-overlay').classList.add('show');
+}
+
+function closeTutorial(){
+  document.getElementById('tutorial-overlay').classList.remove('show');
+  if(document.getElementById('tut-skip-check').checked){
+    try{ localStorage.setItem(TUTORIAL_STORAGE_KEY, '1'); }catch(e){}
+  }
+}
+
+function tutorialStep(delta){
+  const next = _tutStep + delta;
+  if(next >= TUTORIAL_STEPS.length){ closeTutorial(); return; }
+  if(next < 0) return;
+  _tutStep = next;
+  _renderTutorial();
+}
+
+function _renderTutorial(){
+  const step = TUTORIAL_STEPS[_tutStep];
+  const dots = document.getElementById('tut-dots');
+  dots.innerHTML = TUTORIAL_STEPS.map((_,i)=>
+    `<div class="tut-dot${i===_tutStep?' active':i<_tutStep?' done':''}"></div>`
+  ).join('');
+  document.getElementById('tut-icon').textContent = step.icon;
+  document.getElementById('tut-title').textContent = step.title;
+  document.getElementById('tut-body').innerHTML = step.body;
+  document.getElementById('tut-prev').style.visibility = _tutStep===0?'hidden':'visible';
+  const nextBtn = document.getElementById('tut-next');
+  nextBtn.textContent = _tutStep===TUTORIAL_STEPS.length-1 ? '始める ▶' : '次へ →';
 }
 
 return {
@@ -4947,6 +5069,7 @@ return {
   toggleSidebar,closeSidebar,
   startGame,showTitleScreen,
   takeLoan,showEmergencyLoanModal,
+  showTutorial,closeTutorial,tutorialStep,
 };
 })();
 
