@@ -1,5 +1,5 @@
 (function () {
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbwEoa0z6tT5_boTuv-bn6oG5FaVz-pRT086TiILpxnT9tatc6VnVCmT8VB98PSXZ1EXHA/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzIlRlwWNN4IZw2pVj52pCA7XvcIiRb8276-U4JgiY-j71-ZcyhJLPZR8BMPRsE-ENvgg/exec';
   const SESSION_TOKEN_KEY = 'keio_navi_session_token_v1';
   const USER_CACHE_KEY = 'keio_navi_current_user_cache_v1';
   const LIKED_CACHE_KEY = 'keio_navi_liked_cache_v1';
