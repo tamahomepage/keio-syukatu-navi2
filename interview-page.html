@@ -712,9 +712,64 @@
           <div class="m-section-title">面接振り返りノート</div>
         </div>
       </div>
-      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;margin-top:1rem;">面接直後に振り返りをメモしておくと、次の面接に活かせます。</p>
+      <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;margin-bottom:1rem;margin-top:1rem;">面接直後に振り返りをメモしておくと、次の面接に活かせます。記録が溜まったらAIに傾向分析してもらえます。</p>
+      <div id="review-reminder-banner" style="display:none;margin-bottom:0.8rem;padding:0.7rem 0.9rem;background:rgba(201,168,76,0.12);border-left:3px solid var(--gold);font-size:0.78rem;color:var(--navy);"></div>
       <button onclick="openReviewForm()" style="width:100%;padding:0.65rem;background:none;border:1.5px dashed rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.82rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;">+ 振り返りを追加</button>
       <div id="review-list"><div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">読み込み中...</div></div>
+
+      <!-- 通過率ダッシュボード -->
+      <div id="review-stats-block" style="margin-top:1.2rem;padding:1rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.7rem;">通過率ダッシュボード</div>
+        <div id="review-stats-body" style="font-size:0.8rem;color:var(--navy);line-height:1.8;"></div>
+      </div>
+
+      <!-- AI傾向分析 -->
+      <div id="review-ai-block" style="margin-top:1.5rem;padding:1rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">AI 傾向分析</div>
+        <div style="font-size:0.76rem;color:var(--text-muted);line-height:1.7;margin-bottom:0.8rem;">溜まった振り返りからAIが通過パターン／落選パターン／改善アクションを抽出します。業界で絞り込めます。</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.7rem;">
+          <label style="font-size:0.76rem;color:var(--text-muted);">業界:</label>
+          <select id="rv-ai-industry" style="flex:1;min-width:160px;padding:0.4rem;border:1px solid rgba(10,26,62,0.15);font-size:0.8rem;font-family:'Noto Sans JP',sans-serif;">
+            <option value="">すべて</option>
+            <option>メーカー</option>
+            <option>商社</option>
+            <option>金融</option>
+            <option>IT</option>
+            <option>コンサル</option>
+            <option>広告・マスコミ</option>
+            <option>インフラ</option>
+            <option>不動産・建設</option>
+            <option>人材・教育</option>
+            <option>サービス・小売</option>
+          </select>
+          <button id="rv-ai-run-btn" onclick="runReviewAnalysis()" style="padding:0.45rem 0.9rem;background:var(--navy);color:white;border:none;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">分析する</button>
+        </div>
+        <div id="rv-ai-result" style="font-size:0.82rem;line-height:1.8;white-space:pre-wrap;color:var(--navy);min-height:2rem;"></div>
+        <div id="rv-ai-meta" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;"></div>
+      </div>
+
+      <!-- みんなの面接振り返り -->
+      <div id="shared-reviews-block" style="margin-top:1.2rem;padding:1rem;background:var(--white);border:1px solid rgba(10,26,62,0.1);">
+        <div style="font-size:0.72rem;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:0.5rem;">みんなの面接振り返り</div>
+        <div style="font-size:0.76rem;color:var(--text-muted);line-height:1.7;margin-bottom:0.8rem;">メンバーが匿名で共有した振り返りです。企業名は公開されません。</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.7rem;">
+          <label style="font-size:0.76rem;color:var(--text-muted);">業界:</label>
+          <select id="shared-industry-filter" style="flex:1;min-width:160px;padding:0.4rem;border:1px solid rgba(10,26,62,0.15);font-size:0.8rem;font-family:'Noto Sans JP',sans-serif;">
+            <option value="">すべて</option>
+            <option>メーカー</option>
+            <option>商社</option>
+            <option>金融</option>
+            <option>IT</option>
+            <option>コンサル</option>
+            <option>広告・マスコミ</option>
+            <option>インフラ</option>
+            <option>不動産・建設</option>
+            <option>人材・教育</option>
+            <option>サービス・小売</option>
+          </select>
+        </div>
+        <div id="shared-reviews-list"><div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.78rem;">読み込み中...</div></div>
+      </div>
     </div>
 
     <!-- OB訪問管理 -->
@@ -990,8 +1045,8 @@
 <script src="auth.js"></script>
 <script>
   // ===== Constants =====
-  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzqq1z81SPyuxHGo73SPZ4TU3VGWPtaJa5O8ni0Ge1wfz5xDbogteVYXqeDACA_4gds/exec';
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqq1z81SPyuxHGo73SPZ4TU3VGWPtaJa5O8ni0Ge1wfz5xDbogteVYXqeDACA_4gds/exec';
+  const GAS_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxpwQ6ek9e-o4s0yxWebU2wYfqetbrz_ORIVjnfkzztEr2f4R1selLd6r8OsSMDxnVDgA/exec';
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbxpwQ6ek9e-o4s0yxWebU2wYfqetbrz_ORIVjnfkzztEr2f4R1selLd6r8OsSMDxnVDgA/exec';
 
   var AI_CONSENT_KEY = 'keio_navi_ai_consent_v1';
   function checkAiConsent() {
@@ -1773,11 +1828,16 @@
       final: '入社後のビジョン・キャリアプラン・会社への貢献・人生の価値観を中心に問う。'
     };
 
+    var weakPointsBlock = (typeof miWeakPoints === 'string' && miWeakPoints)
+      ? '\n【この候補者の過去の面接で見えた弱点（優先的に突く）】\n' + miWeakPoints + '\n\n'
+      : '';
+
     return 'あなたは' + companyStr + 'の' + roundStr + '採用面接官です。' + courseStr + '\n\n'
       + '【あなたの人物像】\n' + config.persona + '\n\n'
       + '【この面接段階での評価ポイント】\n' + config.focus + '\n\n'
       + '【面接スタイル】\n' + config.style + '\n\n'
       + '【面接タイプ】\n' + (typeInstructions[miType] || typeInstructions.general) + '\n\n'
+      + weakPointsBlock
       + '【深掘りの5パターン（状況に応じて使い分ける）】\n'
       + '1. 「なぜ？」— 価値観・動機を探る\n'
       + '2. 「具体的には？」— 事実確認、抽象的な回答を許さない\n'
@@ -1794,7 +1854,22 @@
       + '- 面接官らしい自然な日本語で話す。敬語を使う。\n';
   }
 
-  function startMockInterview() {
+  var miWeakPoints = '';
+
+  async function fetchMiWeakPoints() {
+    try {
+      var data = await callAuthApi('readMyLatestInterviewAnalysis', { industryFilter: '' });
+      if (data && data.analysis && data.analysis.analysisText) {
+        var t = data.analysis.analysisText;
+        var m = t.match(/##\s*落選[^\n]*\n([\s\S]*?)(?:\n##|\n*$)/);
+        miWeakPoints = m ? m[1].trim() : '';
+      } else {
+        miWeakPoints = '';
+      }
+    } catch (e) { miWeakPoints = ''; }
+  }
+
+  async function startMockInterview() {
     if (!checkAiConsent()) return;
     miType = document.getElementById('mi-type').value;
     miCompany = (document.getElementById('mi-company') || {}).value || '';
@@ -1812,6 +1887,9 @@
     intro += miCourse ? '（' + miCourse + '）' : '';
     intro += miRound ? ' ' + miRound : '';
     appendBubble('system', intro + ' を開始します。面接官がまもなく質問します...');
+
+    await fetchMiWeakPoints();
+    if (miWeakPoints) appendBubble('system', '過去の振り返りから弱点を検出しました。面接官がそこを重点的に突きます。');
 
     askNextQuestion();
   }
@@ -2068,6 +2146,26 @@
         <input type="date" id="rv-date" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
       </div>
       <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">企業名</label>
+        <input type="text" id="rv-company" placeholder="例: ○○商事" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">業界</label>
+        <select id="rv-industry" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+          <option value="">選択してください</option>
+          <option>メーカー</option>
+          <option>商社</option>
+          <option>金融</option>
+          <option>IT</option>
+          <option>コンサル</option>
+          <option>広告・マスコミ</option>
+          <option>インフラ</option>
+          <option>不動産・建設</option>
+          <option>人材・教育</option>
+          <option>サービス・小売</option>
+        </select>
+      </div>
+      <div style="margin-bottom:1rem;">
         <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">面接タイプ</label>
         <select id="rv-type" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
           <option value="1次面接">1次面接</option>
@@ -2078,15 +2176,24 @@
         </select>
       </div>
       <div style="margin-bottom:1rem;">
-        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">聞かれた質問</label>
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">結果</label>
+        <select id="rv-result" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;">
+          <option value="未確定">未確定</option>
+          <option value="通過">通過</option>
+          <option value="落選">落選</option>
+          <option value="辞退">辞退</option>
+        </select>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">聞かれた質問<button type="button" onclick="toggleVoiceInput('rv-questions', this)" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:400;">🎤 音声入力</button></label>
         <textarea id="rv-questions" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="面接で聞かれた質問を記録..."></textarea>
       </div>
       <div style="margin-bottom:1rem;">
-        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">自分の回答</label>
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">自分の回答<button type="button" onclick="toggleVoiceInput('rv-answers', this)" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:400;">🎤 音声入力</button></label>
         <textarea id="rv-answers" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="自分がどう回答したか..."></textarea>
       </div>
       <div style="margin-bottom:1rem;">
-        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:block;margin-bottom:0.3rem;">反省点</label>
+        <label style="font-size:0.78rem;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">反省点<button type="button" onclick="toggleVoiceInput('rv-reflection', this)" style="font-size:0.68rem;padding:0.2rem 0.6rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:400;">🎤 音声入力</button></label>
         <textarea id="rv-reflection" style="width:100%;padding:0.5rem;border:1px solid rgba(10,26,62,0.15);font-family:'Noto Sans JP',sans-serif;font-size:0.82rem;min-height:80px;resize:vertical;" placeholder="うまくいかなかった点、改善すべき点..."></textarea>
       </div>
       <div style="margin-bottom:1rem;">
@@ -2103,6 +2210,12 @@
           <option value="5">5 - 十分にできた</option>
         </select>
       </div>
+      <div style="margin-bottom:1rem;padding:0.7rem;background:rgba(10,26,62,0.04);">
+        <label style="font-size:0.78rem;color:var(--navy);display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;">
+          <input type="checkbox" id="rv-share" style="margin-top:0.2rem;">
+          <span>匿名で他メンバーに共有する（企業名は公開されず、業界・段階・質問・反省のみが共有されます）</span>
+        </label>
+      </div>
       <button onclick="saveReview()" style="width:100%;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.05em;">保存する</button>
     </div>
   </div>
@@ -2116,48 +2229,143 @@ async function loadReviews() {
   var el = document.getElementById('review-list');
   try {
     var data = await callAuthApi('readMyInterviewReviews');
-    reviewsCache = data.reviews || [];
+    reviewsCache = data.entries || [];
     renderReviews();
   } catch (e) {
     el.innerHTML = '\x3cdiv style="text-align:center;padding:1.5rem;color:var(--crimson);font-size:0.82rem;">' + escHtml(e.message) + '\x3c/div>';
   }
 }
 
+function renderReviewReminder() {
+  var banner = document.getElementById('review-reminder-banner');
+  if (!banner) return;
+  var now = Date.now();
+  var THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+  var stale = reviewsCache.filter(function(r){
+    if (r.result && r.result !== '未確定') return false;
+    if (!r.date) return false;
+    var d = new Date(r.date).getTime();
+    if (isNaN(d)) return false;
+    return now - d >= THREE_DAYS;
+  });
+  if (!stale.length) { banner.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  banner.innerHTML = '⏰ 結果が未確定のまま3日以上経過した振り返りが ' + stale.length + ' 件あります。結果を入力すると分析の精度が上がります。';
+}
+
 function renderReviews() {
   var el = document.getElementById('review-list');
+  renderReviewStats();
+  renderReviewReminder();
   if (!reviewsCache.length) {
     el.innerHTML = '\x3cdiv style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.82rem;">まだ振り返りがありません。面接後にメモを残しましょう。\x3c/div>';
     return;
   }
   var stars = function(n) { var s=''; for(var i=0;i<5;i++) s += i < n ? '\u2605' : '\u2606'; return s; };
+  var resultBadge = function(result) {
+    if (!result) return '';
+    var color = result === '通過' ? '#0a6b2e' : (result === '落選' ? 'var(--crimson)' : 'var(--text-muted)');
+    return '\x3cspan style="display:inline-block;padding:0.1rem 0.5rem;font-size:0.68rem;font-weight:700;border:1px solid ' + color + ';color:' + color + ';margin-left:0.4rem;">' + escHtml(result) + '\x3c/span>';
+  };
   el.innerHTML = reviewsCache.map(function(r) {
     var reviewId = String(r.id || '');
     var reviewIdJs = escJsString(reviewId);
+    var title = (r.company || '') + (r.interviewType ? ' / ' + r.interviewType : '');
     return '\x3cdiv style="border:1px solid rgba(10,26,62,0.1);padding:1rem;margin-bottom:0.8rem;background:white;">'
-      + '\x3cdiv style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">'
-      + '\x3cspan style="font-size:0.82rem;font-weight:700;color:var(--navy);">' + escHtml(r.interviewType || '') + '\x3c/span>'
-      + '\x3cspan style="font-size:0.72rem;color:var(--text-muted);">' + escHtml(r.date || '') + '\x3c/span>'
+      + '\x3cdiv style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.4rem;">'
+      + '\x3cspan style="font-size:0.82rem;font-weight:700;color:var(--navy);">' + escHtml(title) + resultBadge(r.result) + '\x3c/span>'
+      + '\x3cspan style="font-size:0.72rem;color:var(--text-muted);">' + escHtml(r.date || '') + (r.industry ? ' / ' + escHtml(r.industry) : '') + '\x3c/span>'
       + '\x3c/div>'
       + '\x3cdiv style="font-size:0.78rem;color:var(--gold);margin-bottom:0.5rem;">' + stars(parseInt(r.rating)||0) + '\x3c/div>'
-      + (r.questions ? '\x3cdiv style="font-size:0.78rem;margin-bottom:0.4rem;"\x3e\x3cstrong>質問:\x3c/strong> ' + escHtml(r.questions.substring(0,100) + (r.questions.length>100?'...':'')) + '\x3c/div>' : '')
+      + (r.questionsAsked ? '\x3cdiv style="font-size:0.78rem;margin-bottom:0.4rem;"\x3e\x3cstrong>質問:\x3c/strong> ' + escHtml(r.questionsAsked.substring(0,100) + (r.questionsAsked.length>100?'...':'')) + '\x3c/div>' : '')
       + (r.reflection ? '\x3cdiv style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.4rem;"\x3e\x3cstrong>反省:\x3c/strong> ' + escHtml(r.reflection.substring(0,80) + (r.reflection.length>80?'...':'')) + '\x3c/div>' : '')
-      + '\x3cdiv style="display:flex;gap:0.5rem;margin-top:0.6rem;">'
+      + '\x3cdiv style="display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;">'
+      + (r.result === '落選' ? '\x3cbutton onclick="getRecoveryAdvice(\'' + reviewIdJs + '\')" style="padding:0.3rem 0.8rem;font-size:0.72rem;background:var(--navy);color:white;border:none;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;">AIアドバイス\x3c/button>' : '')
       + '\x3cbutton onclick="editReview(\'' + reviewIdJs + '\')" style="padding:0.3rem 0.8rem;font-size:0.72rem;background:none;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;">編集\x3c/button>'
       + '\x3cbutton onclick="deleteReview(\'' + reviewIdJs + '\')" style="padding:0.3rem 0.8rem;font-size:0.72rem;background:none;border:1px solid rgba(192,0,26,0.2);color:var(--crimson);cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;">削除\x3c/button>'
       + '\x3c/div>'
+      + '\x3cdiv id="rv-advice-' + reviewId + '" style="display:none;margin-top:0.6rem;padding:0.7rem;background:rgba(201,168,76,0.08);border-left:3px solid var(--gold);font-size:0.78rem;line-height:1.8;white-space:pre-wrap;color:var(--navy);"\x3e\x3c/div>'
       + '\x3c/div>';
   }).join('');
+}
+
+async function getRecoveryAdvice(reviewId) {
+  var box = document.getElementById('rv-advice-' + reviewId);
+  if (!box) return;
+  box.style.display = 'block';
+  box.textContent = 'AIがアドバイスを生成中...';
+  try {
+    var data = await callAuthApi('generateInterviewRecoveryAdvice', { reviewId: reviewId });
+    box.textContent = data.advice || 'アドバイスを取得できませんでした。';
+  } catch (e) {
+    box.textContent = 'エラー: ' + e.message;
+  }
+}
+
+// ===== 音声入力（Web Speech API） =====
+var currentRecognition = null;
+var currentRecognitionBtn = null;
+
+function toggleVoiceInput(targetId, btn) {
+  var Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recog) {
+    alert('お使いのブラウザは音声入力に対応していません。Chrome / Safari をお試しください。');
+    return;
+  }
+  if (currentRecognition) {
+    currentRecognition.stop();
+    return;
+  }
+  var target = document.getElementById(targetId);
+  if (!target) return;
+  var recognition = new Recog();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  var baseText = target.value ? (target.value + (target.value.slice(-1) === '\n' ? '' : ' ')) : '';
+  btn.textContent = '⏹ 停止';
+  btn.style.background = 'var(--crimson)';
+  btn.style.color = 'white';
+  recognition.onresult = function(event) {
+    var finalText = '';
+    var interim   = '';
+    for (var i = event.resultIndex; i < event.results.length; i++) {
+      var res = event.results[i];
+      if (res.isFinal) finalText += res[0].transcript;
+      else interim += res[0].transcript;
+    }
+    if (finalText) baseText += finalText;
+    target.value = baseText + interim;
+  };
+  recognition.onend = function() {
+    btn.textContent = '🎤 音声入力';
+    btn.style.background = '';
+    btn.style.color = '';
+    currentRecognition = null;
+    currentRecognitionBtn = null;
+  };
+  recognition.onerror = function(event) {
+    if (event.error === 'no-speech' || event.error === 'aborted') return;
+    alert('音声入力エラー: ' + event.error);
+  };
+  currentRecognition = recognition;
+  currentRecognitionBtn = btn;
+  recognition.start();
 }
 
 function openReviewForm(editData) {
   document.getElementById('rv-edit-id').value = editData ? editData.id : '';
   document.getElementById('rv-date').value = editData ? editData.date : new Date().toISOString().split('T')[0];
-  document.getElementById('rv-type').value = editData ? editData.interviewType : '1次面接';
-  document.getElementById('rv-questions').value = editData ? editData.questions || '' : '';
-  document.getElementById('rv-answers').value = editData ? editData.answers || '' : '';
-  document.getElementById('rv-reflection').value = editData ? editData.reflection || '' : '';
-  document.getElementById('rv-improvement').value = editData ? editData.improvement || '' : '';
-  document.getElementById('rv-rating').value = editData ? editData.rating || '3' : '3';
+  document.getElementById('rv-company').value = editData ? (editData.company || '') : '';
+  document.getElementById('rv-industry').value = editData ? (editData.industry || '') : '';
+  document.getElementById('rv-type').value = editData ? (editData.interviewType || '1次面接') : '1次面接';
+  document.getElementById('rv-result').value = editData ? (editData.result || '未確定') : '未確定';
+  document.getElementById('rv-questions').value = editData ? (editData.questionsAsked || '') : '';
+  document.getElementById('rv-answers').value = editData ? (editData.myAnswers || '') : '';
+  document.getElementById('rv-reflection').value = editData ? (editData.reflection || '') : '';
+  document.getElementById('rv-improvement').value = editData ? (editData.improvement || '') : '';
+  document.getElementById('rv-rating').value = editData ? (editData.rating || '3') : '3';
+  document.getElementById('rv-share').checked = false;
   var modal = document.getElementById('review-modal');
   modal.style.display = 'flex';
 }
@@ -2173,19 +2381,33 @@ function editReview(id) {
 
 async function saveReview() {
   var payload = {
-    reviewId: document.getElementById('rv-edit-id').value || undefined,
-    date: document.getElementById('rv-date').value,
-    interviewType: document.getElementById('rv-type').value,
-    questions: document.getElementById('rv-questions').value,
-    answers: document.getElementById('rv-answers').value,
-    reflection: document.getElementById('rv-reflection').value,
-    improvement: document.getElementById('rv-improvement').value,
-    rating: document.getElementById('rv-rating').value
+    review: {
+      id: document.getElementById('rv-edit-id').value || undefined,
+      date: document.getElementById('rv-date').value,
+      company: document.getElementById('rv-company').value,
+      industry: document.getElementById('rv-industry').value,
+      interviewType: document.getElementById('rv-type').value,
+      result: document.getElementById('rv-result').value,
+      questionsAsked: document.getElementById('rv-questions').value,
+      myAnswers: document.getElementById('rv-answers').value,
+      reflection: document.getElementById('rv-reflection').value,
+      improvement: document.getElementById('rv-improvement').value,
+      rating: document.getElementById('rv-rating').value
+    }
   };
+  var shouldShare = document.getElementById('rv-share').checked;
   try {
-    await callAuthApi('writeInterviewReview', payload);
+    var saveRes = await callAuthApi('writeInterviewReview', payload);
+    var savedId = saveRes && saveRes.id;
+    if (savedId) {
+      try {
+        if (shouldShare) await callAuthApi('shareInterviewReview', { reviewId: savedId });
+        else             await callAuthApi('unshareInterviewReview', { reviewId: savedId });
+      } catch (shareErr) { console.warn('share sync failed', shareErr); }
+    }
     closeReviewForm();
     loadReviews();
+    loadSharedReviews();
   } catch (e) {
     alert(e.message);
   }
@@ -2194,7 +2416,7 @@ async function saveReview() {
 async function deleteReview(id) {
   if (!confirm('この振り返りを削除しますか？')) return;
   try {
-    await callAuthApi('deleteInterviewReview', { reviewId: id });
+    await callAuthApi('deleteInterviewReview', { id: id });
     loadReviews();
   } catch (e) {
     alert(e.message);
@@ -2205,8 +2427,165 @@ document.getElementById('review-modal').addEventListener('click', function(e) {
   if (e.target === document.getElementById('review-modal')) closeReviewForm();
 });
 
+// ===== 通過率ダッシュボード =====
+function renderReviewStats() {
+  var body = document.getElementById('review-stats-body');
+  if (!body) return;
+  if (!reviewsCache.length) {
+    body.innerHTML = '\x3cdiv style="color:var(--text-muted);font-size:0.78rem;">記録が溜まるとここに通過率が出ます。\x3c/div>';
+    return;
+  }
+  var decided = reviewsCache.filter(function(r){ return r.result === '通過' || r.result === '落選'; });
+  var passed  = reviewsCache.filter(function(r){ return r.result === '通過'; });
+  var lost    = reviewsCache.filter(function(r){ return r.result === '落選'; });
+  var pending = reviewsCache.filter(function(r){ return !r.result || r.result === '未確定'; });
+  var rate    = decided.length ? Math.round(passed.length / decided.length * 100) : null;
+
+  var byIndustry = {};
+  reviewsCache.forEach(function(r){
+    var k = r.industry || '未設定';
+    if (!byIndustry[k]) byIndustry[k] = { passed: 0, lost: 0, other: 0 };
+    if (r.result === '通過') byIndustry[k].passed++;
+    else if (r.result === '落選') byIndustry[k].lost++;
+    else byIndustry[k].other++;
+  });
+
+  var byStage = {};
+  reviewsCache.forEach(function(r){
+    var k = r.interviewType || '未設定';
+    if (!byStage[k]) byStage[k] = { passed: 0, lost: 0, other: 0 };
+    if (r.result === '通過') byStage[k].passed++;
+    else if (r.result === '落選') byStage[k].lost++;
+    else byStage[k].other++;
+  });
+
+  var renderRate = function(p, l) {
+    var total = p + l;
+    if (!total) return '\x3cspan style="color:var(--text-muted);">データなし\x3c/span>';
+    var r = Math.round(p / total * 100);
+    var color = r >= 60 ? '#0a6b2e' : (r >= 30 ? 'var(--gold)' : 'var(--crimson)');
+    return '\x3cspan style="color:' + color + ';font-weight:700;">' + r + '%\x3c/span> \x3cspan style="color:var(--text-muted);font-size:0.72rem;">(' + p + '/' + total + ')\x3c/span>';
+  };
+
+  var html = '';
+  html += '\x3cdiv style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.6rem;margin-bottom:0.8rem;">';
+  html += '\x3cdiv style="text-align:center;padding:0.5rem;background:rgba(10,26,62,0.04);">\x3cdiv style="font-size:1.3rem;font-weight:700;color:var(--navy);">' + reviewsCache.length + '\x3c/div>\x3cdiv style="font-size:0.68rem;color:var(--text-muted);">総記録\x3c/div>\x3c/div>';
+  html += '\x3cdiv style="text-align:center;padding:0.5rem;background:rgba(10,107,46,0.06);">\x3cdiv style="font-size:1.3rem;font-weight:700;color:#0a6b2e;">' + passed.length + '\x3c/div>\x3cdiv style="font-size:0.68rem;color:var(--text-muted);">通過\x3c/div>\x3c/div>';
+  html += '\x3cdiv style="text-align:center;padding:0.5rem;background:rgba(192,0,26,0.06);">\x3cdiv style="font-size:1.3rem;font-weight:700;color:var(--crimson);">' + lost.length + '\x3c/div>\x3cdiv style="font-size:0.68rem;color:var(--text-muted);">落選\x3c/div>\x3c/div>';
+  html += '\x3cdiv style="text-align:center;padding:0.5rem;background:rgba(201,168,76,0.08);">\x3cdiv style="font-size:1.3rem;font-weight:700;color:var(--gold);">' + pending.length + '\x3c/div>\x3cdiv style="font-size:0.68rem;color:var(--text-muted);">未確定\x3c/div>\x3c/div>';
+  html += '\x3c/div>';
+
+  html += '\x3cdiv style="font-size:0.82rem;margin-bottom:0.6rem;">\x3cstrong>全体通過率:\x3c/strong> ' + (rate !== null ? renderRate(passed.length, lost.length) : '\x3cspan style="color:var(--text-muted);">結果確定データなし\x3c/span>') + '\x3c/div>';
+
+  var indKeys = Object.keys(byIndustry);
+  if (indKeys.length) {
+    html += '\x3cdiv style="margin-top:0.6rem;">\x3cdiv style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.3rem;">業界別\x3c/div>';
+    indKeys.forEach(function(k){
+      var s = byIndustry[k];
+      html += '\x3cdiv style="display:flex;justify-content:space-between;font-size:0.78rem;padding:0.2rem 0;border-bottom:1px dotted rgba(10,26,62,0.08);">\x3cspan>' + escHtml(k) + '\x3c/span>\x3cspan>' + renderRate(s.passed, s.lost) + '\x3c/span>\x3c/div>';
+    });
+    html += '\x3c/div>';
+  }
+
+  var stKeys = Object.keys(byStage);
+  if (stKeys.length) {
+    html += '\x3cdiv style="margin-top:0.6rem;">\x3cdiv style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.3rem;">段階別\x3c/div>';
+    stKeys.forEach(function(k){
+      var s = byStage[k];
+      html += '\x3cdiv style="display:flex;justify-content:space-between;font-size:0.78rem;padding:0.2rem 0;border-bottom:1px dotted rgba(10,26,62,0.08);">\x3cspan>' + escHtml(k) + '\x3c/span>\x3cspan>' + renderRate(s.passed, s.lost) + '\x3c/span>\x3c/div>';
+    });
+    html += '\x3c/div>';
+  }
+
+  body.innerHTML = html;
+}
+
+// ===== AI傾向分析 =====
+function renderAnalysis(analysis) {
+  var el   = document.getElementById('rv-ai-result');
+  var meta = document.getElementById('rv-ai-meta');
+  if (!analysis || !analysis.analysisText) {
+    el.textContent = '';
+    meta.textContent = 'まだ分析結果はありません。記録を1件以上追加してから「分析する」を押してください。';
+    return;
+  }
+  el.textContent = analysis.analysisText;
+  var scope = analysis.industryFilter ? ('業界: ' + analysis.industryFilter) : '全業界';
+  var when  = analysis.createdAt ? (' / ' + new Date(analysis.createdAt).toLocaleString('ja-JP')) : '';
+  meta.textContent = scope + ' / ' + (analysis.sampleCount || 0) + '件分析' + when;
+}
+
+async function loadLatestAnalysis() {
+  var industry = document.getElementById('rv-ai-industry').value || '';
+  try {
+    var data = await callAuthApi('readMyLatestInterviewAnalysis', { industryFilter: industry });
+    renderAnalysis(data.analysis);
+  } catch (e) {
+    document.getElementById('rv-ai-meta').textContent = e.message;
+  }
+}
+
+async function runReviewAnalysis() {
+  var btn = document.getElementById('rv-ai-run-btn');
+  var industry = document.getElementById('rv-ai-industry').value || '';
+  var meta = document.getElementById('rv-ai-meta');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+  meta.textContent = 'AIが分析中です（数十秒かかることがあります）...';
+  try {
+    var data = await callAuthApi('analyzeInterviewReviews', { industryFilter: industry });
+    renderAnalysis(data.analysis);
+  } catch (e) {
+    meta.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '分析する';
+  }
+}
+
+document.getElementById('rv-ai-industry').addEventListener('change', loadLatestAnalysis);
+
+// ===== みんなの面接振り返り =====
+async function loadSharedReviews() {
+  var list = document.getElementById('shared-reviews-list');
+  if (!list) return;
+  var industry = document.getElementById('shared-industry-filter').value || '';
+  list.innerHTML = '\x3cdiv style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.78rem;">読み込み中...\x3c/div>';
+  try {
+    var data = await callAuthApi('readSharedInterviewReviews', { industryFilter: industry });
+    renderSharedReviews(data.entries || []);
+  } catch (e) {
+    list.innerHTML = '\x3cdiv style="color:var(--crimson);font-size:0.78rem;">' + escHtml(e.message) + '\x3c/div>';
+  }
+}
+
+function renderSharedReviews(entries) {
+  var list = document.getElementById('shared-reviews-list');
+  if (!entries.length) {
+    list.innerHTML = '\x3cdiv style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.78rem;">まだ共有された振り返りはありません。\x3c/div>';
+    return;
+  }
+  var stars = function(n) { var s=''; for(var i=0;i<5;i++) s += i < n ? '\u2605' : '\u2606'; return s; };
+  list.innerHTML = entries.map(function(r){
+    var resultBadge = r.result ? '\x3cspan style="display:inline-block;padding:0.1rem 0.4rem;font-size:0.65rem;font-weight:700;border:1px solid rgba(10,26,62,0.2);color:var(--text-muted);margin-left:0.4rem;">' + escHtml(r.result) + '\x3c/span>' : '';
+    return '\x3cdiv style="border:1px solid rgba(10,26,62,0.08);padding:0.8rem;margin-bottom:0.6rem;background:rgba(10,26,62,0.02);">'
+      + '\x3cdiv style="font-size:0.76rem;color:var(--navy);font-weight:700;margin-bottom:0.3rem;">' + escHtml(r.industry || '業界未設定') + ' / ' + escHtml(r.interviewType || '—') + resultBadge + '\x3c/div>'
+      + '\x3cdiv style="font-size:0.72rem;color:var(--gold);margin-bottom:0.3rem;">' + stars(parseInt(r.rating)||0) + '\x3c/div>'
+      + (r.questionsAsked ? '\x3cdiv style="font-size:0.76rem;margin-bottom:0.3rem;">\x3cstrong>質問:\x3c/strong> ' + escHtml(r.questionsAsked) + '\x3c/div>' : '')
+      + (r.reflection    ? '\x3cdiv style="font-size:0.76rem;color:var(--text-muted);margin-bottom:0.3rem;">\x3cstrong>反省:\x3c/strong> ' + escHtml(r.reflection) + '\x3c/div>' : '')
+      + (r.improvement   ? '\x3cdiv style="font-size:0.76rem;color:var(--text-muted);">\x3cstrong>改善:\x3c/strong> ' + escHtml(r.improvement) + '\x3c/div>' : '')
+      + '\x3c/div>';
+  }).join('');
+}
+
+document.getElementById('shared-industry-filter').addEventListener('change', loadSharedReviews);
+
 // 初期化時に読み込み
-if (typeof currentMember !== 'undefined' && currentMember) { loadReviews(); }
+if (typeof currentMember !== 'undefined' && currentMember) {
+  loadReviews();
+  loadLatestAnalysis();
+  loadSharedReviews();
+}
 </script>
 
 <!-- ===== OB訪問対策 ===== -->
