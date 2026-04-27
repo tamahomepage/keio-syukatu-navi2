@@ -1019,7 +1019,10 @@
             html += '<div class="kanban-card-name">' + entry.company + (hasResearchNote(entry.id) ? '<span class="kanban-note-dot"></span>' : '') + '</div>';
             html += '<div style="font-size:0.7rem;color:var(--navy);margin-bottom:0.2rem;">' + icon + ' ' + (info.terminal ? info.stepName : info.stepName) + '</div>';
             html += '<div style="font-size:0.62rem;color:var(--text-muted);margin-bottom:0.2rem;">進捗 ' + info.stepIdx + '/' + info.total + (entry.industry ? ' / ' + entry.industry : '') + '</div>';
-            if (urgency) html += '<div style="font-size:0.62rem;font-weight:700;color:' + urgency.color + ';">⏰ ' + urgency.label + '</div>';
+            if (urgency) {
+              var dueLabel = info.terminal ? '結果' : ((info.currentStep && info.currentStep.name) || info.stepName || '次回');
+              html += '<div style="font-size:0.62rem;font-weight:700;color:' + urgency.color + ';">⏰ ' + dueLabel + ' ' + urgency.label + '</div>';
+            }
             html += '</div>';
           });
         }
