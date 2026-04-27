@@ -167,6 +167,8 @@
   .stage-chip.done { background: var(--navy); color: white; border-color: var(--navy); }
   .stage-chip.current { background: var(--crimson); color: white; border-color: var(--crimson); }
   .stage-chip.pending { background: rgba(10,26,62,0.05); color: var(--text-muted); border-color: rgba(10,26,62,0.12); }
+  .stage-chip.failed { background: rgba(192,0,26,0.12); color: var(--crimson); border-color: rgba(192,0,26,0.4); text-decoration: line-through; }
+  .stage-chip.exempted { background: rgba(30,96,145,0.12); color: #1e6091; border-color: rgba(30,96,145,0.4); }
   .progress-note-input {
     margin-top: 0.6rem; width: 100%; padding: 0.45rem 0.8rem;
     border: 1px solid rgba(10,26,62,0.15); background: var(--cream);
@@ -730,12 +732,20 @@
       return da - db;
     });
     el.innerHTML = sorted.map(entry => {
-      const stageIdx = Math.max(0, PROGRESS_STAGES.indexOf(entry.stage));
+      ensureSteps(entry);
       const isTerminal = entry.status === 'offer' || entry.status === 'rejected';
-      const stageChips = PROGRESS_STAGES.map((s, i) => {
-        let cls = isTerminal ? (i <= stageIdx ? 'done' : 'pending') : (i < stageIdx ? 'done' : i === stageIdx ? 'current' : 'pending');
-        return '<span class="stage-chip ' + cls + '" onclick="setProgressStage(\'' + entry.id + '\',' + i + ')">' + s + '</span>';
-      }).join('');
+      const stageChips = entry.steps.map((s, i) => {
+        var cls = s.status || 'pending';
+        if (isTerminal && cls === 'current') cls = 'done';
+        var label = (s.name || '');
+        if (s.dueLabel || s.dueDate) {
+          var bits = [];
+          if (s.dueLabel) bits.push(s.dueLabel);
+          if (s.dueDate) bits.push(s.dueDate.slice(5).replace('-','/'));
+          label += ' (' + bits.join(' ') + ')';
+        }
+        return '<span class="stage-chip ' + cls + '" onclick="setListStepCurrent(\'' + entry.id + '\',' + i + ')" title="クリックで現在ステップに / 詳細編集はカンバン表示で">' + label + '</span>';
+      }).join('') + '<button onclick="openStepsEditor(\'' + entry.id + '\')" style="font-size:0.65rem;padding:0.2rem 0.5rem;border:1px solid rgba(10,26,62,0.2);background:none;cursor:pointer;color:var(--text-muted);font-family:\'Noto Sans JP\',sans-serif;margin-left:0.3rem;">フロー編集</button>';
       const deadlineStr = entry.deadline
         ? '<span style="font-size:0.68rem;color:var(--text-muted);">締切: ' + entry.deadline.replace(/-/g,'/') + '</span>' : '';
       const terminalBtns = isTerminal
@@ -767,6 +777,27 @@
     renderProgressList();
     renderCalendar();
     syncProgressToServer(entry);
+  }
+
+  // 新モデル: クリックしたステップを「進行中」に。前は通過、後は未着手にする。
+  function setListStepCurrent(id, stepIdx) {
+    const list = readProgress();
+    const entry = list.find(e => e.id === id);
+    if (!entry) return;
+    ensureSteps(entry);
+    entry.steps.forEach((s, i) => {
+      if (s.status === 'failed' || s.status === 'exempted') return; // 落選/免除は触らない
+      if (i < stepIdx)       s.status = 'done';
+      else if (i === stepIdx) s.status = 'current';
+      else                    s.status = 'pending';
+    });
+    if (entry.steps[stepIdx]) entry.stage = entry.steps[stepIdx].name;
+    entry.status = 'active';
+    writeProgressLocal(list);
+    renderProgressList();
+    renderCalendar();
+    syncProgressToServer(entry);
+    if (_progressView === 'kanban') renderKanban();
   }
 
   function setProgressStatus(id, status) {
