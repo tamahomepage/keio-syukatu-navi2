@@ -187,7 +187,8 @@
   .steps-editor-box { background: white; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .steps-editor-header { background: var(--navy); color: white; padding: 0.9rem 1.2rem; display: flex; justify-content: space-between; align-items: center; }
   .steps-editor-body { padding: 1.2rem; }
-  .step-row { display: grid; grid-template-columns: 28px 1fr 110px 100px 36px; gap: 0.5rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px dotted rgba(10,26,62,0.08); }
+  .step-row { display: grid; grid-template-columns: 28px 1fr 100px 110px 100px 36px; gap: 0.4rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px dotted rgba(10,26,62,0.08); }
+  @media(max-width:600px) { .step-row { grid-template-columns: 28px 1fr 36px; row-gap: 0.3rem; } .step-row > .step-row-extras { grid-column: 1 / -1; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.3rem; } }
   .step-row select, .step-row input { padding: 0.35rem; border: 1px solid rgba(10,26,62,0.15); font-size: 0.78rem; font-family: 'Noto Sans JP', sans-serif; }
   .step-status-icon { font-size: 1rem; text-align: center; cursor: pointer; }
   .step-del-btn { background: none; border: 1px solid rgba(192,0,26,0.3); color: var(--crimson); cursor: pointer; padding: 0.25rem; font-size: 0.7rem; }
@@ -518,10 +519,19 @@
           <button onclick="applyStepsTemplate()" style="padding:0.45rem 0.8rem;background:rgba(10,26,62,0.05);border:1px solid rgba(10,26,62,0.2);font-size:0.76rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">適用</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:28px 1fr 110px 100px 36px;gap:0.5rem;font-size:0.66rem;color:var(--text-muted);padding:0.3rem 0;border-bottom:1px solid rgba(10,26,62,0.1);font-weight:700;">
-        <div></div><div>ステップ名</div><div>フェーズ</div><div>締切</div><div></div>
+      <div style="display:grid;grid-template-columns:28px 1fr 100px 110px 100px 36px;gap:0.4rem;font-size:0.66rem;color:var(--text-muted);padding:0.3rem 0;border-bottom:1px solid rgba(10,26,62,0.1);font-weight:700;">
+        <div></div><div>ステップ名</div><div>フェーズ</div><div>締切種別</div><div>日付</div><div></div>
       </div>
       <div id="se-steps-container"></div>
+      <datalist id="duelabel-presets">
+        <option value="ES提出"></option>
+        <option value="Webテスト受験期限"></option>
+        <option value="面接日"></option>
+        <option value="リクルーター面談予約"></option>
+        <option value="GD予約"></option>
+        <option value="結果通知日"></option>
+        <option value="内定承諾期限"></option>
+      </datalist>
       <button onclick="addStepsEditorRow()" style="width:100%;padding:0.6rem;background:none;border:1.5px dashed rgba(10,26,62,0.2);color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:0.6rem;">+ ステップを追加</button>
       <div style="display:flex;gap:0.5rem;margin-top:1rem;">
         <button onclick="saveStepsEditor()" style="flex:1;padding:0.7rem;background:var(--navy);color:white;border:none;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">保存</button>
@@ -623,7 +633,8 @@
     if (idx < 0) idx = steps.findIndex(s => s.status === 'pending');
     if (idx < 0) idx = steps.length - 1;
     var s = steps[idx] || {};
-    var doneCount = steps.filter(x => x.status === 'done').length;
+    // 通過 + 免除を「進んだ」として数える
+    var doneCount = steps.filter(x => x.status === 'done' || x.status === 'exempted').length;
     return { phase: s.phase || 'pre', stepName: s.name || '応募前', stepIdx: doneCount, total: steps.length, terminal: false, currentStep: s };
   }
 
@@ -1020,7 +1031,11 @@
             html += '<div style="font-size:0.7rem;color:var(--navy);margin-bottom:0.2rem;">' + icon + ' ' + (info.terminal ? info.stepName : info.stepName) + '</div>';
             html += '<div style="font-size:0.62rem;color:var(--text-muted);margin-bottom:0.2rem;">進捗 ' + info.stepIdx + '/' + info.total + (entry.industry ? ' / ' + entry.industry : '') + '</div>';
             if (urgency) {
-              var dueLabel = info.terminal ? '結果' : ((info.currentStep && info.currentStep.name) || info.stepName || '次回');
+              var dueLabel = info.terminal ? '結果' : (
+                (info.currentStep && info.currentStep.dueLabel) ||
+                (info.currentStep && info.currentStep.name) ||
+                info.stepName || '次回'
+              );
               html += '<div style="font-size:0.62rem;font-weight:700;color:' + urgency.color + ';">⏰ ' + dueLabel + ' ' + urgency.label + '</div>';
             }
             html += '</div>';
@@ -1071,15 +1086,16 @@
       c.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted);font-size:0.78rem;">ステップがありません。下の「+ ステップ追加」または上のテンプレートから追加してください。</div>';
       return;
     }
-    var statusEmoji = { done:'✓', current:'●', pending:'○', failed:'✗' };
-    var statusColor = { done:'#0a6b2e', current:'var(--crimson)', pending:'var(--text-muted)', failed:'var(--text-muted)' };
+    var statusEmoji = { done:'✓', current:'●', pending:'○', failed:'✗', exempted:'免' };
+    var statusColor = { done:'#0a6b2e', current:'var(--crimson)', pending:'var(--text-muted)', failed:'var(--text-muted)', exempted:'#1e6091' };
     c.innerHTML = _seWorkingSteps.map(function(s, i) {
       return '<div class="step-row">' +
-        '<div class="step-status-icon" onclick="cycleStepStatus(' + i + ')" style="color:' + (statusColor[s.status] || '#666') + ';" title="クリックでステータス変更">' + (statusEmoji[s.status] || '?') + '</div>' +
+        '<div class="step-status-icon" onclick="cycleStepStatus(' + i + ')" style="color:' + (statusColor[s.status] || '#666') + ';font-weight:700;" title="クリックでステータス変更（通過/進行中/未着手/落選/免除）">' + (statusEmoji[s.status] || '?') + '</div>' +
         '<input type="text" value="' + (s.name || '').replace(/"/g,'&quot;') + '" oninput="_seWorkingSteps[' + i + '].name=this.value" placeholder="ステップ名">' +
         '<select onchange="_seWorkingSteps[' + i + '].phase=this.value">' +
           PHASES.map(p => '<option value="' + p.id + '"' + (s.phase === p.id ? ' selected' : '') + '>' + p.label + '</option>').join('') +
         '</select>' +
+        '<input type="text" list="duelabel-presets" placeholder="締切種別" value="' + (s.dueLabel || '').replace(/"/g,'&quot;') + '" oninput="_seWorkingSteps[' + i + '].dueLabel=this.value">' +
         '<input type="date" value="' + (s.dueDate || '') + '" oninput="_seWorkingSteps[' + i + '].dueDate=this.value">' +
         '<button class="step-del-btn" onclick="removeStepsEditorRow(' + i + ')" title="削除">✕</button>' +
       '</div>';
@@ -1087,7 +1103,7 @@
   }
 
   function cycleStepStatus(idx) {
-    var order = ['pending','current','done','failed'];
+    var order = ['pending','current','done','failed','exempted'];
     var cur = _seWorkingSteps[idx].status || 'pending';
     var next = order[(order.indexOf(cur) + 1) % order.length];
     _seWorkingSteps[idx].status = next;
