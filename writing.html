@@ -379,6 +379,15 @@
   .es-view-charcount { font-size: 0.72rem; color: var(--text-muted); text-align: right; margin-top: 0.3rem; }
   .es-view-meta-row { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.2rem; }
   .es-view-memo { font-size: 0.85rem; color: var(--text-muted); white-space: pre-wrap; background: rgba(10,26,62,0.03); padding: 0.65rem 0.9rem; }
+  .es-view-failure-section { margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed rgba(176,62,74,0.3); }
+  .es-view-failure-label { font-size: 0.75rem; color: #b03e4a; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+  .es-view-failure-text { white-space: pre-wrap; font-size: 0.84rem; line-height: 1.95; padding: 0.95rem 1.1rem; background: rgba(176,62,74,0.04); border-left: 3px solid #b03e4a; color: var(--text); display: none; }
+  .es-view-failure-text.show { display: block; }
+  .es-view-failure-btn { padding: 0.65rem 1.2rem; background: white; color: #b03e4a; border: 1px solid #b03e4a; cursor: pointer; font-family: 'Noto Sans JP',sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.15s; }
+  .es-view-failure-btn:hover:not(:disabled) { background: #b03e4a; color: white; }
+  .es-view-failure-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .es-view-failure-rerun { margin-top: 0.6rem; font-size: 0.75rem; color: var(--text-muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0.2rem 0; }
+  .es-view-failure-rerun:hover { color: #b03e4a; }
   .es-view-actions { display: flex; gap: 0.75rem; margin-top: 1.4rem; }
   .es-view-edit-btn { flex: 1; padding: 0.75rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
   .es-view-edit-btn:hover { background: var(--crimson); }
@@ -1402,6 +1411,13 @@
       <div class="es-view-label">メモ</div>
       <div class="es-view-memo" id="es-view-memo"></div>
     </div>
+    <div class="es-view-failure-section" id="es-view-failure-section" style="display:none;">
+      <div class="es-view-failure-label">🔍 AI敗因分析（上級版）</div>
+      <div class="es-view-failure-text" id="es-view-failure-text"></div>
+      <button class="es-view-failure-btn" id="es-view-failure-btn" onclick="runEsFailureAnalysis()">✦ AIに敗因分析してもらう</button>
+      <button class="es-view-failure-rerun" id="es-view-failure-rerun" style="display:none;" onclick="runEsFailureAnalysis(true)">再分析する</button>
+      <div class="ai-error-msg" id="es-view-failure-err"></div>
+    </div>
     <div class="es-view-actions">
       <button class="es-view-copy-btn" onclick="copyEsViewText()">コピー</button>
       <button class="es-view-edit-btn" id="es-view-edit-btn" onclick="">編集する</button>
@@ -1964,9 +1980,12 @@
     }
   }
 
+  var currentEsViewId = null;
+
   function openEsViewModal(id) {
     var e = esBankEntries.find(function(entry) { return entry.id === id; });
     if (!e) return;
+    currentEsViewId = id;
     document.getElementById('es-view-company').textContent = e.company || '';
     document.getElementById('es-view-industry').textContent = e.industry || '';
     var qSection = document.getElementById('es-view-question-section');
@@ -1987,9 +2006,73 @@
     } else {
       memoSection.style.display = 'none';
     }
+    // 敗因分析セクション (不通過の場合のみ)
+    var faSection   = document.getElementById('es-view-failure-section');
+    var faText      = document.getElementById('es-view-failure-text');
+    var faBtn       = document.getElementById('es-view-failure-btn');
+    var faRerun     = document.getElementById('es-view-failure-rerun');
+    var faErr       = document.getElementById('es-view-failure-err');
+    faErr.textContent = '';
+    if (e.result === '不通過') {
+      faSection.style.display = '';
+      if (e.failureAnalysis) {
+        faText.textContent = e.failureAnalysis;
+        faText.classList.add('show');
+        faBtn.style.display = 'none';
+        faRerun.style.display = '';
+      } else {
+        faText.textContent = '';
+        faText.classList.remove('show');
+        faBtn.style.display = '';
+        faBtn.disabled = false;
+        faBtn.textContent = '✦ AIに敗因分析してもらう';
+        faRerun.style.display = 'none';
+      }
+    } else {
+      faSection.style.display = 'none';
+    }
     var editBtn = document.getElementById('es-view-edit-btn');
     editBtn.onclick = function() { closeEsViewModal(); openEsBankModal(id); };
     document.getElementById('es-view-modal').classList.add('open');
+  }
+
+  async function runEsFailureAnalysis(isRerun) {
+    if (!currentEsViewId) return;
+    var e = esBankEntries.find(function(entry) { return entry.id === currentEsViewId; });
+    if (!e) return;
+    if (typeof checkAiConsent === 'function' && !checkAiConsent()) return;
+    var faText  = document.getElementById('es-view-failure-text');
+    var faBtn   = document.getElementById('es-view-failure-btn');
+    var faRerun = document.getElementById('es-view-failure-rerun');
+    var faErr   = document.getElementById('es-view-failure-err');
+    faErr.textContent = '';
+    var activeBtn = isRerun ? faRerun : faBtn;
+    var origText = activeBtn.textContent;
+    activeBtn.disabled = true; activeBtn.textContent = 'AIが分析中...';
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'esFailureAnalysis',
+        input: {
+          company: e.company || '', industry: e.industry || '',
+          question: e.question || '', esText: e.esText || '', memo: e.memo || ''
+        }
+      });
+      var analysis = (data.result || '').trim();
+      if (!analysis) throw new Error('分析結果が空でした。再試行してください。');
+      // サーバー保存
+      await callAuthApi('writeESFailureAnalysis', { id: currentEsViewId, failureAnalysis: analysis });
+      // ローカルキャッシュ更新
+      e.failureAnalysis = analysis;
+      // UI更新
+      faText.textContent = analysis;
+      faText.classList.add('show');
+      faBtn.style.display = 'none';
+      faRerun.style.display = '';
+    } catch(err) {
+      faErr.textContent = err.message;
+    } finally {
+      activeBtn.disabled = false; activeBtn.textContent = origText;
+    }
   }
 
   function closeEsViewModal() {
