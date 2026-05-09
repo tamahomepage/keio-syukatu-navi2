@@ -347,6 +347,12 @@
   .es-modal-save:hover { background: var(--crimson); }
   .es-modal-cancel { padding: 0.75rem 1.2rem; background: none; border: 1px solid rgba(10,26,62,0.2); color: var(--text-muted); font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; cursor: pointer; }
   .es-modal-select { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid rgba(10,26,62,0.18); background: white; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; outline: none; }
+  .es-modal-pair { position: relative; }
+  .es-modal-pair.added { border-top: 1px dashed rgba(10,26,62,0.18); padding-top: 1rem; margin-top: 0.6rem; }
+  .es-modal-pair-remove { position: absolute; top: 0.4rem; right: 0; background: none; border: 1px solid rgba(10,26,62,0.2); color: var(--text-muted); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+  .es-modal-pair-remove:hover { color: var(--crimson); border-color: var(--crimson); }
+  .es-modal-add-pair { width: 100%; padding: 0.6rem; background: none; border: 1.5px dashed rgba(10,26,62,0.2); color: var(--text-muted); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; margin: 0.4rem 0 1.1rem; transition: all 0.15s; }
+  .es-modal-add-pair:hover { border-color: var(--navy); color: var(--navy); }
   .es-load-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2100; display: none; align-items: center; justify-content: center; padding: 1rem; }
   .es-load-modal-overlay.open { display: flex; }
   .es-load-modal { background: white; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; padding: 1.8rem; }
@@ -1324,14 +1330,19 @@
       <label class="ai-label">業界</label>
       <input type="text" class="ai-input" id="es-modal-industry" placeholder="例：総合商社、メガバンク">
     </div>
-    <div class="ai-form-group">
-      <label class="ai-label">設問テキスト</label>
-      <input type="text" class="ai-input" id="es-modal-question" placeholder="例：学生時代に最も力を入れたこと（400字）">
+    <div id="es-modal-pairs">
+      <div class="es-modal-pair">
+        <div class="ai-form-group">
+          <label class="ai-label">設問テキスト</label>
+          <input type="text" class="ai-input es-modal-question" id="es-modal-question" placeholder="例：学生時代に最も力を入れたこと（400字）">
+        </div>
+        <div class="ai-form-group">
+          <label class="ai-label">ES内容 <span style="color:var(--crimson)">*</span></label>
+          <textarea class="ai-textarea es-modal-estext" id="es-modal-estext" placeholder="ESの内容を貼り付けてください..." style="min-height:160px;"></textarea>
+        </div>
+      </div>
     </div>
-    <div class="ai-form-group">
-      <label class="ai-label">ES内容 <span style="color:var(--crimson)">*</span></label>
-      <textarea class="ai-textarea" id="es-modal-estext" placeholder="ESの内容を貼り付けてください..." style="min-height:160px;"></textarea>
-    </div>
+    <button type="button" class="es-modal-add-pair" id="es-modal-add-pair-btn" onclick="addEsBankPair()">+ 設問を追加する</button>
     <div class="ai-form-group">
       <label class="ai-label">選考結果</label>
       <select class="es-modal-select" id="es-modal-result">
@@ -1859,12 +1870,41 @@
     document.getElementById('es-modal-id').value        = id || '';
     document.getElementById('es-modal-company').value   = entry ? entry.company  : '';
     document.getElementById('es-modal-industry').value  = entry ? entry.industry : '';
-    document.getElementById('es-modal-question').value  = entry ? entry.question : '';
-    document.getElementById('es-modal-estext').value    = entry ? entry.esText   : '';
     document.getElementById('es-modal-result').value    = entry ? entry.result   : '';
     document.getElementById('es-modal-memo').value      = entry ? entry.memo     : '';
+    // ペアをリセット (動的追加分を削除して1つ目だけにする)
+    var pairsContainer = document.getElementById('es-modal-pairs');
+    var pairs = pairsContainer.querySelectorAll('.es-modal-pair');
+    for (var i = pairs.length - 1; i >= 1; i--) pairs[i].remove();
+    document.getElementById('es-modal-question').value = entry ? entry.question : '';
+    document.getElementById('es-modal-estext').value   = entry ? entry.esText   : '';
+    // 編集モードでは追加ボタンを隠す
+    document.getElementById('es-modal-add-pair-btn').style.display = id ? 'none' : '';
     document.getElementById('es-modal-error').textContent = '';
     document.getElementById('es-bank-modal').classList.add('open');
+  }
+
+  function addEsBankPair() {
+    var container = document.getElementById('es-modal-pairs');
+    var pair = document.createElement('div');
+    pair.className = 'es-modal-pair added';
+    pair.innerHTML =
+      '<button type="button" class="es-modal-pair-remove" onclick="removeEsBankPair(this)">× 削除</button>' +
+      '<div class="ai-form-group">' +
+        '<label class="ai-label">設問テキスト</label>' +
+        '<input type="text" class="ai-input es-modal-question" placeholder="例：学生時代に最も力を入れたこと（400字）">' +
+      '</div>' +
+      '<div class="ai-form-group">' +
+        '<label class="ai-label">ES内容 <span style="color:var(--crimson)">*</span></label>' +
+        '<textarea class="ai-textarea es-modal-estext" placeholder="ESの内容を貼り付けてください..." style="min-height:160px;"></textarea>' +
+      '</div>';
+    container.appendChild(pair);
+    pair.querySelector('.es-modal-question').focus();
+  }
+
+  function removeEsBankPair(btn) {
+    var pair = btn.closest('.es-modal-pair');
+    if (pair) pair.remove();
   }
 
   function closeEsBankModal() {
@@ -1874,20 +1914,37 @@
   async function saveEsBankEntry() {
     var errEl = document.getElementById('es-modal-error');
     errEl.textContent = '';
-    var es = {
-      id:       document.getElementById('es-modal-id').value,
-      company:  document.getElementById('es-modal-company').value.trim(),
-      industry: document.getElementById('es-modal-industry').value.trim(),
-      question: document.getElementById('es-modal-question').value.trim(),
-      esText:   document.getElementById('es-modal-estext').value.trim(),
-      result:   document.getElementById('es-modal-result').value,
-      memo:     document.getElementById('es-modal-memo').value.trim(),
-    };
-    if (!es.company || !es.esText) { errEl.textContent = '会社名とES内容は必須です。'; return; }
+    var id       = document.getElementById('es-modal-id').value;
+    var company  = document.getElementById('es-modal-company').value.trim();
+    var industry = document.getElementById('es-modal-industry').value.trim();
+    var result   = document.getElementById('es-modal-result').value;
+    var memo     = document.getElementById('es-modal-memo').value.trim();
+    var pairs = Array.prototype.map.call(
+      document.querySelectorAll('#es-modal-pairs .es-modal-pair'),
+      function(p) {
+        return {
+          question: p.querySelector('.es-modal-question').value.trim(),
+          esText:   p.querySelector('.es-modal-estext').value.trim()
+        };
+      }
+    ).filter(function(p) { return p.esText; });
+
+    if (!company) { errEl.textContent = '会社名を入力してください。'; return; }
+    if (pairs.length === 0) { errEl.textContent = 'ES内容を1つ以上入力してください。'; return; }
+    if (id && pairs.length > 1) { errEl.textContent = '編集モードでは1つのES内容のみ保存できます。'; return; }
+
     var saveBtn = document.querySelector('#es-bank-modal .es-modal-save');
     saveBtn.disabled = true; saveBtn.textContent = '保存中...';
     try {
-      await callAuthApi('writeES', { es: es });
+      if (id) {
+        // 編集: 単一保存
+        await callAuthApi('writeES', { es: { id: id, company: company, industry: industry, question: pairs[0].question, esText: pairs[0].esText, result: result, memo: memo } });
+      } else {
+        // 新規: 複数ペアを順次保存
+        for (var i = 0; i < pairs.length; i++) {
+          await callAuthApi('writeES', { es: { company: company, industry: industry, question: pairs[i].question, esText: pairs[i].esText, result: result, memo: memo } });
+        }
+      }
       closeEsBankModal();
       await loadEsBank();
     } catch(e) {
