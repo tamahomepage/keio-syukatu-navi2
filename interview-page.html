@@ -264,6 +264,11 @@
   .ip-qa-modelanswer { margin-top: 0.7rem; padding: 0.9rem; background: rgba(10,26,62,0.04); border-left: 3px solid var(--navy); font-size: 0.82rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); display: none; }
   .ip-qa-modelanswer.show { display: block; }
   .ip-qa-modelanswer-label { font-size: 0.72rem; color: var(--navy); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .ip-qa-ma-note-wrap { margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed rgba(10,26,62,0.18); }
+  .ip-qa-ma-note-label { font-size: 0.72rem; color: var(--navy); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .ip-qa-ma-note { width: 100%; min-height: 60px; padding: 0.55rem; border: 1px solid rgba(10,26,62,0.15); font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; line-height: 1.7; resize: vertical; box-sizing: border-box; background: white; }
+  .ip-qa-ma-note-save { font-size: 0.72rem; padding: 0.32rem 0.8rem; border: 1px solid var(--navy); background: var(--navy); color: white; cursor: pointer; font-family: 'Noto Sans JP',sans-serif; margin-top: 0.4rem; }
+  .ip-qa-ma-note-save:hover { opacity: 0.9; }
   .ip-qa-children { margin-top: 0.6rem; margin-left: 1rem; padding-left: 0.85rem; border-left: 2px solid rgba(10,26,62,0.15); display: flex; flex-direction: column; gap: 0.55rem; }
   .ip-qa-children-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
   .ip-qa-dd-btn { font-size: 0.72rem; padding: 0.32rem 0.7rem; border: 1px solid var(--navy); background: white; color: var(--navy); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; transition: all 0.15s; }
@@ -1404,7 +1409,7 @@
           '<button class="ip-qa-del-btn" onclick="ipDeleteQuestion(\'' + questionIdJs + '\')">&#10005;</button>' +
         '</div>' +
         '<div class="ip-qa-feedback' + (q.aiFeedback ? ' show' : '') + '" id="ip-fb-' + questionIdAttr + '">' + ipRenderMultilineHtml(q.aiFeedback || '') + '</div>' +
-        '<div class="ip-qa-modelanswer' + (q.modelAnswer ? ' show' : '') + '" id="ip-ma-' + questionIdAttr + '">' + (q.modelAnswer ? '<div class="ip-qa-modelanswer-label">AI模範解答</div>' + ipRenderMultilineHtml(q.modelAnswer) : '') + '</div>' +
+        '<div class="ip-qa-modelanswer' + (q.modelAnswer ? ' show' : '') + '" id="ip-ma-' + questionIdAttr + '">' + (q.modelAnswer ? '<div class="ip-qa-modelanswer-label">AI模範解答</div>' + ipRenderMultilineHtml(q.modelAnswer) + '<div class="ip-qa-ma-note-wrap"><div class="ip-qa-ma-note-label">自分のコメント・補足</div><textarea class="ip-qa-ma-note" id="ip-ma-note-' + questionIdAttr + '" placeholder="模範解答への気づき、自分の言葉での言い換え、覚えるべきフレーズなど...">' + ipEscHtml(q.modelAnswerNote || '') + '\x3c/textarea><button class="ip-qa-ma-note-save" onclick="ipSaveModelAnswerNote(\'' + questionIdJs + '\')">保存</button></div>' : '') + '</div>' +
       '</div>' +
       (function() {
         var children = ipGetChildren(questionId);
@@ -1678,6 +1683,23 @@
       alert('再深掘りに失敗しました: ' + e.message);
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = '✦ さらに深掘り'; }
+    }
+  }
+
+  // ── 模範解答へのコメント・補足を保存 ──
+  function ipSaveModelAnswerNote(id) {
+    var q = ipDb.questions.find(function(q) { return q.id === id; });
+    if (!q) return;
+    var ta = document.getElementById('ip-ma-note-' + id);
+    if (!ta) return;
+    q.modelAnswerNote = ta.value;
+    ipSaveDb();
+    var btn = document.querySelector('#ip-card-' + id + ' .ip-qa-ma-note-save');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '保存しました ✓';
+      btn.disabled = true;
+      setTimeout(function() { btn.textContent = orig; btn.disabled = false; }, 1200);
     }
   }
 
