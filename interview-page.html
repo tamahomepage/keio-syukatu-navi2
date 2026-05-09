@@ -269,6 +269,25 @@
   .ip-qa-ma-note { width: 100%; min-height: 60px; padding: 0.55rem; border: 1px solid rgba(10,26,62,0.15); font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; line-height: 1.7; resize: vertical; box-sizing: border-box; background: white; }
   .ip-qa-ma-note-save { font-size: 0.72rem; padding: 0.32rem 0.8rem; border: 1px solid var(--navy); background: var(--navy); color: white; cursor: pointer; font-family: 'Noto Sans JP',sans-serif; margin-top: 0.4rem; }
   .ip-qa-ma-note-save:hover { opacity: 0.9; }
+  .ip-es-section { margin-top: 0.85rem; margin-bottom: 0.85rem; border: 1px solid rgba(10,26,62,0.12); background: white; }
+  .ip-es-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.85rem; cursor: pointer; user-select: none; font-size: 0.78rem; color: var(--navy); font-weight: 700; }
+  .ip-es-header:hover { background: rgba(10,26,62,0.03); }
+  .ip-es-arrow { font-size: 0.85rem; color: var(--text-muted); }
+  .ip-es-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 400; margin-left: auto; }
+  .ip-es-list { display: none; padding: 0 0.85rem 0.7rem; }
+  .ip-es-list.open { display: block; }
+  .ip-es-empty { font-size: 0.78rem; color: var(--text-muted); padding: 0.4rem 0; }
+  .ip-es-empty a { color: var(--navy); text-decoration: underline; }
+  .ip-es-item { border-top: 1px dashed rgba(10,26,62,0.12); padding: 0.55rem 0; }
+  .ip-es-item-q { font-size: 0.77rem; color: var(--text); font-weight: 700; cursor: pointer; padding: 0.15rem 0; display: flex; gap: 0.4rem; }
+  .ip-es-item-q:hover { color: var(--navy); }
+  .ip-es-item-meta { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .ip-es-item-body { display: none; margin-top: 0.5rem; padding: 0.55rem 0.7rem; background: rgba(10,26,62,0.03); font-size: 0.78rem; line-height: 1.75; white-space: pre-wrap; color: var(--text); }
+  .ip-es-item-body.open { display: block; }
+  .ip-qa-level { display: inline-flex; align-items: center; padding: 0.1rem 0.45rem; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; border-radius: 2px; margin-right: 0.4rem; }
+  .ip-qa-level-1 { background: #e8f5ee; color: #2d7a3a; border: 1px solid #2d7a3a; }
+  .ip-qa-level-2 { background: #fff7e6; color: #b88719; border: 1px solid #d49a1f; }
+  .ip-qa-level-3 { background: #fbe9eb; color: #b03e4a; border: 1px solid #b03e4a; }
   .ip-qa-children { margin-top: 0.6rem; margin-left: 1rem; padding-left: 0.85rem; border-left: 2px solid rgba(10,26,62,0.15); display: flex; flex-direction: column; gap: 0.55rem; }
   .ip-qa-children-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
   .ip-qa-dd-btn { font-size: 0.72rem; padding: 0.32rem 0.7rem; border: 1px solid var(--navy); background: white; color: var(--navy); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; transition: all 0.15s; }
@@ -1130,6 +1149,8 @@
     ipInit();
     // Load gakuchika for jibunshi selector
     loadGakuchika();
+    // Load ES bank for interview prep ES reference
+    loadIpEs();
   }
 
   // ===== Scroll top button =====
@@ -1149,6 +1170,46 @@
     } catch(e) {
       console.warn('ガクチカ読み込み失敗:', e.message);
     }
+  }
+
+  // ===== ES保管庫（面接対策のES参照に使用） =====
+  let ipEsEntries = [];
+
+  async function loadIpEs() {
+    try {
+      const data = await callAuthApi('readMyES');
+      ipEsEntries = (data.entries || data.es || []) || [];
+      // パネルが既に描画済みなら更新
+      if (typeof ipRenderPanels === 'function' && ipDb && ipDb.companies && ipDb.companies.length) ipRenderPanels();
+    } catch(e) {
+      console.warn('ES読み込み失敗:', e.message);
+    }
+  }
+
+  function ipNormalizeCompanyName(name) {
+    return String(name || '').trim().replace(/[\s　]/g, '').replace(/(株式会社|有限会社|合同会社|\(株\)|（株）)/g, '').toLowerCase();
+  }
+
+  function ipGetEsForCompany(companyName) {
+    if (!companyName) return [];
+    var key = ipNormalizeCompanyName(companyName);
+    if (!key) return [];
+    return ipEsEntries.filter(function(e) {
+      return ipNormalizeCompanyName(e.company) === key;
+    });
+  }
+
+  function ipToggleEsList(cid) {
+    var box = document.getElementById('ip-es-list-' + cid);
+    var arrow = document.getElementById('ip-es-arrow-' + cid);
+    if (!box) return;
+    var isOpen = box.classList.toggle('open');
+    if (arrow) arrow.textContent = isOpen ? '▾' : '▸';
+  }
+
+  function ipToggleEsBody(esId) {
+    var body = document.getElementById('ip-es-body-' + esId);
+    if (body) body.classList.toggle('open');
   }
 
   // ===== チェックリスト =====
@@ -1331,6 +1392,31 @@
           '<div class="ip-progress-track"><div class="ip-progress-fill" style="width:' + pct + '%"></div></div>' +
           '<span style="font-size:0.73rem;">' + pct + '%</span>' +
         '</div>' +
+        (function() {
+          var esList = ipGetEsForCompany(c.name);
+          return '<div class="ip-es-section">' +
+            '<div class="ip-es-header" onclick="ipToggleEsList(\'' + companyIdJs + '\')">' +
+              '<span class="ip-es-arrow" id="ip-es-arrow-' + companyIdAttr + '">▸</span>' +
+              '<span>📄 提出ES</span>' +
+              '<span class="ip-es-count">' + esList.length + '件' + '</span>' +
+            '</div>' +
+            '<div class="ip-es-list" id="ip-es-list-' + companyIdAttr + '">' +
+              (esList.length
+                ? esList.map(function(e) {
+                    var esIdAttr = ipEscAttr(String(e.id || ''));
+                    var meta = (e.industry ? ipEscHtml(e.industry) : '') + (e.result ? ' / 結果: ' + ipEscHtml(e.result) : '');
+                    return '<div class="ip-es-item">' +
+                      '<div class="ip-es-item-q" onclick="ipToggleEsBody(\'' + esIdAttr + '\')">' +
+                        '<span>▸</span><span>' + ipEscHtml(e.question || '（設問未記入）') + '</span>' +
+                      '</div>' +
+                      (meta ? '<div class="ip-es-item-meta">' + meta + '</div>' : '') +
+                      '<div class="ip-es-item-body" id="ip-es-body-' + esIdAttr + '">' + ipEscHtml(e.esText || '') + '</div>' +
+                    '</div>';
+                  }).join('')
+                : '<div class="ip-es-empty">この企業のESがまだ保管庫にありません。<a href="writing.html">ES保管庫</a>で登録してください。</div>') +
+            '</div>' +
+          '</div>';
+        })() +
         '<div class="ip-tabs">' +
           '<button class="ip-tab-btn active" data-iptab="ip-t-gk-' + companyIdAttr + '" onclick="ipSwitchTab(this)">ガクチカ深掘り<span class="ip-tab-count">' + gkQs.length + '</span></button>' +
           '<button class="ip-tab-btn" data-iptab="ip-t-std-' + companyIdAttr + '" onclick="ipSwitchTab(this)">定番質問<span class="ip-tab-count">' + stdQs.length + '</span></button>' +
@@ -1390,6 +1476,7 @@
     var catKey = (q.category || '').replace(/[・\s]/g, '');
     return '<div class="ip-qa-card' + (q.ready ? ' ready' : '') + '" id="ip-card-' + questionIdAttr + '">' +
       '<div class="ip-qa-card-hdr" onclick="ipToggleCard(\'' + questionIdJs + '\')">' +
+        (q.level ? '<span class="ip-qa-level ip-qa-level-' + Number(q.level) + '">Lv' + Number(q.level) + '</span>' : '') +
         '<span class="ip-qa-cat ' + ipEscAttr(catKey || 'default') + '">' + ipEscHtml(q.category || '質問') + '</span>' +
         '<span class="ip-qa-question">' + ipEscHtml(q.question || '') + '</span>' +
         (q.ready ? '<span class="ip-qa-ready-icon">\u2713</span>' : '') +
@@ -1589,7 +1676,7 @@
         return true;
       });
       questions.forEach(function(item) {
-        ipDb.questions.push({ id: ipGenId('q'), companyId: cid, type: 'gakuchika', category: item.category || 'ガクチカ深掘り', question: item.question || '', answer: '', aiFeedback: '', modelAnswer: '', ready: false, createdAt: new Date().toISOString() });
+        ipDb.questions.push({ id: ipGenId('q'), companyId: cid, type: 'gakuchika', level: Number(item.level) || null, category: item.category || 'ガクチカ深掘り', question: item.question || '', answer: '', aiFeedback: '', modelAnswer: '', ready: false, createdAt: new Date().toISOString() });
       });
       ipSaveDb();
       ipSelectCompany(cid);
