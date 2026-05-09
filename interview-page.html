@@ -1302,6 +1302,7 @@
       var gkQs  = ipGetQsByType(c.id, 'gakuchika');
       var stdQs = ipGetQsByType(c.id, 'standard');
       var cusQs = ipGetQsByType(c.id, 'custom');
+      var cmpQs = ipGetQsByType(c.id, 'company_specific');
       var allQs = ipGetQsByCompany(c.id);
       var readyCount = allQs.filter(function(q) { return q.ready; }).length;
       var pct = allQs.length ? Math.round(readyCount / allQs.length * 100) : 0;
@@ -1328,6 +1329,7 @@
         '<div class="ip-tabs">' +
           '<button class="ip-tab-btn active" data-iptab="ip-t-gk-' + companyIdAttr + '" onclick="ipSwitchTab(this)">ガクチカ深掘り<span class="ip-tab-count">' + gkQs.length + '</span></button>' +
           '<button class="ip-tab-btn" data-iptab="ip-t-std-' + companyIdAttr + '" onclick="ipSwitchTab(this)">定番質問<span class="ip-tab-count">' + stdQs.length + '</span></button>' +
+          '<button class="ip-tab-btn" data-iptab="ip-t-cmp-' + companyIdAttr + '" onclick="ipSwitchTab(this)">企業別<span class="ip-tab-count">' + cmpQs.length + '</span></button>' +
           '<button class="ip-tab-btn" data-iptab="ip-t-cus-' + companyIdAttr + '" onclick="ipSwitchTab(this)">カスタム<span class="ip-tab-count">' + cusQs.length + '</span></button>' +
         '</div>' +
         '<div class="ip-tab-panel active" id="ip-t-gk-' + companyIdAttr + '">' +
@@ -1345,6 +1347,17 @@
         '<div class="ip-tab-panel" id="ip-t-std-' + companyIdAttr + '">' +
           '<div class="ip-qa-list" id="ip-std-list-' + companyIdAttr + '">' +
             stdQs.map(function(q) { return ipRenderQaCard(q); }).join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="ip-tab-panel" id="ip-t-cmp-' + companyIdAttr + '">' +
+          '<div class="ip-gk-box">' +
+            '<div class="ip-gk-box-title">企業特有の質問を自動生成</div>' +
+            '<div class="ip-gk-hint">企業名・業界・職種から、その企業ならではの面接質問を8〜10問生成します。事業戦略・業界動向・企業文化など多角的に。</div>' +
+            '<button class="ai-submit-btn" id="ip-cmp-gen-btn-' + companyIdAttr + '" onclick="ipGenerateCompanyQuestions(\'' + companyIdJs + '\')" style="margin-top:0.6rem;padding:0.65rem;">&#10022; 企業別質問を生成する</button>' +
+            '<div class="ai-error-msg" id="ip-cmp-gen-err-' + companyIdAttr + '"></div>' +
+          '</div>' +
+          '<div class="ip-qa-list" id="ip-cmp-list-' + companyIdAttr + '">' +
+            (cmpQs.length ? cmpQs.map(function(q) { return ipRenderQaCard(q); }).join('') : '<div style="text-align:center;padding:1rem;font-size:0.8rem;color:var(--text-muted);">まだ質問がありません。「企業別質問を生成する」を押してください。</div>') +
           '</div>' +
         '</div>' +
         '<div class="ip-tab-panel" id="ip-t-cus-' + companyIdAttr + '">' +
@@ -1579,6 +1592,53 @@
       document.getElementById('ip-gen-err-' + cid).textContent = '生成に失敗しました: ' + e.message;
     } finally {
       btn.disabled = false; btn.textContent = '\u2726 深掘り質問を生成する';
+    }
+  }
+
+  // ── AI: 企業別質問生成 ──
+  async function ipGenerateCompanyQuestions(cid) {
+    if (!checkAiConsent()) return;
+    var c = ipDb.companies.find(function(c) { return c.id === cid; });
+    if (!c) return;
+    if (!c.name) {
+      document.getElementById('ip-cmp-gen-err-' + cid).textContent = 'この企業の名前が登録されていません。「編集」から企業名を設定してください。';
+      return;
+    }
+    document.getElementById('ip-cmp-gen-err-' + cid).textContent = '';
+    var btn = document.getElementById('ip-cmp-gen-btn-' + cid);
+    btn.disabled = true; btn.textContent = 'AIが生成中...';
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'interviewCompanyQuestions',
+        input: { company: c.name, industry: c.industry || '', position: c.position || '' }
+      });
+      var raw = data.result || '';
+      var m = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (m) raw = m[1];
+      var questions;
+      try { questions = JSON.parse(raw.trim()); } catch(e) { throw new Error('AIの返答を解析できませんでした。再試行してください。'); }
+      if (!Array.isArray(questions)) throw new Error('AIの返答形式が不正です。');
+      // 既存の company_specific 質問とその子孫を削除
+      var oldCmpIds = {};
+      ipDb.questions.forEach(function(q) { if (q.companyId === cid && q.type === 'company_specific' && !q.parentId) oldCmpIds[q.id] = true; });
+      ipDb.questions = ipDb.questions.filter(function(q) {
+        if (q.companyId === cid && q.type === 'company_specific' && !q.parentId) return false;
+        if (q.parentId && oldCmpIds[q.parentId]) return false;
+        return true;
+      });
+      questions.forEach(function(item) {
+        ipDb.questions.push({
+          id: ipGenId('q'), companyId: cid, type: 'company_specific',
+          category: item.category || '企業別', question: item.question || '',
+          answer: '', aiFeedback: '', modelAnswer: '', ready: false, createdAt: new Date().toISOString()
+        });
+      });
+      ipSaveDb();
+      ipSelectCompany(cid);
+    } catch(e) {
+      document.getElementById('ip-cmp-gen-err-' + cid).textContent = '生成に失敗しました: ' + e.message;
+    } finally {
+      btn.disabled = false; btn.textContent = '✦ 企業別質問を生成する';
     }
   }
 
