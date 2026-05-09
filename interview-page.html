@@ -261,6 +261,17 @@
   .ip-qa-del-btn:hover { color: var(--crimson); }
   .ip-qa-feedback { margin-top: 0.7rem; padding: 0.9rem; background: rgba(201,168,76,0.07); border-left: 3px solid var(--gold); font-size: 0.82rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); display: none; }
   .ip-qa-feedback.show { display: block; }
+  .ip-qa-modelanswer { margin-top: 0.7rem; padding: 0.9rem; background: rgba(10,26,62,0.04); border-left: 3px solid var(--navy); font-size: 0.82rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); display: none; }
+  .ip-qa-modelanswer.show { display: block; }
+  .ip-qa-modelanswer-label { font-size: 0.72rem; color: var(--navy); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+  .ip-qa-children { margin-top: 0.6rem; margin-left: 1rem; padding-left: 0.85rem; border-left: 2px solid rgba(10,26,62,0.15); display: flex; flex-direction: column; gap: 0.55rem; }
+  .ip-qa-children-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+  .ip-qa-dd-btn { font-size: 0.72rem; padding: 0.32rem 0.7rem; border: 1px solid var(--navy); background: white; color: var(--navy); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; transition: all 0.15s; }
+  .ip-qa-dd-btn:hover:not(:disabled) { background: var(--navy); color: white; }
+  .ip-qa-dd-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ip-qa-ma-btn { font-size: 0.72rem; padding: 0.32rem 0.7rem; border: 1px solid var(--gold); background: white; color: var(--gold-dark, #8b6f1f); cursor: pointer; font-family: 'Noto Sans JP',sans-serif; transition: all 0.15s; }
+  .ip-qa-ma-btn:hover:not(:disabled) { background: var(--gold); color: white; }
+  .ip-qa-ma-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .ip-add-q-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.55rem; background: none; border: 1.5px dashed rgba(10,26,62,0.18); color: var(--text-muted); font-family: 'Noto Sans JP',sans-serif; font-size: 0.78rem; cursor: pointer; width: 100%; justify-content: center; transition: all 0.2s; margin-top: 0.7rem; }
   .ip-add-q-btn:hover { border-color: var(--navy); color: var(--navy); }
   .ip-empty-company { text-align: center; padding: 2rem; font-size: 0.82rem; color: var(--text-muted); }
@@ -1222,7 +1233,8 @@
   function ipGenId(p) { return p + '_' + Date.now() + '_' + Math.floor(Math.random() * 10000); }
 
   function ipGetQsByCompany(cid)    { return ipDb.questions.filter(function(q) { return q.companyId === cid; }); }
-  function ipGetQsByType(cid, type) { return ipGetQsByCompany(cid).filter(function(q) { return q.type === type; }); }
+  function ipGetQsByType(cid, type) { return ipGetQsByCompany(cid).filter(function(q) { return q.type === type && !q.parentId; }); }
+  function ipGetChildren(parentId)  { return ipDb.questions.filter(function(q) { return q.parentId === parentId; }); }
 
   function ipInit() {
     ipLoadDb();
@@ -1373,11 +1385,20 @@
         '<div class="ip-qa-actions">' +
           '<button class="ip-qa-save-btn" onclick="ipSaveAnswer(\'' + questionIdJs + '\')">保存</button>' +
           '<button class="ip-qa-ai-btn" id="ip-ai-btn-' + questionIdAttr + '" onclick="ipEvaluateAnswer(\'' + questionIdJs + '\')">&#10022; AI添削</button>' +
+          '<button class="ip-qa-dd-btn" id="ip-dd-btn-' + questionIdAttr + '" onclick="ipFurtherDeepDive(\'' + questionIdJs + '\')">&#10022; さらに深掘り</button>' +
+          '<button class="ip-qa-ma-btn" id="ip-ma-btn-' + questionIdAttr + '" onclick="ipShowModelAnswer(\'' + questionIdJs + '\')">&#10022; ' + (q.modelAnswer ? '模範解答 表示/非表示' : '模範解答を見る') + '</button>' +
           '<button class="ip-qa-ready-btn' + (q.ready ? ' on' : '') + '" onclick="ipToggleReady(\'' + questionIdJs + '\')">' + (q.ready ? '\u2713 準備完了' : '準備完了にする') + '</button>' +
           '<button class="ip-qa-del-btn" onclick="ipDeleteQuestion(\'' + questionIdJs + '\')">&#10005;</button>' +
         '</div>' +
         '<div class="ip-qa-feedback' + (q.aiFeedback ? ' show' : '') + '" id="ip-fb-' + questionIdAttr + '">' + ipRenderMultilineHtml(q.aiFeedback || '') + '</div>' +
+        '<div class="ip-qa-modelanswer' + (q.modelAnswer ? ' show' : '') + '" id="ip-ma-' + questionIdAttr + '">' + (q.modelAnswer ? '<div class="ip-qa-modelanswer-label">AI模範解答</div>' + ipRenderMultilineHtml(q.modelAnswer) : '') + '</div>' +
       '</div>' +
+      (function() {
+        var children = ipGetChildren(questionId);
+        return children.length
+          ? '<div class="ip-qa-children"><div class="ip-qa-children-label">↳ さらに深掘り</div>' + children.map(function(c) { return ipRenderQaCard(c); }).join('') + '</div>'
+          : '';
+      })() +
     '</div>';
   }
 
@@ -1427,12 +1448,17 @@
   }
 
   function ipDeleteQuestion(id) {
-    if (!confirm('この質問を削除しますか？')) return;
+    if (!confirm('この質問を削除しますか？（子の深掘り質問もまとめて削除されます）')) return;
     var q = ipDb.questions.find(function(q) { return q.id === id; });
     var cid = q ? q.companyId : null;
-    ipDb.questions = ipDb.questions.filter(function(q) { return q.id !== id; });
+    var toDelete = { };
+    (function collect(qid) {
+      toDelete[qid] = true;
+      ipDb.questions.filter(function(c) { return c.parentId === qid; }).forEach(function(c) { collect(c.id); });
+    })(id);
+    ipDb.questions = ipDb.questions.filter(function(q) { return !toDelete[q.id]; });
     ipSaveDb();
-    if (cid) { var card = document.getElementById('ip-card-' + id); if (card) card.remove(); ipUpdateProgress(cid); }
+    if (cid) { ipSelectCompany(cid); }
     ipRenderChips();
   }
 
@@ -1537,9 +1563,15 @@
       if (m) raw = m[1];
       var questions;
       try { questions = JSON.parse(raw.trim()); } catch(e) { throw new Error('AIの返答を解析できませんでした。再試行してください。'); }
-      ipDb.questions = ipDb.questions.filter(function(q) { return !(q.companyId === cid && q.type === 'gakuchika'); });
+      var oldGakuchikaIds = {};
+      ipDb.questions.forEach(function(q) { if (q.companyId === cid && q.type === 'gakuchika' && !q.parentId) oldGakuchikaIds[q.id] = true; });
+      ipDb.questions = ipDb.questions.filter(function(q) {
+        if (q.companyId === cid && q.type === 'gakuchika' && !q.parentId) return false;
+        if (q.parentId && oldGakuchikaIds[q.parentId]) return false;
+        return true;
+      });
       questions.forEach(function(item) {
-        ipDb.questions.push({ id: ipGenId('q'), companyId: cid, type: 'gakuchika', category: item.category || 'ガクチカ深掘り', question: item.question || '', answer: '', aiFeedback: '', ready: false, createdAt: new Date().toISOString() });
+        ipDb.questions.push({ id: ipGenId('q'), companyId: cid, type: 'gakuchika', category: item.category || 'ガクチカ深掘り', question: item.question || '', answer: '', aiFeedback: '', modelAnswer: '', ready: false, createdAt: new Date().toISOString() });
       });
       ipSaveDb();
       ipSelectCompany(cid);
@@ -1547,6 +1579,73 @@
       document.getElementById('ip-gen-err-' + cid).textContent = '生成に失敗しました: ' + e.message;
     } finally {
       btn.disabled = false; btn.textContent = '\u2726 深掘り質問を生成する';
+    }
+  }
+
+  // ── AI: さらに深掘り (子質問生成) ──
+  async function ipFurtherDeepDive(id) {
+    if (!checkAiConsent()) return;
+    var q = ipDb.questions.find(function(q) { return q.id === id; });
+    if (!q) return;
+    var ansEl = document.getElementById('ip-ans-' + id);
+    var answer = ansEl ? ansEl.value.trim() : (q.answer || '').trim();
+    if (!answer) { alert('まず回答を入力してください。回答を踏まえてさらに深掘り質問を生成します。'); return; }
+    var c = ipDb.companies.find(function(cc) { return cc.id === q.companyId; });
+    var btn = document.getElementById('ip-dd-btn-' + id);
+    if (btn) { btn.disabled = true; btn.textContent = '深掘り生成中...'; }
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'interviewFurtherDeepDive',
+        input: { question: q.question, answer: answer, company: c ? c.name : '', industry: c ? c.industry : '', position: c ? c.position : '' }
+      });
+      var raw = data.result || '';
+      var m = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (m) raw = m[1];
+      var subQuestions;
+      try { subQuestions = JSON.parse(raw.trim()); } catch(e) { throw new Error('AIの返答を解析できませんでした。'); }
+      if (!Array.isArray(subQuestions)) throw new Error('AIの返答形式が不正です。');
+      q.answer = answer;
+      subQuestions.forEach(function(item) {
+        ipDb.questions.push({
+          id: ipGenId('q'), companyId: q.companyId, type: 'followup', parentId: id,
+          category: item.category || '再深掘り', question: item.question || '',
+          answer: '', aiFeedback: '', modelAnswer: '', ready: false, createdAt: new Date().toISOString()
+        });
+      });
+      ipSaveDb();
+      ipSelectCompany(q.companyId);
+    } catch(e) {
+      alert('再深掘りに失敗しました: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '✦ さらに深掘り'; }
+    }
+  }
+
+  // ── AI: 模範解答生成 ──
+  async function ipShowModelAnswer(id) {
+    if (!checkAiConsent()) return;
+    var q = ipDb.questions.find(function(q) { return q.id === id; });
+    if (!q) return;
+    var maEl = document.getElementById('ip-ma-' + id);
+    if (q.modelAnswer && maEl) {
+      maEl.classList.toggle('show');
+      return;
+    }
+    var c = ipDb.companies.find(function(cc) { return cc.id === q.companyId; });
+    var btn = document.getElementById('ip-ma-btn-' + id);
+    if (btn) { btn.disabled = true; btn.textContent = '生成中...'; }
+    try {
+      var data = await callAuthApi('callClaude', {
+        toolType: 'interviewModelAnswer',
+        input: { question: q.question, company: c ? c.name : '', industry: c ? c.industry : '', position: c ? c.position : '' }
+      });
+      q.modelAnswer = data.result || '';
+      ipSaveDb();
+      ipSelectCompany(q.companyId);
+    } catch(e) {
+      alert('模範解答の生成に失敗しました: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = q.modelAnswer ? '✦ 模範解答 表示/非表示' : '✦ 模範解答を見る'; }
     }
   }
 
