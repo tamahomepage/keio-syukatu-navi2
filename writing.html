@@ -388,6 +388,16 @@
   .es-view-failure-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .es-view-failure-rerun { margin-top: 0.6rem; font-size: 0.75rem; color: var(--text-muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0.2rem 0; }
   .es-view-failure-rerun:hover { color: #b03e4a; }
+  .es-bank-company-analysis { margin: 0.6rem 0.85rem 0.85rem; padding: 0.9rem 1rem; background: rgba(176,62,74,0.04); border-left: 3px solid #b03e4a; }
+  .es-bank-company-analysis-label { font-size: 0.75rem; color: #b03e4a; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+  .es-bank-company-analysis-text { white-space: pre-wrap; font-size: 0.84rem; line-height: 1.95; color: var(--text); display: none; padding: 0.5rem 0; }
+  .es-bank-company-analysis-text.show { display: block; }
+  .es-bank-company-analysis-btn { padding: 0.55rem 1rem; background: white; color: #b03e4a; border: 1px solid #b03e4a; cursor: pointer; font-family: 'Noto Sans JP',sans-serif; font-size: 0.82rem; font-weight: 600; transition: all 0.15s; }
+  .es-bank-company-analysis-btn:hover:not(:disabled) { background: #b03e4a; color: white; }
+  .es-bank-company-analysis-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .es-bank-company-analysis-rerun { margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0.2rem 0; }
+  .es-bank-company-analysis-rerun:hover { color: #b03e4a; }
+  .es-bank-company-analysis-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem; }
   .es-view-actions { display: flex; gap: 0.75rem; margin-top: 1.4rem; }
   .es-view-edit-btn { flex: 1; padding: 0.75rem; background: var(--navy); color: white; border: none; font-family: 'Noto Sans JP',sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
   .es-view-edit-btn:hover { background: var(--crimson); }
@@ -1819,6 +1829,7 @@
   var loadBankSelected = new Set();
 
   async function loadEsBank() {
+    await loadCompanyEsAnalyses();
     var el = document.getElementById('es-bank-list');
     try {
       var data = await callAuthApi('readMyES');
@@ -1844,10 +1855,27 @@
       var company = pair[0], entries = pair[1];
       var companyLabel = escHtml(company || '');
       var industryLabel = entries[0].industry ? ' \xb7 ' + escHtml(entries[0].industry) : '';
+      var failed = entries.filter(function(e) { return e.result === '不通過'; });
+      var companyJs = escJsString(company || '');
+      var safeKey = (company || '').replace(/[^\w-]/g, '_');
+      var existing = companyEsAnalyses[company];
+      var hasAnalysis = !!(existing && existing.analysis);
+      var failedSection = '';
+      if (failed.length >= 1) {
+        failedSection = '<div class="es-bank-company-analysis" id="es-ca-box-' + safeKey + '">'
+          + '<div class="es-bank-company-analysis-label">🔍 ES全体の敗因分析（' + failed.length + '設問対象）</div>'
+          + '<div class="es-bank-company-analysis-text' + (hasAnalysis ? ' show' : '') + '" id="es-ca-text-' + safeKey + '">' + (hasAnalysis ? renderMarkdownLite(existing.analysis) : '') + '</div>'
+          + (hasAnalysis
+              ? '<div class="es-bank-company-analysis-meta">最終分析: ' + escHtml((existing.updatedAt || '').slice(0,10)) + '</div>'
+                + '<button class="es-bank-company-analysis-rerun" onclick="runCompanyEsFailureAnalysis(\'' + companyJs + '\', true)">再分析する</button>'
+              : '<button class="es-bank-company-analysis-btn" onclick="runCompanyEsFailureAnalysis(\'' + companyJs + '\', false)">📋 全設問まとめて敗因分析</button>')
+          + '<div class="ai-error-msg" id="es-ca-err-' + safeKey + '"></div>'
+          + '</div>';
+      }
       return '<div class="es-bank-company">'
         + '<button class="es-bank-company-header" onclick="toggleEsCompany(this)">'
         + '<div><div class="es-bank-company-name">' + companyLabel + '</div>'
-        + '<div class="es-bank-company-meta">' + entries.length + '件の設問' + industryLabel + '</div></div>'
+        + '<div class="es-bank-company-meta">' + entries.length + '件の設問' + (failed.length ? ' / 不通過' + failed.length + '件' : '') + industryLabel + '</div></div>'
         + '<span class="es-bank-company-arrow">\u25bc</span></button>'
         + '<div class="es-bank-company-body">'
         + entries.map(function(e) {
@@ -1862,8 +1890,57 @@
             + '<button class="es-bank-btn" onclick="deleteEsBankEntry(\'' + entryIdJs + '\')">削除</button>'
             + '</div></div>';
         }).join('')
+        + failedSection
         + '</div></div>';
     }).join('');
+  }
+
+  function renderMarkdownLite(text) {
+    if (!text) return '';
+    var html = String(text);
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/^#### (.+)$/gm, '<h5 style="font-size:0.86rem;color:#b03e4a;margin:0.85rem 0 0.4rem;font-weight:700;">$1</h5>');
+    html = html.replace(/^### (.+)$/gm, '<h4 style="font-size:0.9rem;color:#b03e4a;margin:1rem 0 0.5rem;font-weight:700;">$1</h4>');
+    html = html.replace(/^## (.+)$/gm, '<h3 style="font-size:0.96rem;color:#b03e4a;margin:1.25rem 0 0.6rem;font-weight:700;border-bottom:1px solid rgba(176,62,74,0.25);padding-bottom:0.3rem;">$1</h3>');
+    html = html.replace(/^# (.+)$/gm, '<h2 style="font-size:1.02rem;color:#b03e4a;margin:1.35rem 0 0.7rem;font-weight:700;">$1</h2>');
+    html = html.replace(/^---+$/gm, '<hr style="border:none;border-top:1px dashed rgba(176,62,74,0.25);margin:0.85rem 0;">');
+    html = html.replace(/\n/g, '<br>');
+    html = html.replace(/<br>(<h[2-5]|<hr)/g, '$1');
+    html = html.replace(/(<\/h[2-5]>|<hr[^>]*>)<br>/g, '$1');
+    return html;
+  }
+
+  async function runCompanyEsFailureAnalysis(company, isRerun) {
+    if (typeof checkAiConsent === 'function' && !checkAiConsent()) return;
+    var failed = esBankEntries.filter(function(e) { return e.company === company && e.result === '不通過'; });
+    if (failed.length === 0) { alert('この企業の不通過ESがありません。選考結果を「不通過」に変更してください。'); return; }
+    var industry = (esBankEntries.find(function(e) { return e.company === company; }) || {}).industry || '';
+    var safeKey = (company || '').replace(/[^\w-]/g, '_');
+    var errEl = document.getElementById('es-ca-err-' + safeKey);
+    if (errEl) errEl.textContent = '';
+    var btn = document.querySelector('#es-ca-box-' + safeKey + ' .es-bank-company-analysis-btn');
+    var rerunBtn = document.querySelector('#es-ca-box-' + safeKey + ' .es-bank-company-analysis-rerun');
+    var activeBtn = isRerun ? rerunBtn : btn;
+    if (!activeBtn) return;
+    var origText = activeBtn.textContent;
+    activeBtn.disabled = true; activeBtn.textContent = 'AIが分析中...';
+    try {
+      var entriesPayload = failed.map(function(e) { return { question: e.question || '', esText: e.esText || '', memo: e.memo || '' }; });
+      var data = await callAuthApi('callClaude', {
+        toolType: 'esCompanyFailureAnalysis',
+        input: { company: company, industry: industry, entries: entriesPayload }
+      });
+      var analysis = (data.result || '').trim();
+      if (!analysis) throw new Error('分析結果が空でした。再試行してください。');
+      var esIds = failed.map(function(e) { return e.id; }).join(',');
+      await callAuthApi('writeCompanyEsAnalysis', { company: company, industry: industry, analysis: analysis, esIds: esIds });
+      companyEsAnalyses[company] = { company: company, industry: industry, analysis: analysis, esIds: esIds, updatedAt: new Date().toISOString() };
+      renderEsBank();
+    } catch(err) {
+      if (errEl) errEl.textContent = err.message;
+      activeBtn.disabled = false; activeBtn.textContent = origText;
+    }
   }
 
   function resultBadge(result) {
@@ -2016,7 +2093,7 @@
     if (e.result === '不通過') {
       faSection.style.display = '';
       if (e.failureAnalysis) {
-        faText.textContent = e.failureAnalysis;
+        faText.innerHTML = renderMarkdownLite(e.failureAnalysis);
         faText.classList.add('show');
         faBtn.style.display = 'none';
         faRerun.style.display = '';
@@ -2064,7 +2141,7 @@
       // ローカルキャッシュ更新
       e.failureAnalysis = analysis;
       // UI更新
-      faText.textContent = analysis;
+      faText.innerHTML = renderMarkdownLite(analysis);
       faText.classList.add('show');
       faBtn.style.display = 'none';
       faRerun.style.display = '';
