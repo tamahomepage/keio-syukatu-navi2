@@ -1,4 +1,4 @@
-const CACHE_NAME = 'keio-navi-static-v2';
+const CACHE_NAME = 'keio-navi-static-v3';
 const CACHEABLE_DESTINATIONS = new Set(['style', 'script', 'image', 'font']);
 
 function isKeioNaviCacheName(name) {
@@ -71,22 +71,37 @@ self.addEventListener('message', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Navigation (HTMLページ) requests: ネットワーク優先で常に最新を取得 (HTTPキャッシュをバイパス)
+  // 失敗時のみキャッシュフォールバック (オフライン耐性)
+  if (event.request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(event.request, { cache: 'no-store' });
+        return response;
+      } catch (error) {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        throw error;
+      }
+    })());
+    return;
+  }
+
   if (!isCacheableRequest(event.request)) return;
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
     const cached = await cache.match(event.request);
 
-    try {
-      const response = await fetch(event.request);
+    // Stale-while-revalidate: キャッシュ即返し、裏でネットワーク更新
+    const fetchPromise = fetch(event.request).then(response => {
       if (response && response.ok && response.type === 'basic') {
         cache.put(event.request, response.clone());
       }
       return response;
-    } catch (error) {
-      if (cached) return cached;
-      throw error;
-    }
+    }).catch(() => cached);
+
+    return cached || fetchPromise;
   })());
 });
 
